@@ -22,9 +22,9 @@ func GetFirstArgAsInt() int {
 	return StrToInt(os.Args[1])
 }
 
-func GetFileInputTxt() []string {
+func GetFileInputTxt(filename string) []string {
 	out := []string{}
-	file, err := os.Open("input.txt")
+	file, err := os.Open(filename)
 	if err != nil {
 		log.Println(err)
 		return out

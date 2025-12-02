@@ -1001,7 +1001,7 @@ func TestContainsSameItems(t *testing.T) {
 }
 
 func TestGetFileInputTxt(t *testing.T) {
-	lines := GetFileInputTxt()
+	lines := GetFileInputTxt("input.txt")
 	expect := []string{"this is a test", "this is the same test"}
 	CheckTest(t, "lib.GetFileInputTxt", TTest{Name: "GetFileInputTxt", Input: nil, Expect: expect}, lines)
 }
