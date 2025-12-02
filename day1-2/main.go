@@ -15,7 +15,7 @@ func (m *Day) GetProblemName() string {
 }
 
 func (m *Day) GetAnswer() string {
-	return "999"
+	return "6099"
 }
 
 func (m *Day) GenerateAnswer() string {
@@ -23,7 +23,7 @@ func (m *Day) GenerateAnswer() string {
 }
 
 func (m *Day) GetShortAnswer() string {
-	return "3"
+	return "6"
 }
 
 func (m *Day) GenerateShortAnswer() string {
@@ -41,7 +41,7 @@ func (m *Day) Solve(lines []string) int {
 			d.Right(numClicks)
 		}
 	}
-	return d.GetNumZeros()
+	return d.GetNumPassingZero()
 }
 
 func main() {
