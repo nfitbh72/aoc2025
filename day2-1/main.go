@@ -16,7 +16,7 @@ func (m *Day) GetProblemName() string {
 }
 
 func (m *Day) GetAnswer() string {
-	return ""
+	return "30323879646"
 }
 
 func (m *Day) GenerateAnswer() string {
@@ -24,11 +24,21 @@ func (m *Day) GenerateAnswer() string {
 }
 
 func (m *Day) GetShortAnswer() string {
-	return "6"
+	return "1227775554"
 }
 
 func (m *Day) GenerateShortAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input-test.txt")))
+}
+
+func (m *Day) IsRepeating(id int) bool {
+	s := eulerlib.IntToStr(id)
+	if !eulerlib.IsEven(len(s)) {
+		return false
+	}
+	firstHalf := s[:len(s)/2]
+	secondHalf := s[len(s)/2:]
+	return firstHalf == secondHalf
 }
 
 func (m *Day) Solve(lines []string) int {
@@ -36,13 +46,11 @@ func (m *Day) Solve(lines []string) int {
 	codes := strings.Split(lines[0], ",")
 	for _, code := range codes {
 		ids := strings.Split(code, "-")
-		for _, id := range ids {
-			if eulerlib.IsEven(len(id)) {
-				idFirstHalf := id[:len(id)/2]
-				idSecondHalf := id[len(id)/2:]
-				if idFirstHalf == idSecondHalf {
-					sum += eulerlib.StrToInt(id)
-				}
+		left := eulerlib.StrToInt(ids[0])
+		right := eulerlib.StrToInt(ids[1])
+		for check := left; check <= right; check++ {
+			if m.IsRepeating(check) {
+				sum += check
 			}
 		}
 	}
@@ -51,7 +59,6 @@ func (m *Day) Solve(lines []string) int {
 
 func main() {
 	d := Day{}
-	fmt.Println(d.Solve([]string{"38593859-123,11-22"}))
 	fmt.Println(d.GenerateAnswer())
 
 }
