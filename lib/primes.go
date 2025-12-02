@@ -1,7 +1,6 @@
 package eulerlib
 
 import (
-	"fmt"
 	"slices"
 )
 
@@ -93,7 +92,7 @@ func (m *CompatiblePrimes) Init(numPrimes, comboLength, maxCacheSize int) {
 
 func (m *CompatiblePrimes) IsPrimePairSet(ps []int) bool {
 	combos := m.perms.GetCombinations(ps, 2)
-	fmt.Println(combos)
+	//fmt.Println(combos)
 	//fmt.Println(combos)
 	for _, c := range combos {
 		if !m.primeCache.IsPrime(ConcatInts(c[0], c[1])) {

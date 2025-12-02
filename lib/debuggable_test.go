@@ -46,9 +46,6 @@ func TestSetGetDebugger(t *testing.T) {
 		t.Error("Expected debugger to be in debug mode")
 	}
 
-	debugger.Log("This is a debug message")
-	debugger.Logf("Formatted debug message: %d", 42)
-
 	debugger.SetDebug(false)
 	if debugger.IsDebug() {
 		t.Error("Expected debugger to not be in debug mode")

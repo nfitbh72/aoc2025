@@ -1,7 +1,6 @@
 package eulerlib
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -133,7 +132,7 @@ func TestCompatiblePrimesInit(t *testing.T) {
 func TestCompatiblePrimesIsPrimePairSet(t *testing.T) {
 	pc := PrimesCache{}
 	pc.Init(100)
-	fmt.Println(pc.GetPrimesList(1, 40))
+	//fmt.Println(pc.GetPrimesList(1, 40))
 	tests := []TTest{
 		{
 			Name:   "is prime pair set",

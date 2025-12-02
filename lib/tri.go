@@ -22,7 +22,7 @@ type Tri struct {
 //
 // [2]  [4]   [6]
 func (m *Tri) Init(a [][]int, i, j int) {
-	fmt.Print(".")
+	//fmt.Print(".")
 	m.Val = a[i][j]
 	if i == (len(a) - 1) {
 		return
