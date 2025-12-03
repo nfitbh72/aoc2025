@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"sort"
 
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
@@ -35,17 +34,23 @@ func (m *Day) GenerateShortAnswer() string {
 func (m *Day) Solve(lines []string) int {
 	sum := 0
 
+	//for each line
 	for _, line := range lines {
 		perms := []int{}
+		// create the perms for 2 digit numbers, always kept in the order they
+		// originally appeared in the string
 		for i := 0; i < len(line); i++ {
 			for j := i + 1; j < len(line); j++ {
 				perms = append(perms, eulerlib.StrToInt(string(line[i])+string(line[j])))
 			}
 		}
+		// sort perms
 		sort.Ints(perms)
-		slices.Reverse(perms)
-		fmt.Println(perms[0])
-		sum += perms[0]
+
+		// take the last one
+		val := perms[len(perms)-1]
+		eulerlib.GetDebugger().Log(val)
+		sum += val
 	}
 
 	return sum

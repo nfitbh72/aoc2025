@@ -20,7 +20,7 @@ func (m *Day) GetProblemName() string {
 }
 
 func (m *Day) GetAnswer() string {
-	return "17179"
+	return "170025781683941"
 }
 
 func (m *Day) GenerateAnswer() string {
@@ -107,7 +107,7 @@ func (m *Day) Solve(lines []string) int {
 	sum := 0
 	for _, line := range lines {
 		i := m.getHighestPossiblePerm(line, 12)
-		fmt.Println(i)
+		eulerlib.GetDebugger().Log(i)
 		sum += i
 	}
 	return sum
@@ -117,5 +117,5 @@ func main() {
 	d := Day{}
 	answer := d.GenerateAnswer()
 	fmt.Println(answer)
-	fmt.Println(d.GetAnswer() == answer)
+	fmt.Println("does it match?", d.GetAnswer() == answer)
 }

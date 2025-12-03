@@ -64,7 +64,7 @@ func (d *Debugger) Logf(format string, args ...any) {
 
 // initDebugger constructs a new Debugger with debug output disabled.
 func initDebugger() *Debugger {
-	return &Debugger{}
+	return &Debugger{debug: false}
 }
 
 // SetDebugger initialises (if necessary) and configures the global debugger
