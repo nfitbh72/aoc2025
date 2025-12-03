@@ -442,3 +442,317 @@ func TestSumDiagonals(t *testing.T) {
 		t.Errorf("Expect: %v, got: %v", expect, g.SumDiagonals())
 	}
 }
+
+func TestGetDiagonals(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseSpaceDTable([]string{"1 2 3", "4 5 6", "7 8 9"}, true)
+
+	diag1, diag2 := g.GetDiagonals()
+
+	tests := []TTest{
+		{
+			Name:   "3x3 grid diagonals",
+			Input:  nil,
+			Expect: [][]int{{1, 5, 9}, {3, 5, 7}},
+		},
+	}
+
+	for _, test := range tests {
+		CheckTest(t, "grid.GetDiagonals", test, [][]int{diag1, diag2})
+	}
+}
+
+func TestGetUniqueDiagonals(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseSpaceDTable([]string{"1 2 3", "4 5 6", "7 8 9"}, true)
+
+	unique := g.GetUniqueDiagonals()
+
+	tests := []TTest{
+		{
+			Name:   "3x3 grid unique diagonals",
+			Input:  nil,
+			Expect: []int{1, 9, 3, 5, 7},
+		},
+	}
+
+	for _, test := range tests {
+		CheckTest(t, "grid.GetUniqueDiagonals", test, unique)
+	}
+}
+
+func TestGetAllUniqueValues(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseSpaceDTable([]string{"1 2 1", "3 1 3"}, true)
+
+	values := g.GetAllUniqueValues()
+
+	if len(values) != 3 { // 1, 2, 3
+		t.Fatalf("expected 3 unique values, got %d", len(values))
+	}
+
+	// check value 1
+	v1, ok := values[1]
+	if !ok {
+		t.Fatalf("expected value 1 in map")
+	}
+	if v1.Count != 3 {
+		t.Errorf("expected count 3 for value 1, got %d", v1.Count)
+	}
+	// check a known location for 1
+	found := false
+	for _, loc := range v1.Locations {
+		if loc[0] == 0 && loc[1] == 0 { // (x=0,y=0)
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected location (0,0) for value 1, got %v", v1.Locations)
+	}
+
+	// check value 2
+	if v2, ok := values[2]; !ok || v2.Count != 1 {
+		t.Errorf("expected value 2 with count 1, got: %+v, ok=%v", v2, ok)
+	}
+
+	// check value 3
+	if v3, ok := values[3]; !ok || v3.Count != 2 {
+		t.Errorf("expected value 3 with count 2, got: %+v, ok=%v", v3, ok)
+	}
+}
+
+func TestWalkFromWithBlockerAndBounds(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseTable([]string{"ABC", "D#F"}, false)
+
+	// normal move (no blocker)
+	pos := &TGridPosition{X: 0, Y: 0, direction: RightDirection}
+	newPos, err := g.WalkFromWithBlocker(pos, '#')
+	if err != nil {
+		t.Fatalf("unexpected error on normal move: %v", err)
+	}
+	if newPos.X != 1 || newPos.Y != 0 {
+		t.Errorf("expected new position (1,0), got (%d,%d)", newPos.X, newPos.Y)
+	}
+
+	// move into blocker
+	pos = &TGridPosition{X: 0, Y: 1, direction: RightDirection}
+	newPos, err = g.WalkFromWithBlocker(pos, '#')
+	if err == nil {
+		t.Fatalf("expected error when moving into blocker, got nil")
+	}
+	if newPos.X != 0 || newPos.Y != 1 {
+		t.Errorf("expected to remain at (0,1) when blocked, got (%d,%d)", newPos.X, newPos.Y)
+	}
+
+	// move out of bounds
+	pos = &TGridPosition{X: 2, Y: 0, direction: RightDirection}
+	newPos, err = g.WalkFromWithBlocker(pos, '#')
+	if err == nil {
+		t.Fatalf("expected error when moving out of bounds, got nil")
+	}
+	if newPos.X != 2 || newPos.Y != 0 {
+		t.Errorf("expected to remain at (2,0) when out of bounds, got (%d,%d)", newPos.X, newPos.Y)
+	}
+}
+
+func TestGetValueSetValueCountValues(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseSpaceDTable([]string{"1 2", "3 4"}, true)
+
+	gp := &TGridPosition{X: 1, Y: 0, direction: RightDirection}
+	if g.GetValue(gp) != 2 {
+		t.Errorf("expected value 2 at (1,0), got %v", g.GetValue(gp))
+	}
+
+	g.SetValue(1, 0, 9)
+	if g.GetValue(gp) != 9 {
+		t.Errorf("expected value 9 at (1,0) after SetValue, got %v", g.GetValue(gp))
+	}
+
+	if g.CountValues(9) != 1 {
+		t.Errorf("expected CountValues(9) == 1, got %d", g.CountValues(9))
+	}
+}
+
+func TestSearchHorizontalVerticalDiagonal(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseTable([]string{"ABCD", "EFGH", "IJKL", "MNOP"}, false)
+
+	if g.SearchHorizantal("ABCD") != 1 {
+		t.Errorf("expected 1 horizontal match for 'ABCD'")
+	}
+	if g.SearchHorizantal("DCBA") != 1 {
+		t.Errorf("expected 1 horizontal match for 'DCBA' (reversed)")
+	}
+	if g.SearchVertical("AEIM") != 1 {
+		t.Errorf("expected 1 vertical match for 'AEIM'")
+	}
+	if g.SearchVertical("MIEA") != 1 {
+		t.Errorf("expected 1 vertical match for 'MIEA' (reversed)")
+	}
+
+	// diagonal down-right from (0,0): A, F, K, P
+	if g.SearchDiagonal("AFKP") != 1 {
+		t.Errorf("expected 1 diagonal match for 'AFKP'")
+	}
+	if g.SearchDiagonal("PKFA") != 1 {
+		t.Errorf("expected 1 diagonal match for 'PKFA' (reversed)")
+	}
+
+	// diagonal down-left from (3,0): D, G, J, M (covered by second loop)
+	if g.SearchDiagonal("DGJM") != 1 {
+		t.Errorf("expected 1 diagonal match for 'DGJM' (down-left)")
+	}
+}
+
+func wordsToStrings(words [][]any) []string {
+	res := make([]string, len(words))
+	for i, w := range words {
+		b := make([]rune, len(w))
+		for j, v := range w {
+			b[j] = v.(rune)
+		}
+		res[i] = string(b)
+	}
+	return res
+}
+
+func TestGetAllWordDirections(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseTable([]string{"ABC", "DEF", "GHI"}, false)
+
+	// Horizontal
+	h := wordsToStrings(g.GetAllHorizontal(3))
+	expectH := []string{"ABC", "CBA", "DEF", "FED", "GHI", "IHG"}
+	if fmt.Sprintf("%v", h) != fmt.Sprintf("%v", expectH) {
+		t.Errorf("GetAllHorizontal got %v, expect %v", h, expectH)
+	}
+
+	// Vertical
+	v := wordsToStrings(g.GetAllVertical(3))
+	expectV := []string{"ADG", "GDA", "BEH", "HEB", "CFI", "IFC"}
+	if fmt.Sprintf("%v", v) != fmt.Sprintf("%v", expectV) {
+		t.Errorf("GetAllVertical got %v, expect %v", v, expectV)
+	}
+
+	// Diagonal1 (top-left to bottom-right)
+	d1 := wordsToStrings(g.GetAllDiagonal1(3))
+	expectD1 := []string{"AEI", "IEA"}
+	if fmt.Sprintf("%v", d1) != fmt.Sprintf("%v", expectD1) {
+		t.Errorf("GetAllDiagonal1 got %v, expect %v", d1, expectD1)
+	}
+
+	// Diagonal2 (top-right to bottom-left)
+	d2 := wordsToStrings(g.GetAllDiagonal2(3))
+	expectD2 := []string{"CEG", "GEC"}
+	if fmt.Sprintf("%v", d2) != fmt.Sprintf("%v", expectD2) {
+		t.Errorf("GetAllDiagonal2 got %v, expect %v", d2, expectD2)
+	}
+
+	// All words combined
+	all := wordsToStrings(g.GetAllWords(3))
+	// just verify counts: 6 horiz + 6 vert + 2 diag1 + 2 diag2 = 16
+	if len(all) != 16 {
+		t.Errorf("expected 16 total words from GetAllWords, got %d", len(all))
+	}
+}
+
+func TestFindElementNotFound(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	g.ParseTable([]string{"12", "34"}, true)
+
+	x, y := g.FindElement(9)
+	if x != -1 || y != -1 {
+		t.Errorf("expected (-1,-1) for missing element, got (%d,%d)", x, y)
+	}
+}
+
+func TestGridPositionHelpers(t *testing.T) {
+	gp := &TGridPosition{X: 1, Y: 2, direction: RightDirection}
+
+	// NextPos should move one step in current direction
+	nx, ny := gp.NextPos()
+	if nx != 2 || ny != 2 {
+		t.Errorf("NextPos expected (2,2), got (%d,%d)", nx, ny)
+	}
+
+	// ChangeDirection and NextPos again
+	gp.ChangeDirection(DownDirection)
+	nx, ny = gp.NextPos()
+	if nx != 1 || ny != 3 {
+		t.Errorf("NextPos after ChangeDirection expected (1,3), got (%d,%d)", nx, ny)
+	}
+
+	// ToString should contain coordinates and direction string
+	s := gp.ToString()
+	if s == "" || s == "0, 0: " {
+		t.Errorf("unexpected ToString output: %q", s)
+	}
+}
+
+// Additional coverage for functions requested to reach 100%
+
+func TestRowGetMaxValueNilSlice(t *testing.T) {
+	r := &TRow{}
+	// r.Values is nil here
+	if got := r.GetMaxValue(); got != 0 {
+		t.Errorf("expected 0 for nil Values, got %d", got)
+	}
+}
+
+func TestGridCreateSpiralFromCenterEvenSizePanics(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("expected panic for even-sized spiral, got none")
+		}
+	}()
+
+	// both dimensions even should trigger the panic branch
+	g.CreateSpiralFromCenter(4, 4)
+}
+
+func TestSearchDiagonalNoMatchAdditionalPath(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// 4x4 grid of letters; use a pattern that does not exist to
+	// exercise search loops without hitting the equality branch
+	g.ParseTable([]string{"ABCD", "EFGH", "IJKL", "MNOP"}, false)
+
+	if got := g.SearchDiagonal("ZZZZ"); got != 0 {
+		t.Errorf("expected 0 diagonal matches for 'ZZZZ', got %d", got)
+	}
+}
+
+func TestGridToString(t *testing.T) {
+	// int grid
+	g := &TGrid{}
+	g.Init()
+	g.ParseSpaceDTable([]string{"1 2", "3 4"}, true)
+
+	expectInt := "1 2 \n3 4 \n"
+	if s := g.ToString(); s != expectInt {
+		t.Errorf("ToString int grid: expect %q, got %q", expectInt, s)
+	}
+
+	// rune grid
+	g = &TGrid{}
+	g.Init()
+	g.ParseTable([]string{"AB", "CD"}, false)
+
+	expectRune := "A B \nC D \n"
+	if s := g.ToString(); s != expectRune {
+		t.Errorf("ToString rune grid: expect %q, got %q", expectRune, s)
+	}
+}

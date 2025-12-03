@@ -7,7 +7,10 @@ import (
 	"strings"
 )
 
+// CardValue represents the rank of a playing card from Ace through King.
 type CardValue int
+
+// CardSuit represents the suit of a playing card (hearts, diamonds, clubs, spades).
 type CardSuit int
 
 const (
@@ -33,6 +36,7 @@ const (
 	SPADE
 )
 
+// Card models a single playing card with a suit and rank.
 type Card struct {
 	suit  CardSuit
 	value CardValue
@@ -58,6 +62,7 @@ func (m *Card) Compare(other Card) int {
 	}
 }
 
+// HandRank represents the strength of a five-card poker hand.
 type HandRank int
 
 const (
@@ -72,6 +77,7 @@ const (
 	StraightFlush
 )
 
+// Hand represents a five-card poker hand.
 type Hand struct {
 	cards []Card
 }
@@ -440,6 +446,8 @@ func (m *Hand) ToString() string {
 	return str
 }
 
+// HandFromString parses a space-separated string of card codes into a Hand.
+// Invalid card codes are skipped.
 func HandFromString(str string) *Hand {
 	hand := &Hand{}
 	strs := strings.Split(str, " ")
@@ -452,23 +460,28 @@ func HandFromString(str string) *Hand {
 	return hand
 }
 
+// Player represents a named player with an associated hand of cards.
 type Player struct {
 	name string
 	hand Hand
 }
 
+// SetHand assigns a new hand to the player.
 func (m *Player) SetHand(hand Hand) {
 	m.hand = hand
 }
 
+// SetName assigns a display name to the player.
 func (m *Player) SetName(name string) {
 	m.name = name
 }
 
+// Deck represents a standard deck of playing cards.
 type Deck struct {
 	cards []Card
 }
 
+// InitNoJokers initialises the deck with a standard 52-card set without jokers.
 func (m *Deck) InitNoJokers() {
 	// 52 cards, no jokers
 	for i := HEART; i <= SPADE; i++ {
@@ -478,6 +491,7 @@ func (m *Deck) InitNoJokers() {
 	}
 }
 
+// Deal removes numCards from the top of the deck and returns them as a Hand.
 func (m *Deck) Deal(numCards int) Hand {
 	hand := Hand{}
 	for i := 0; i < numCards; i++ {
@@ -487,6 +501,7 @@ func (m *Deck) Deal(numCards int) Hand {
 	return hand
 }
 
+// Shuffle randomises the order of the remaining cards in the deck.
 func (m *Deck) Shuffle() {
 	// Fisher-Yates shuffle
 	for i := len(m.cards) - 1; i > 0; i-- {
@@ -495,6 +510,8 @@ func (m *Deck) Shuffle() {
 	}
 }
 
+// GetCardFromString parses a two-character card code (e.g. "AH") into a Card.
+// It returns nil if the code is invalid.
 func GetCardFromString(str string) *Card {
 	if len(str) != 2 {
 		return nil

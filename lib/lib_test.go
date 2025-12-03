@@ -1006,6 +1006,13 @@ func TestGetFileInputTxt(t *testing.T) {
 	CheckTest(t, "lib.GetFileInputTxt", TTest{Name: "GetFileInputTxt", Input: nil, Expect: expect}, lines)
 }
 
+func TestGetFileInputTxtNonExistent(t *testing.T) {
+	// Call with a filename that should not exist and expect an empty slice.
+	lines := GetFileInputTxt("definitely-does-not-exist-123456.txt")
+	var expect []string = nil
+	CheckTest(t, "lib.GetFileInputTxt", TTest{Name: "GetFileInputTxtNonExistent", Input: nil, Expect: expect}, lines)
+}
+
 func TestGetSumAsciiValues(t *testing.T) {
 	tests := []TTest{
 		{
@@ -1133,5 +1140,54 @@ func TestGetMinSum(t *testing.T) {
 	}
 	for _, test := range tests {
 		CheckTest(t, "lib.GetMinSum", test, GetMinSum(test.Input.([][]int)))
+	}
+}
+
+func TestHasRepeatingPattern(t *testing.T) {
+	tests := []TTest{
+		{
+			Name:   "empty string has no repeating pattern",
+			Input:  "",
+			Expect: false,
+		},
+		{
+			Name:   "single character has no repeating pattern",
+			Input:  "a",
+			Expect: false,
+		},
+		{
+			Name:   "two identical characters repeat",
+			Input:  "aa",
+			Expect: true,
+		},
+		{
+			Name:   "simple repeating pattern abab",
+			Input:  "abab",
+			Expect: true,
+		},
+		{
+			Name:   "longer repeating pattern abcabcabc",
+			Input:  "abcabcabc",
+			Expect: true,
+		},
+		{
+			Name:   "all same characters aaaa",
+			Input:  "aaaa",
+			Expect: true,
+		},
+		{
+			Name:   "non-repeating string aba",
+			Input:  "aba",
+			Expect: false,
+		},
+		{
+			Name:   "non-repeating string abac",
+			Input:  "abac",
+			Expect: false,
+		},
+	}
+
+	for _, test := range tests {
+		CheckTest(t, "lib.HasRepeatingPattern", test, HasRepeatingPattern(test.Input.(string)))
 	}
 }

@@ -75,6 +75,45 @@ func TestIsPrime(t *testing.T) {
 	}
 }
 
+func TestIsSquare(t *testing.T) {
+	tests := []TTest{
+		{
+			Name:   "Negative number is not a square",
+			Input:  -1,
+			Expect: false,
+		},
+		{
+			Name:   "Zero is a perfect square",
+			Input:  0,
+			Expect: true,
+		},
+		{
+			Name:   "Positive perfect square 1",
+			Input:  1,
+			Expect: true,
+		},
+		{
+			Name:   "Positive perfect square 16",
+			Input:  16,
+			Expect: true,
+		},
+		{
+			Name:   "Non-square 2",
+			Input:  2,
+			Expect: false,
+		},
+		{
+			Name:   "Non-square 18",
+			Input:  18,
+			Expect: false,
+		},
+	}
+
+	for _, test := range tests {
+		CheckTest(t, "IsSquare", test, IsSquare(test.Input.(int)))
+	}
+}
+
 func TestCountPrimes(t *testing.T) {
 	tests := []TTest{
 		{

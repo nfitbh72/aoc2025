@@ -18,6 +18,29 @@ func TestDial(t *testing.T) {
 
 }
 
+func TestDialZeroArgument(t *testing.T) {
+	d := NewDial(100, 50)
+	d.Left(0)
+
+	CheckTest(t, "lib.Dial", TTest{
+		Name:   "Zero move, position unchanged",
+		Input:  "",
+		Expect: 50,
+	}, d.GetPos())
+
+	CheckTest(t, "lib.Dial", TTest{
+		Name:   "Zero move, num zeros unchanged",
+		Input:  "",
+		Expect: 0,
+	}, d.GetNumZeros())
+
+	CheckTest(t, "lib.Dial", TTest{
+		Name:   "Zero move, num passing zero unchanged",
+		Input:  "",
+		Expect: 0,
+	}, d.GetNumPassingZero())
+}
+
 func TestDialNumZeros(t *testing.T) {
 	d := NewDial(100, 50)
 	d.Left(68)

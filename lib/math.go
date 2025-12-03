@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+// GetNumMultiplesDivisibleBy returns the sum of all integers in [0, attempts)
+// that are divisible by any of the provided divisors.
 func GetNumMultiplesDivisibleBy(attempts int, divisors []int) int {
 	total := 0
 	for i := range attempts {
@@ -22,6 +24,8 @@ func GetNumMultiplesDivisibleBy(attempts int, divisors []int) int {
 	return total
 }
 
+// IsPrime reports whether v is a prime number using a simple trial division
+// algorithm.
 func IsPrime(v int) bool {
 	if v < 2 {
 		return false
@@ -37,6 +41,7 @@ func IsPrime(v int) bool {
 	return true
 }
 
+// CountPrimes counts how many integers in the slice are prime.
 func CountPrimes(a []int) int {
 	count := 0
 	for _, i := range a {
@@ -47,6 +52,8 @@ func CountPrimes(a []int) int {
 	return count
 }
 
+// IsPalindromeString reports whether the given string reads the same forwards
+// and backwards.
 func IsPalindromeString(v string) bool {
 	vSlice := strings.Split(v, "")
 	vRSlice := make([]string, len(vSlice))
@@ -55,21 +62,29 @@ func IsPalindromeString(v string) bool {
 	return reflect.DeepEqual(vSlice, vRSlice)
 }
 
+// IsPalindrome reports whether the base-10 representation of v is a
+// palindrome.
 func IsPalindrome(v int) bool {
 	vStr := fmt.Sprintf("%d", v)
 	return IsPalindromeString(vStr)
 }
 
+// IsPalindromeBinary reports whether the binary representation of v is a
+// palindrome.
 func IsPalindromeBinary(v int) bool {
 	vStr := fmt.Sprintf("%b", v)
 	return IsPalindromeString(vStr)
 }
 
+// IsPalindromeBig reports whether the base-10 representation of a big.Int is
+// a palindrome.
 func IsPalindromeBig(v *big.Int) bool {
 	vStr := BigIntToStr(v)
 	return IsPalindromeString(vStr)
 }
 
+// HighestPalindromeOfTwoFactors returns the largest palindromic product of two
+// integers less than maxI and maxJ respectively.
 func HighestPalindromeOfTwoFactors(maxI, maxJ int) int {
 	highestPalindrome := 0
 	for i := range maxI {
@@ -83,6 +98,8 @@ func HighestPalindromeOfTwoFactors(maxI, maxJ int) int {
 	return highestPalindrome
 }
 
+// GetSmallestEvenlyDivisibleNumber returns the smallest positive integer that
+// is evenly divisible by every integer in [1, maxJ).
 func GetSmallestEvenlyDivisibleNumber(maxJ int) int {
 	i := 1
 	for {
@@ -100,6 +117,8 @@ func GetSmallestEvenlyDivisibleNumber(maxJ int) int {
 	}
 }
 
+// SumOfSquares returns the sum of the squares of the integers in the range
+// [start, end].
 func SumOfSquares(start, end int) int {
 	total := 0
 	for i := start; i <= end; i++ {
@@ -108,6 +127,8 @@ func SumOfSquares(start, end int) int {
 	return total
 }
 
+// SquareOfSums returns the square of the sum of the integers in the range
+// [start, end].
 func SquareOfSums(start, end int) int {
 	sum := 0
 	for i := start; i <= end; i++ {
@@ -116,6 +137,7 @@ func SquareOfSums(start, end int) int {
 	return sum * sum
 }
 
+// Product returns the product of the integers in the slice.
 func Product(s []int) (total int) {
 	//total := 0
 	for _, v := range s {
@@ -130,6 +152,7 @@ func Product(s []int) (total int) {
 	return total
 }
 
+// Sum returns the sum of the integers in the slice.
 func Sum(a []int) (sum int) {
 	for _, v := range a {
 		sum += v
@@ -137,7 +160,8 @@ func Sum(a []int) (sum int) {
 	return sum
 }
 
-// big int or int as argument
+// SumOfDigits returns the sum of the decimal digits of its argument, which may
+// be an int or big.Int.
 func SumOfDigits(i any) int {
 	s := fmt.Sprintf("%d", i)
 	v := 0
@@ -147,6 +171,7 @@ func SumOfDigits(i any) int {
 	return v
 }
 
+// Factorial returns i! as a big.Int.
 func Factorial(i int) *big.Int {
 	val := big.NewInt(1)
 	for j := 2; j <= i; j++ {
@@ -155,6 +180,7 @@ func Factorial(i int) *big.Int {
 	return val
 }
 
+// GetUniqueDivisors returns the unique divisors of num.
 func GetUniqueDivisors(num int) []int {
 	a := make([]int, 0)
 	for i := 1; i < 1+num/2; i++ {
@@ -166,6 +192,7 @@ func GetUniqueDivisors(num int) []int {
 	return a
 }
 
+// IsAmicable reports whether a and b form an amicable pair.
 func IsAmicable(a, b int) bool {
 	if a == b {
 		return false
@@ -175,14 +202,17 @@ func IsAmicable(a, b int) bool {
 	return (aSumD == b && bSumD == a)
 }
 
+// IsPerfect reports whether a is a perfect number.
 func IsPerfect(a int) bool {
 	return (Sum(GetUniqueDivisors(a)) == a)
 }
 
+// IsAbundant reports whether a is an abundant number.
 func IsAbundant(a int) bool {
 	return (Sum(GetUniqueDivisors(a)) > a)
 }
 
+// GetAllAbundantNumbersUnder returns all abundant numbers less than v.
 func GetAllAbundantNumbersUnder(v int) (a []int) {
 	a = make([]int, 0)
 	for i := range v {
@@ -193,6 +223,7 @@ func GetAllAbundantNumbersUnder(v int) (a []int) {
 	return a
 }
 
+// EqualAnyTwoSum reports whether any pair of values in a sums to v.
 func EqualAnyTwoSum(v int, a []int) bool {
 	for _, i := range a {
 		for _, j := range a {
@@ -204,6 +235,8 @@ func EqualAnyTwoSum(v int, a []int) bool {
 	return false
 }
 
+// GetPrecision returns the bit precision required to represent a decimal
+// number with the given integer and fractional digit counts.
 func GetPrecision(intDigits, fractionDigits int) uint {
 	return uint(math.Ceil((float64(fractionDigits) + float64(intDigits)) * math.Log2(10.0)))
 }
@@ -264,6 +297,7 @@ func GetBigFloatFromStr(s string) *big.Float {
 	return bf
 }
 
+// GetStrFromBigFloat returns the string representation of a big.Float.
 func GetStrFromBigFloat(bf *big.Float) string {
 	if bf != nil {
 		return bf.Text('f', -1)
@@ -271,6 +305,8 @@ func GetStrFromBigFloat(bf *big.Float) string {
 	return "0"
 }
 
+// BigFloatDivideFloats divides two float64 values using big.Float arithmetic
+// at the specified precision.
 func BigFloatDivideFloats(f1, f2 float64, prec uint) *big.Float {
 	i, j := new(big.Float), new(big.Float)
 	i.SetPrec(prec)
@@ -280,16 +316,21 @@ func BigFloatDivideFloats(f1, f2 float64, prec uint) *big.Float {
 	return new(big.Float).Quo(i, j)
 }
 
+// BigFloatMultiply multiplies two float64 values using big.Float arithmetic.
 func BigFloatMultiply(f1, f2 float64) *big.Float {
 	i, j := big.NewFloat(f1), big.NewFloat(f2)
 	return new(big.Float).Mul(i, j)
 }
 
+// BigIntMultiply multiplies two int64 values using big.Int arithmetic.
 func BigIntMultiply(i1, i2 int64) *big.Int {
 	i, j := big.NewInt(i1), big.NewInt(i2)
 	return new(big.Int).Mul(i, j)
 }
 
+// GetNumSequentialPrimesForRemarkablePrimeQuadratic returns how many
+// consecutive values of n starting at 0 produce primes for the quadratic
+// n^2 + a*n + b.
 func GetNumSequentialPrimesForRemarkablePrimeQuadratic(a, b int) int {
 	n := 0
 	for {
@@ -303,10 +344,12 @@ func GetNumSequentialPrimesForRemarkablePrimeQuadratic(a, b int) int {
 	}
 }
 
+// BigPowInt returns a^b using big.Int arithmetic.
 func BigPowInt(a, b *big.Int) *big.Int {
 	return a.Exp(a, b, nil)
 }
 
+// SumList returns the sum of the integers in the slice.
 func SumList(a []int) int {
 	sum := 0
 	for _, v := range a {
@@ -315,6 +358,7 @@ func SumList(a []int) int {
 	return sum
 }
 
+// SumKeys returns the sum of the keys in the map.
 func SumKeys(ma map[int]bool) int {
 	total := 0
 	for k := range ma {
@@ -323,6 +367,8 @@ func SumKeys(ma map[int]bool) int {
 	return total
 }
 
+// IsSumPrimeAndTwiceSquare reports whether num can be expressed as the sum of
+// a prime and twice a square.
 func IsSumPrimeAndTwiceSquare(num int) bool {
 	for i := 1; i < num; i++ {
 		if IsPrime(i) {
@@ -338,6 +384,7 @@ func IsSumPrimeAndTwiceSquare(num int) bool {
 	return false
 }
 
+// GetUniquePrimeFactors returns the unique prime factors of in.
 func GetUniquePrimeFactors(in int) []int {
 	if in < 2 {
 		return []int{}
@@ -353,6 +400,7 @@ func GetUniquePrimeFactors(in int) []int {
 	return primeFactors
 }
 
+// GetPrimesOfList returns the prime numbers in the slice.
 func GetPrimesOfList(a []int) []int {
 	primes := []int{}
 	for _, v := range a {
@@ -363,16 +411,13 @@ func GetPrimesOfList(a []int) []int {
 	return primes
 }
 
-// finds sequences of three prime numbers that have interesting properties
-// finds groups of three prime numbers that:
-// - Are permutations of each other (contain the same digits in different orders)
-// - Have equal differences between them (like an arithmetic sequence)
-// - Fall within a given range (between 'start' and 'end')
+// PrimeSequence is a helper struct for finding sequences of prime numbers.
 type PrimeSequence struct {
 	currentNumber int
 	sequence      []int
 }
 
+// Next returns the next prime number in the sequence.
 func (m *PrimeSequence) Next() int {
 	if m.currentNumber == 0 {
 		m.currentNumber = 1
@@ -386,6 +431,8 @@ func (m *PrimeSequence) Next() int {
 	return m.currentNumber
 }
 
+// NextWithCondition returns the next prime number in the sequence that
+// satisfies the given condition.
 func (m *PrimeSequence) NextWithCondition(condition func(int) bool) int {
 	for {
 		j := m.Next()
@@ -395,10 +442,15 @@ func (m *PrimeSequence) NextWithCondition(condition func(int) bool) int {
 	}
 }
 
+// GetPrimePermutationsEqualInDifference returns all sequences of three prime
+// numbers that are permutations of each other and have equal differences
+// between them.
 func GetPrimePermutationsEqualInDifference(start, end int) [][]int {
 	return FindArithmeticPrimeSequences(start, end, 3)
 }
 
+// FindArithmeticPrimeSequences returns all sequences of prime numbers that are
+// permutations of each other and have equal differences between them.
 func FindArithmeticPrimeSequences(start, end, sequenceLength int) [][]int {
 	var sequences [][]int
 
@@ -419,6 +471,8 @@ func FindArithmeticPrimeSequences(start, end, sequenceLength int) [][]int {
 	return GetDistinct(sequences)
 }
 
+// FindPrimePermutations returns all prime numbers that are permutations of the
+// given number.
 func FindPrimePermutations(num, start, end int) []int {
 	perms := TPerms{}
 	perms.Init(GetDigitsOfInt(num))
@@ -435,6 +489,8 @@ func FindPrimePermutations(num, start, end int) []int {
 	return GetPrimesOfList(permInts)
 }
 
+// FindArithmeticSequences returns all sequences of numbers that have equal
+// differences between them.
 func FindArithmeticSequences(numbers []int, sequenceLength int) [][]int {
 	var sequences [][]int
 	perms := TPerms{}
@@ -452,6 +508,8 @@ func FindArithmeticSequences(numbers []int, sequenceLength int) [][]int {
 	return sequences
 }
 
+// IsArithmeticSequence reports whether the given sequence of numbers has equal
+// differences between them.
 func IsArithmeticSequence(numbers []int) bool {
 	if len(numbers) < 2 {
 		return true
@@ -475,6 +533,7 @@ func IsArithmeticSequence(numbers []int) bool {
 	return true
 }
 
+// GetPrimesList returns all prime numbers in the range [start, end].
 func GetPrimesList(start, end int) []int {
 	primes := []int{}
 	for i := start; i <= end; i++ {
@@ -485,6 +544,9 @@ func GetPrimesList(start, end int) []int {
 	return primes
 }
 
+// GetConsecutivePrimeNumbers finds sequences of consecutive primes within the
+// first numPrimes primes whose length is at least minNumConsecutive and whose
+// sum is also prime.
 func GetConsecutivePrimeNumbers(numPrimes, minNumConsecutive int) [][]int {
 	result := [][]int{}
 	//fmt.Printf("generating %d primes\n", numPrimes)
@@ -506,6 +568,8 @@ func GetConsecutivePrimeNumbers(numPrimes, minNumConsecutive int) [][]int {
 	return result
 }
 
+// GetConsecutiveNumbersWithHighestProduct returns the slice of adjacentNumbers
+// elements in a whose product is maximal.
 func GetConsecutiveNumbersWithHighestProduct(a []int, adjacentNumbers int) []int {
 	highestProduct := 0
 	highestProductNumbers := make([]int, adjacentNumbers)
@@ -525,6 +589,7 @@ func GetConsecutiveNumbersWithHighestProduct(a []int, adjacentNumbers int) []int
 	return highestProductNumbers
 }
 
+// GetNthPrimeNumber returns the nth prime (1-indexed).
 func GetNthPrimeNumber(n int) int {
 	prime := 0
 	primeCount := 0
@@ -542,6 +607,7 @@ func GetNthPrimeNumber(n int) int {
 	return prime
 }
 
+// GetSumOfPrimesBelow returns the sum of all primes less than maxPrime.
 func GetSumOfPrimesBelow(maxPrime int) int {
 	total := 0
 	for i := 2; i < maxPrime; i++ {
@@ -553,6 +619,8 @@ func GetSumOfPrimesBelow(maxPrime int) int {
 	return total
 }
 
+// GetSquareRootCovergents returns the numerator and denominator of the nth
+// convergent for the continued fraction expansion of sqrt(2).
 func GetSquareRootCovergents(iterations int) (*big.Int, *big.Int) {
 	if iterations == 1 {
 		return big.NewInt(int64(3)), big.NewInt(int64(2))

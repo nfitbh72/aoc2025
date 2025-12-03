@@ -4,7 +4,9 @@ import (
 	"strings"
 )
 
-// not actually needed for p51
+// GetAllInt expands a pattern by replacing each occurrence of replace with all
+// possible digits 0–9 (one position at a time) and returns all resulting
+// integer values.
 func GetAllInt(pattern string, replace string) []int {
 	p := pattern
 	if p == "" {
@@ -34,6 +36,9 @@ func GetAllInt(pattern string, replace string) []int {
 	return allInt
 }
 
+// GetReplaceSameDigit replaces all occurrences of replace in pattern with the
+// same digit 0–9 and returns all resulting integers, avoiding leading-zero
+// results except for single-digit numbers.
 func GetReplaceSameDigit(pattern string, replace string) []int {
 	if pattern == "" {
 		return []int{}
@@ -52,6 +57,9 @@ func GetReplaceSameDigit(pattern string, replace string) []int {
 	return GetStrArrAsIntArr(allStr)
 }
 
+// GetWildcardMatches generates all integer substitutions for pattern using
+// either GetReplaceSameDigit or GetAllInt, and returns those values that
+// satisfy the predicate f.
 func GetWildcardMatches(pattern string, replace string, sameDigit bool, f func(int) bool) []int {
 	m := []int{}
 	if sameDigit {
@@ -68,6 +76,10 @@ func GetWildcardMatches(pattern string, replace string, sameDigit bool, f func(i
 	return a
 }
 
+// GetWildcardPermsOfNumber returns all wildcard patterns derived from the
+// decimal digits of n by replacing subsets of positions with '*'. The flags
+// control whether the original number is included and whether the mask that
+// replaces all digits is allowed.
 func GetWildcardPermsOfNumber(n int, includeOriginal, includeAllReplacements bool) []string {
 	//input number as a string
 	s := IntToStr(n)

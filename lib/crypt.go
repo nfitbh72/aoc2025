@@ -4,6 +4,8 @@ import (
 	"strings"
 )
 
+// XORKey applies a repeating XOR key (encoded as lowercase letter offsets) to
+// the provided ASCII values and returns the decoded string.
 func XORKey(lettersAscii []int, keys []int) string {
 	out := ""
 	i := 0
@@ -17,6 +19,9 @@ func XORKey(lettersAscii []int, keys []int) string {
 	return out
 }
 
+// DecryptUsingThreeLowerCaseKey brute-forces all three-letter lowercase keys
+// against the given ASCII values and returns the first decoded string that
+// contains any of the supplied marker words.
 func DecryptUsingThreeLowerCaseKey(asciiValues []int, wordsToCheck []string) string {
 	for i := 0; i < 26; i++ {
 		for j := 0; j < 26; j++ {

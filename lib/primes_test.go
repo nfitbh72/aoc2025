@@ -144,6 +144,11 @@ func TestCompatiblePrimesIsPrimePairSet(t *testing.T) {
 			Input:  []int{3, 1, 3},
 			Expect: false,
 		},
+		{
+			Name:   "first concat prime, reverse not prime",
+			Input:  []int{2, 3},
+			Expect: false,
+		},
 	}
 	for _, test := range tests {
 		cp := CompatiblePrimes{}
@@ -165,5 +170,45 @@ func TestCompatiblePrimesGenerateCompatible(t *testing.T) {
 		cp.Init(test.Input.([]int)[0], test.Input.([]int)[1], test.Input.([]int)[2])
 		cp.GenerateCompatible()
 		CheckTest(t, "CompatiblePrimesGenerateCompatible", test, cp.compatibleArr)
+	}
+}
+
+// Additional tests to exercise remaining primes.go behaviour
+
+func TestPrimesCacheZeroSizeUsesCache(t *testing.T) {
+	pc := PrimesCache{}
+	pc.Init(0) // cacheSize=0 acts as "unbounded" cache in current implementation
+
+	// first call: miss, value cached
+	if !pc.IsPrime(2) {
+		t.Fatalf("expected 2 to be prime")
+	}
+	if pc.CacheHits != 0 || pc.CacheMisses != 1 {
+		t.Errorf("after first call: expected hits=0, misses=1, got hits=%d, misses=%d", pc.CacheHits, pc.CacheMisses)
+	}
+
+	// second call: should be a cache hit
+	if !pc.IsPrime(2) {
+		t.Fatalf("expected 2 to be prime on second call")
+	}
+	if pc.CacheHits != 1 {
+		t.Errorf("expected one cache hit after second call, got %d", pc.CacheHits)
+	}
+}
+
+func TestCompatiblePrimesSearch(t *testing.T) {
+	// Construct a small scenario to exercise the main logic and cache-hit branch
+	// inside Search without relying on specific GenerateCompatible output.
+	cp := CompatiblePrimes{}
+	cp.perms = &TPerms{}
+	cp.primeCache = &PrimesCache{}
+	cp.primeCache.Init(100)
+	cp.comboLength = 2
+	// Two value sets that both yield the same sorted combination [3,7]
+	cp.compatibleArr = [][]int{{3, 7}, {7, 3}}
+
+	results := cp.Search()
+	if len(results) == 0 {
+		t.Fatalf("CompatiblePrimes.Search returned no combinations, got %v", results)
 	}
 }

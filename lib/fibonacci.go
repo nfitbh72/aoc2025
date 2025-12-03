@@ -2,13 +2,13 @@ package eulerlib
 
 import "math/big"
 
-// FibonacciSequence represents a memory-efficient Fibonacci number generator
+// FibonacciSequence represents a memory-efficient Fibonacci number generator.
 type FibonacciSequence struct {
 	previous int // first number in the pair
 	current  int // second number in the pair
 }
 
-// Next returns the next number in the Fibonacci sequence
+// Next returns the next number in the Fibonacci sequence.
 func (f *FibonacciSequence) Next() int {
 	if f.current == 0 {
 		f.current = 1
@@ -25,18 +25,19 @@ func (f *FibonacciSequence) Next() int {
 	return next
 }
 
-// Current returns the last generated Fibonacci number
+// Current returns the last generated Fibonacci number.
 func (f *FibonacciSequence) Current() int {
 	return f.current
 }
 
-// Reset resets the sequence to its initial state
+// Reset resets the sequence to its initial state.
 func (f *FibonacciSequence) Reset() {
 	f.previous = 0
 	f.current = 0
 }
 
-// SumEvenFibonacciBelow returns the sum of conditional Fibonacci numbers below the given limit
+// SumConditionalFibonacciBelow returns the sum of Fibonacci numbers below limit
+// that satisfy the provided predicate.
 func SumConditionalFibonacciBelow(limit int, condition func(int) bool) int {
 	f := &FibonacciSequence{}
 	sum := 0
@@ -49,6 +50,8 @@ func SumConditionalFibonacciBelow(limit int, condition func(int) bool) int {
 	return sum
 }
 
+// GetFibonacci returns a slice of the first length Fibonacci numbers (1, 1,
+// 2, 3, ...). For negative length it returns an empty slice.
 func GetFibonacci(length int) []int {
 	if length < 0 {
 		return []int{}
@@ -64,6 +67,8 @@ func GetFibonacci(length int) []int {
 	return a
 }
 
+// GetBigFibonacci returns a slice of the first length Fibonacci numbers as
+// big.Int values. For non-positive length it returns an empty slice.
 func GetBigFibonacci(length int) []*big.Int {
 	if length <= 0 {
 		return []*big.Int{}

@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+// TTest describes a single table-driven test case used across helper
+// functions and problem tests in this package.
 type TTest struct {
 	Name      string
 	Input     any
@@ -15,14 +17,20 @@ type TTest struct {
 	KeyValues map[string]any
 }
 
+// ReportSuccess writes a concise success message for a completed test case.
 func ReportSuccess(context string, test TTest) {
 	fmt.Printf("ok: %s; %s\n", context, test.Name)
 }
 
+// ReportError records a detailed failure message on the provided testing.T,
+// including input, expected value and actual output.
 func ReportError(t *testing.T, context string, test TTest, output any) {
 	t.Errorf("Testing %s; %s, input is %v, expected was %v, output was %v", context, test.Name, test.Input, test.Expect, output)
 }
 
+// CheckTest compares a test case's expected value with the supplied output
+// using type-appropriate equality, reporting success or failure via
+// ReportSuccess and ReportError.
 func CheckTest(t *testing.T, context string, test TTest, output any) {
 	ok := false
 	outputKind := reflect.TypeOf(output).Kind()
@@ -56,9 +64,10 @@ func CheckTest(t *testing.T, context string, test TTest, output any) {
 	} else {
 		ReportSuccess(context, test)
 	}
-
 }
 
+// Problem defines the interface implemented by each Advent of Code day so
+// that common test helpers can verify both full and short solutions.
 type Problem interface {
 	GetProblemName() string
 	GetAnswer() string
@@ -71,6 +80,8 @@ type Problem interface {
 	GetShortAnswer() string
 }
 
+// testLongProblem runs the standard answer path for a Problem and verifies the
+// generated answer matches the known correct answer.
 func testLongProblem(problem Problem, t *testing.T) {
 	//log.Println("long answer")
 	test := TTest{Name: "Solution", Input: nil, Expect: problem.GetAnswer()}
@@ -82,6 +93,8 @@ func testLongProblem(problem Problem, t *testing.T) {
 	)
 }
 
+// testShortProblem runs the short answer path for a Problem and verifies the
+// generated short answer matches the expected sample answer.
 func testShortProblem(problem Problem, t *testing.T) {
 	//log.Println("short answer")
 	test := TTest{Name: "Solution", Input: nil, Expect: problem.GetShortAnswer()}
@@ -93,16 +106,24 @@ func testShortProblem(problem Problem, t *testing.T) {
 	)
 }
 
-func TestProblem(problem Problem, t *testing.T) {
+// hasShortAnswer reports whether a Problem implements a usable short answer,
+// safely handling any panics from GetShortAnswer.
+func hasShortAnswer(problem Problem) (has bool) {
 	defer func() {
 		if r := recover(); r != nil {
-			testLongProblem(problem, t)
+			has = false
 		}
 	}()
-	get := problem.GetShortAnswer()
-	if get == "" {
-		testLongProblem(problem, t)
-	} else {
+	return problem.GetShortAnswer() != ""
+}
+
+// TestProblem chooses between the short and full solution paths for a Problem,
+// preferring the short answer when available and falling back to the long
+// answer otherwise.
+func TestProblem(problem Problem, t *testing.T) {
+	if hasShortAnswer(problem) {
 		testShortProblem(problem, t)
+	} else {
+		testLongProblem(problem, t)
 	}
 }

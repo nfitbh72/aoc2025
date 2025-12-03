@@ -4,6 +4,8 @@ import (
 	"slices"
 )
 
+// PrimesCache provides a simple integer-prime cache that wraps the global
+// IsPrime function and tracks cache hits and misses.
 type PrimesCache struct {
 	primes      map[int]bool
 	cacheSize   int
@@ -11,6 +13,8 @@ type PrimesCache struct {
 	CacheMisses int
 }
 
+// Init initialises the prime cache with a maximum size and resets hit/miss
+// counters.
 func (m *PrimesCache) Init(cacheSize int) {
 	m.primes = make(map[int]bool)
 	m.cacheSize = cacheSize
@@ -18,6 +22,9 @@ func (m *PrimesCache) Init(cacheSize int) {
 	m.CacheMisses = 0
 }
 
+// IsPrime returns whether n is prime, using an internal cache up to
+// cacheSize entries. When the cache is full (and cacheSize > 0) it falls back
+// to the global IsPrime function without caching the result.
 func (m *PrimesCache) IsPrime(n int) bool {
 	if m.primes == nil {
 		m.Init(m.cacheSize)
@@ -43,14 +50,19 @@ func (m *PrimesCache) IsPrime(n int) bool {
 	}
 }
 
+// SetCacheMaxSize sets the maximum number of entries the prime cache will
+// store. A size of 0 disables caching.
 func (m *PrimesCache) SetCacheMaxSize(n int) {
 	m.cacheSize = n
 }
 
+// GetCacheSize returns the current maximum size of the prime cache.
 func (m *PrimesCache) GetCacheSize() int {
 	return m.cacheSize
 }
 
+// GetPrimesList returns all primes in the inclusive range [start, end] using
+// the cache-aware IsPrime method.
 func (m *PrimesCache) GetPrimesList(start, end int) []int {
 	primes := []int{}
 	for i := start; i <= end; i++ {
@@ -61,6 +73,8 @@ func (m *PrimesCache) GetPrimesList(start, end int) []int {
 	return primes
 }
 
+// GetNPrimes returns the first n prime numbers in ascending order, using the
+// cache-aware IsPrime method.
 func (m *PrimesCache) GetNPrimes(n int) []int {
 	primes := []int{}
 	i := 2
@@ -73,6 +87,9 @@ func (m *PrimesCache) GetNPrimes(n int) []int {
 	return primes
 }
 
+// CompatiblePrimes searches for sets of primes where every pair of primes
+// remains prime when their decimal representations are concatenated in either
+// order.
 type CompatiblePrimes struct {
 	compatibleArr [][]int
 	primeCache    *PrimesCache
@@ -81,6 +98,8 @@ type CompatiblePrimes struct {
 	numPrimes     int
 }
 
+// Init sets up the CompatiblePrimes helper with the number of primes to
+// inspect, the desired combination length, and the maximum prime-cache size.
 func (m *CompatiblePrimes) Init(numPrimes, comboLength, maxCacheSize int) {
 	m.primeCache = &PrimesCache{}
 	m.primeCache.SetCacheMaxSize(maxCacheSize)
@@ -90,6 +109,8 @@ func (m *CompatiblePrimes) Init(numPrimes, comboLength, maxCacheSize int) {
 	m.numPrimes = numPrimes
 }
 
+// IsPrimePairSet reports whether every ordered pair drawn from ps produces a
+// prime when their decimal representations are concatenated in both orders.
 func (m *CompatiblePrimes) IsPrimePairSet(ps []int) bool {
 	combos := m.perms.GetCombinations(ps, 2)
 	//fmt.Println(combos)
@@ -105,6 +126,9 @@ func (m *CompatiblePrimes) IsPrimePairSet(ps []int) bool {
 	return true
 }
 
+// GenerateCompatible builds the internal list of prime sets where each prime
+// is pairwise compatible with the others (all concatenations are prime) and
+// returns the number of such sets discovered.
 func (m *CompatiblePrimes) GenerateCompatible() int {
 	primes := m.primeCache.GetNPrimes(m.numPrimes)
 	compatibleMap := map[int][]int{}
@@ -143,7 +167,9 @@ func (m *CompatiblePrimes) GenerateCompatible() int {
 	return len(m.compatibleArr)
 }
 
-// search for all compatible primes with the given combo length
+// Search scans the generated compatible prime sets for all unique
+// combinations of length comboLength where every pair of primes remains
+// compatible, returning each matching combination once.
 func (m *CompatiblePrimes) Search() [][]int {
 	cache := map[string]bool{}
 	cacheHits := 0

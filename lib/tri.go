@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// Tri represents a node in a numeric triangle, with a value and optional
+// left and right child nodes.
 type Tri struct {
 	Val int
 	R   *Tri
@@ -34,21 +36,24 @@ func (m *Tri) Init(a [][]int, i, j int) {
 }
 
 // for debug purposes, display the triangle. not recommended for big triangles
-func (m *Tri) PrintString() {
-	fmt.Print(m.Val)
+func (m *Tri) ToString() string {
+	s := fmt.Sprint(m.Val)
 	if m.R != nil {
-		fmt.Print(" R - > [")
-		m.R.PrintString()
-		fmt.Print("] ")
+		s += " R - > ["
+		s += m.R.ToString()
+		s += "] "
 	}
 	if m.L != nil {
-		fmt.Print(" L -> [")
-		m.L.PrintString()
-		fmt.Print("] ")
+		s += " L -> ["
+		s += m.L.ToString()
+		s += "] "
 	}
-	fmt.Println()
+	s += "\n"
+	return s
 }
 
+// globCount tracks how many nodes have been visited while computing maximum
+// path sums; it is used only for debug logging.
 var globCount = 0
 
 // a maximum path sum algorithm for a binary triangle (tree) structure
@@ -70,7 +75,10 @@ func (m *Tri) GetTotalMaxPath() int {
 	return m.Val
 }
 
+// IsTriangleWord reports whether the given word has a letter-value sum that
+// appears in the provided set of triangle numbers.
 func IsTriangleWord(triangles map[int]bool, word string) bool {
+	// IsTriangleWord returns true if the word's letter-value sum is a triangle number.
 	total := 0
 	//fmt.Print(word, " ")
 	for _, s := range word {
@@ -82,6 +90,8 @@ func IsTriangleWord(triangles map[int]bool, word string) bool {
 	return ok
 }
 
+// CountTriangleWords returns the number of words whose letter-value sums are
+// triangle numbers.
 func CountTriangleWords(words []string) int {
 	triangles := make(map[int]bool)
 	for i := range 26 {

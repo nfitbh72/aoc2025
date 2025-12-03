@@ -1,6 +1,7 @@
 package eulerlib
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -28,6 +29,46 @@ func TestTriGetTotalMaxPath(t *testing.T) {
 	tri.Init([][]int{{1}, {2, 3}, {4, 5, 6}}, 0, 0)
 	if tri.GetTotalMaxPath() != 10 {
 		t.Errorf("max path should be %d, found %d", 16, tri.GetTotalMaxPath())
+	}
+}
+
+func TestTriGetTotalMaxPathRightGreater(t *testing.T) {
+	// Manually construct a small triangle where the right path sum is greater than the left.
+	//      [0]
+	//     /   \
+	//   [3]   [5]
+	tri := &Tri{
+		Val: 0,
+		R:   &Tri{Val: 5},
+		L:   &Tri{Val: 3},
+	}
+
+	if got := tri.GetTotalMaxPath(); got != 5 {
+		t.Errorf("max path should be %d, found %d", 5, got)
+	}
+}
+
+func TestTriToString(t *testing.T) {
+	tri := Tri{}
+	tri.Init([][]int{{1}, {2, 3}}, 0, 0)
+
+	result := tri.ToString()
+
+	// Basic structural checks: starts with root value and contains markers for R and L children
+	if len(result) == 0 {
+		t.Fatalf("ToString() returned empty string")
+	}
+	if result[0] != '1' {
+		t.Errorf("ToString() should start with root value 1, got %q", result[0])
+	}
+	if !strings.Contains(result, "R - > [") {
+		t.Errorf("ToString() should contain right child marker 'R - > ['; got %q", result)
+	}
+	if !strings.Contains(result, "L -> [") {
+		t.Errorf("ToString() should contain left child marker 'L -> ['; got %q", result)
+	}
+	if result[len(result)-1] != '\n' {
+		t.Errorf("ToString() should end with a newline; got %q", result)
 	}
 }
 

@@ -8,14 +8,15 @@ import (
 	"gonum.org/v1/gonum/stat/combin"
 )
 
-// given array Arr, somehow get all of the permutations of that array
-// dunno what i was thinking and exactly what is in the perms array
-// but it does appear to work :)
+// TPerms provides helpers for generating permutations and combinations of
+// integer slices as well as analysing recurring decimal expansions.
 type TPerms struct {
 	Arr   []int
 	perms []int
 }
 
+// nextPerm advances the internal permutation index slice p to the next
+// permutation state.
 func (m *TPerms) nextPerm(p []int) {
 	for i := len(p) - 1; i >= 0; i-- {
 		if i == 0 || p[i] < len(p)-i-1 {
@@ -26,6 +27,8 @@ func (m *TPerms) nextPerm(p []int) {
 	}
 }
 
+// getPerm applies the permutation encoded in p to orig and returns the
+// permuted slice.
 func (m *TPerms) getPerm(orig, p []int) []int {
 	//take a copy of orig
 	result := append([]int{}, orig...)
@@ -36,12 +39,13 @@ func (m *TPerms) getPerm(orig, p []int) []int {
 	return result
 }
 
+// Init initialises TPerms with a base array of digits to permute.
 func (m *TPerms) Init(arr []int) {
 	m.Arr = arr
 	m.perms = make([]int, len(m.Arr))
 }
 
-// gets all the permutations of the entire list in different orders
+// GetPerms returns all permutations of the base array in different orders.
 func (m *TPerms) GetPerms() [][]int {
 	allPerms := make([][]int, 0)
 	for p := make([]int, len(m.Arr)); p[0] < len(p); m.nextPerm(p) {
@@ -50,12 +54,16 @@ func (m *TPerms) GetPerms() [][]int {
 	return allPerms
 }
 
+// GetFingerprint returns a canonical sorted-string fingerprint for the input
+// string, useful for detecting anagrams.
 func (m *TPerms) GetFingerprint(i string) string {
 	a := GetStrAsArr(i)
 	slices.Sort(a)
 	return GetStrArrAsString(a)
 }
 
+// GetUniquePerms returns all unique integer permutations of the base array,
+// optionally including values with leading zeros when includeZeroPad is true.
 func (m *TPerms) GetUniquePerms(includeZeroPad bool) map[int]bool {
 	//get all the permutations of the entire list in different orders
 	allPerms := m.GetPerms()
@@ -70,6 +78,8 @@ func (m *TPerms) GetUniquePerms(includeZeroPad bool) map[int]bool {
 	return uniquePerms
 }
 
+// GetCombinations returns all combinations of the given slice a of the
+// specified size.
 func (m *TPerms) GetCombinations(a []int, size int) [][]int {
 	//fmt.Println("getting combo")
 	list := combin.Combinations(len(a), size)
@@ -84,7 +94,8 @@ func (m *TPerms) GetCombinations(a []int, size int) [][]int {
 	return list
 }
 
-// gets all the permutations of the list e.g. {1,2,3} would be {{1},{2},{3},{1,2},{1,3},{2,3},{1,2,3}}
+// GetUniqueCombinations returns all unique combinations of the slice a,
+// including all sizes from 1 up to len(a).
 func (m *TPerms) GetUniqueCombinations(a []int) (combinations [][]int) {
 	//get the unique combinations of a
 	//we need array of arrays where the inside array is of size 1, 2... len (m.Arr)
@@ -98,6 +109,8 @@ func (m *TPerms) GetUniqueCombinations(a []int) (combinations [][]int) {
 	return combinations
 }
 
+// GetMultipleCombinations returns combinations where the base array is
+// repeated maxOfEach times before combinations are generated.
 func (m *TPerms) GetMultipleCombinations(maxOfEach int) (combinations [][]int) {
 	a := make([]int, 0)
 	for range maxOfEach {
@@ -107,6 +120,8 @@ func (m *TPerms) GetMultipleCombinations(maxOfEach int) (combinations [][]int) {
 	return m.GetUniqueCombinations(a)
 }
 
+// NextPerm returns the next permutation of the base array, or an empty slice
+// when all permutations have been exhausted.
 func (m *TPerms) NextPerm() []int {
 	if len(m.perms) > 0 && m.perms[0] < len(m.perms) {
 		arr := m.getPerm(m.Arr, m.perms)
@@ -117,6 +132,8 @@ func (m *TPerms) NextPerm() []int {
 	return make([]int, 0)
 }
 
+// GetAllPermsAsStrings returns all permutations of the base array encoded as
+// strings.
 func (m *TPerms) GetAllPermsAsStrings() []string {
 	a := m.GetPerms()
 	s := make([]string, len(a))
@@ -126,6 +143,8 @@ func (m *TPerms) GetAllPermsAsStrings() []string {
 	return s
 }
 
+// GetAllPermsAsInts returns all permutations of the base array encoded as
+// integers.
 func (m *TPerms) GetAllPermsAsInts() []int {
 	a := m.GetPerms()
 	returnArr := make([]int, len(a))
@@ -135,6 +154,8 @@ func (m *TPerms) GetAllPermsAsInts() []int {
 	return returnArr
 }
 
+// GetCircularPerms returns all cyclic rotations of the decimal digits of i as
+// integers.
 func (m *TPerms) GetCircularPerms(i int) []int {
 	a := GetDigitsOfInt(i)
 	returnArr := make([]int, len(a))
@@ -148,6 +169,7 @@ func (m *TPerms) GetCircularPerms(i int) []int {
 	return returnArr
 }
 
+// GetCountCombinatorics returns the binomial coefficient C(n, r).
 func (m *TPerms) GetCountCombinatorics(n, r int) *big.Int {
 	nFact := Factorial(n)
 	rFact := Factorial(r)
@@ -158,6 +180,8 @@ func (m *TPerms) GetCountCombinatorics(n, r int) *big.Int {
 	return nFact.Div(nFact, rFact.Mul(rFact, nMinusRFact))
 }
 
+// getPotentialRecurringStrings returns candidate recurring substrings from the
+// fractional part of a decimal expansion.
 func (m *TPerms) getPotentialRecurringStrings(s string) []string {
 	if len(s) <= 1 {
 		return []string{}
@@ -184,6 +208,8 @@ func (m *TPerms) getPotentialRecurringStrings(s string) []string {
 	return sa
 }
 
+// isRecurringString reports whether test repeats contiguously at least twice
+// to form subject.
 func (m *TPerms) isRecurringString(subject, test string) bool {
 	if len(test) == 0 || len(subject) == 0 || len(test) > len(subject) {
 		return false
@@ -204,6 +230,8 @@ func (m *TPerms) isRecurringString(subject, test string) bool {
 	return count >= 2
 }
 
+// GetSmallestRecurringNumber extracts the shortest recurring cycle from the
+// fractional part of a big.Float decimal representation.
 func (m *TPerms) GetSmallestRecurringNumber(bf *big.Float) string {
 	if bf == nil {
 		return "0"

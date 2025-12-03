@@ -82,3 +82,33 @@ func TestDebuggerNoOutput(t *testing.T) {
 		t.Errorf("Expected no log output, got '%s'", bf.String())
 	}
 }
+
+func TestDebuggerLogfOutput(t *testing.T) {
+	var bf bytes.Buffer
+	log.SetOutput(&bf)
+	t.Cleanup(func() {
+		log.SetOutput(os.Stdout)
+	})
+
+	SetDebugger(true)
+	GetDebugger().Logf("formatted %s %d", "message", 42)
+
+	if !strings.Contains(bf.String(), "formatted message 42") {
+		t.Errorf("Expected formatted log output to contain 'formatted message 42', got '%s'", bf.String())
+	}
+}
+
+func TestDebuggerLogfNoOutput(t *testing.T) {
+	var bf bytes.Buffer
+	log.SetOutput(&bf)
+	t.Cleanup(func() {
+		log.SetOutput(os.Stdout)
+	})
+
+	debugger := SetDebugger(false)
+	debugger.Logf("formatted %s %d", "message", 42)
+
+	if bf.String() != "" {
+		t.Errorf("Expected no formatted log output, got '%s'", bf.String())
+	}
+}

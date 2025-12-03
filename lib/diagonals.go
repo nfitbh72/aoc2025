@@ -1,5 +1,7 @@
 package eulerlib
 
+// Diagonals tracks the values appearing on the four diagonals of a growing
+// number spiral, along with the current iteration.
 type Diagonals struct {
 	BottomRight []int
 	TopRight    []int
@@ -8,6 +10,7 @@ type Diagonals struct {
 	Iteration   int
 }
 
+// Init resets all diagonal slices and the iteration counter to zero.
 func (m *Diagonals) Init() {
 	m.BottomLeft = []int{}
 	m.BottomRight = []int{}
@@ -16,6 +19,8 @@ func (m *Diagonals) Init() {
 	m.Iteration = 0
 }
 
+// Next advances the spiral by one layer and appends the new corner values to
+// each diagonal slice.
 func (m *Diagonals) Next() {
 	m.Iteration++
 	// BottomRight
