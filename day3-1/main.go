@@ -7,31 +7,31 @@ import (
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
 
-type Day struct {
+type Problem struct {
 	eulerlib.Problem
 }
 
-func (m *Day) GetProblemName() string {
+func (m *Problem) GetProblemName() string {
 	return "Day 3, Part 1"
 }
 
-func (m *Day) GetAnswer() string {
+func (m *Problem) GetAnswer() string {
 	return "17179"
 }
 
-func (m *Day) GenerateAnswer() string {
+func (m *Problem) GenerateAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input.txt")))
 }
 
-func (m *Day) GetShortAnswer() string {
+func (m *Problem) GetShortAnswer() string {
 	return "357"
 }
 
-func (m *Day) GenerateShortAnswer() string {
+func (m *Problem) GenerateShortAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input-test.txt")))
 }
 
-func (m *Day) Solve(lines []string) int {
+func (m *Problem) Solve(lines []string) int {
 	sum := 0
 
 	//for each line
@@ -57,7 +57,7 @@ func (m *Day) Solve(lines []string) int {
 }
 
 func main() {
-	d := Day{}
+	d := Problem{}
 	answer := d.GenerateAnswer()
 	fmt.Println(answer)
 	fmt.Println(d.GetAnswer() == answer)

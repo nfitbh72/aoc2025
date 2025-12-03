@@ -7,6 +7,6 @@ import (
 )
 
 func TestProblem(t *testing.T) {
-	p := &Day{}
+	p := &Problem{}
 	eulerlib.TestProblem(p, t)
 }

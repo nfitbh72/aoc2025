@@ -6,7 +6,7 @@ import (
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
 
-type Day struct {
+type Problem struct {
 	eulerlib.Problem
 	current           []int
 	currentString     string
@@ -15,23 +15,23 @@ type Day struct {
 	highestFound      int
 }
 
-func (m *Day) GetProblemName() string {
+func (m *Problem) GetProblemName() string {
 	return "Day 3, Part 1"
 }
 
-func (m *Day) GetAnswer() string {
+func (m *Problem) GetAnswer() string {
 	return "170025781683941"
 }
 
-func (m *Day) GenerateAnswer() string {
+func (m *Problem) GenerateAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input.txt")))
 }
 
-func (m *Day) GetShortAnswer() string {
+func (m *Problem) GetShortAnswer() string {
 	return "3121910778619"
 }
 
-func (m *Day) GenerateShortAnswer() string {
+func (m *Problem) GenerateShortAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input-test.txt")))
 }
 
@@ -60,7 +60,7 @@ func (m *Day) depthFirstSearch(start, depth int) {
 }
 */
 
-func (m *Day) getHighestPossiblePerm(s string, resultDigitLength int) int {
+func (m *Problem) getHighestPossiblePerm(s string, resultDigitLength int) int {
 	if resultDigitLength <= 0 || resultDigitLength > len(s) {
 		return 0
 	}
@@ -103,7 +103,7 @@ func (m *Day) getHighestPossiblePerm(s string, resultDigitLength int) int {
 	return val
 }
 
-func (m *Day) Solve(lines []string) int {
+func (m *Problem) Solve(lines []string) int {
 	sum := 0
 	for _, line := range lines {
 		i := m.getHighestPossiblePerm(line, 12)
@@ -114,7 +114,7 @@ func (m *Day) Solve(lines []string) int {
 }
 
 func main() {
-	d := Day{}
+	d := Problem{}
 	answer := d.GenerateAnswer()
 	fmt.Println(answer)
 	fmt.Println("does it match?", d.GetAnswer() == answer)

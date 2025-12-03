@@ -7,31 +7,31 @@ import (
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
 
-type Day struct {
+type Problem struct {
 	eulerlib.Problem
 }
 
-func (m *Day) GetProblemName() string {
+func (m *Problem) GetProblemName() string {
 	return "Day 2, Part 1"
 }
 
-func (m *Day) GetAnswer() string {
+func (m *Problem) GetAnswer() string {
 	return "30323879646"
 }
 
-func (m *Day) GenerateAnswer() string {
+func (m *Problem) GenerateAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input.txt")))
 }
 
-func (m *Day) GetShortAnswer() string {
+func (m *Problem) GetShortAnswer() string {
 	return "1227775554"
 }
 
-func (m *Day) GenerateShortAnswer() string {
+func (m *Problem) GenerateShortAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input-test.txt")))
 }
 
-func (m *Day) IsRepeating(id int) bool {
+func (m *Problem) IsRepeating(id int) bool {
 	s := eulerlib.IntToStr(id)
 	if !eulerlib.IsEven(len(s)) {
 		return false
@@ -41,7 +41,7 @@ func (m *Day) IsRepeating(id int) bool {
 	return firstHalf == secondHalf
 }
 
-func (m *Day) Solve(lines []string) int {
+func (m *Problem) Solve(lines []string) int {
 	sum := 0
 	codes := strings.Split(lines[0], ",")
 	for _, code := range codes {
@@ -58,7 +58,7 @@ func (m *Day) Solve(lines []string) int {
 }
 
 func main() {
-	d := Day{}
+	d := Problem{}
 	fmt.Println(d.GenerateAnswer())
 
 }
