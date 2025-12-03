@@ -33,14 +33,16 @@ cd day1-2
 go run .
 ```
  
-Each program reads `input.txt` (or `input-test.txt` for the short answer) from the current directory and prints the computed answer.
+Each program can read `input.txt` (or `input-test.txt` for the short answer) from the current directory and all programs print the computed answer.
+
+`go test` will run the sample (where the output is known ahead of time) and `go run .` will run the main input provided to get the answer that needs to be submitted on https://adventofcode.com/
  
 ## Running tests
  
 Run tests for a single package, for example:
  
 ```bash
-go test ./lib/
+cd lib && go test
 go test ./day1-2/
 go test ./day2-1/
 go test ./day2-2/
@@ -76,24 +78,24 @@ import (
     eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
 
-type Day struct {
+type Problem struct {
     eulerlib.Problem
 }
 
-func (d *Day) GetProblemName() string      { return "Day X, Part Y" }
-func (d *Day) GetAnswer() string           { return "<known-correct-answer>" }
-func (d *Day) GetShortAnswer() string      { return "<known-correct-sample-answer>" } // optional
-func (d *Day) GenerateAnswer() string      { return eulerlib.IntToStr(d.Solve(eulerlib.GetFileInputTxt("input.txt"))) }
-func (d *Day) GenerateShortAnswer() string { return eulerlib.IntToStr(d.Solve(eulerlib.GetFileInputTxt("input-test.txt"))) }
+func (p *Problem) GetProblemName() string      { return "Day X, Part Y" }
+func (p *Problem) GetAnswer() string           { return "<known-correct-answer>" }
+func (p *Problem) GetShortAnswer() string      { return "<known-correct-sample-answer>" } // optional
+func (p *Problem) GenerateAnswer() string      { return eulerlib.IntToStr(p.Solve(eulerlib.GetFileInputTxt("input.txt"))) }
+func (p *Problem) GenerateShortAnswer() string { return eulerlib.IntToStr(p.Solve(eulerlib.GetFileInputTxt("input-test.txt"))) }
 
-func (d *Day) Solve(lines []string) int {
+func (p *Problem) Solve(lines []string) int {
     // TODO: implement solution logic
     return 0
 }
 
 func main() {
-    day := Day{}
-    fmt.Println(day.GenerateAnswer())
+    p := Problem{}
+    fmt.Println(p.GenerateAnswer())
 }
 ```
 
@@ -111,8 +113,8 @@ import (
 )
 
 func TestDay(t *testing.T) {
-    d := &Day{}
-    eulerlib.TestProblem(d, t)
+    p := &Problem{}
+    eulerlib.TestProblem(p, t)
 }
 ```
 
