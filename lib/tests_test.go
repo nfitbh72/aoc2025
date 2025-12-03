@@ -100,5 +100,11 @@ func TestCheckTestReportsErrorOnMismatch(t *testing.T) {
 		Input:  nil,
 		Expect: 1,
 	}
-	CheckTest(t, "tests.CheckTestReportsErrorOnMismatch", test, 2)
+	// Use a fake testing.T so we can assert that CheckTest reports an error
+	// without causing this test to fail directly.
+	var fake testing.T
+	CheckTest(&fake, "tests.CheckTestReportsErrorOnMismatch", test, 2)
+	if !fake.Failed() {
+		t.Errorf("expected CheckTest to report failure for mismatched ints")
+	}
 }
