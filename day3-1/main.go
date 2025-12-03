@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"slices"
+	"sort"
 
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
@@ -12,11 +13,11 @@ type Day struct {
 }
 
 func (m *Day) GetProblemName() string {
-	return "Day 2, Part 2"
+	return "Day 3, Part 1"
 }
 
 func (m *Day) GetAnswer() string {
-	return "43872163557"
+	return "17179"
 }
 
 func (m *Day) GenerateAnswer() string {
@@ -24,7 +25,7 @@ func (m *Day) GenerateAnswer() string {
 }
 
 func (m *Day) GetShortAnswer() string {
-	return "4174379265"
+	return "357"
 }
 
 func (m *Day) GenerateShortAnswer() string {
@@ -33,21 +34,20 @@ func (m *Day) GenerateShortAnswer() string {
 
 func (m *Day) Solve(lines []string) int {
 	sum := 0
-	//split by comma
-	codes := strings.Split(lines[0], ",")
-	for _, code := range codes {
-		//split left and right by hyphen
-		ids := strings.Split(code, "-")
-		left := eulerlib.StrToInt(ids[0])
-		right := eulerlib.StrToInt(ids[1])
-		//use left and right as the range of numbers to check
-		for check := left; check <= right; check++ {
-			//sum the matching numbers
-			if eulerlib.HasRepeatingPattern(eulerlib.IntToStr(check)) {
-				sum += check
+
+	for _, line := range lines {
+		perms := []int{}
+		for i := 0; i < len(line); i++ {
+			for j := i + 1; j < len(line); j++ {
+				perms = append(perms, eulerlib.StrToInt(string(line[i])+string(line[j])))
 			}
 		}
+		sort.Ints(perms)
+		slices.Reverse(perms)
+		fmt.Println(perms[0])
+		sum += perms[0]
 	}
+
 	return sum
 }
 
