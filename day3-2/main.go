@@ -65,13 +65,14 @@ func (m *Problem) getHighestPossiblePerm(s string, resultDigitLength int) int {
 		return 0
 	}
 
-	// we want the lexicographically largest subsequence of length resultDigitLength
-	// while preserving order. this can be done in O(n) using a greedy stack-based
-	// algorithm: we may drop at most len(s)-resultDigitLength digits.
-	drop := len(s) - resultDigitLength
+	// want the largest subsequence of length resultDigitLength
+	// while preserving order. this can be done using a stack algorithm.
 	stack := eulerlib.NewStack()
 
-	// at each step, if the current digit c is greater than the last digit in the
+	// can only drop at most len(s)-resultDigitLength digits.
+	drop := len(s) - resultDigitLength
+
+	// at each step, if the current digit c is greater than the previous digits in the
 	// string so far and we still have the option to drop digits (drop > 0), it’s
 	// always better to drop that smaller last digit in favor of c
 	// e.g. the number of digits in the string is 20, the number we want is 12,
@@ -81,7 +82,7 @@ func (m *Problem) getHighestPossiblePerm(s string, resultDigitLength int) int {
 	// * 4 > 3 and we have 6 drops left
 	// the maximum possible number is guaranteed to start with 94...
 	for i := 0; i < len(s); i++ {
-		c := s[i]
+		c := s[i] //c is a byte/rune
 		for drop > 0 && stack.GetSize() > 0 && stack.Peek().(byte) < c {
 			_ = stack.Pop()
 			drop--
@@ -90,7 +91,7 @@ func (m *Problem) getHighestPossiblePerm(s string, resultDigitLength int) int {
 	}
 
 	// keep only the first resultDigitLength digits in case we didn't drop all
-	// allowed digits and build the resulting integer
+	// allowed digits and build the resulting integer from the bytes
 	val := 0
 	factor := 1
 	for stack.GetSize() > 0 {
@@ -110,6 +111,7 @@ func (m *Problem) Solve(lines []string) int {
 		eulerlib.GetDebugger().Log(i)
 		sum += i
 	}
+	//day 3, part 2 answer is the sum of all highest-possible perms
 	return sum
 }
 

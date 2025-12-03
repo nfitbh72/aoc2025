@@ -31,16 +31,21 @@ func (m *Problem) GenerateShortAnswer() string {
 }
 
 func (m *Problem) Solve(lines []string) int {
+	//create a new dial with 100 positions and starting at position50
 	d := eulerlib.NewDial(100, 50)
 	for _, line := range lines {
+		//direction L or R
 		dir := line[:1]
+		//number of clicks to turn
 		numClicks := eulerlib.StrToInt(line[1:])
+
 		if dir == "L" {
 			d.Left(numClicks)
 		} else {
 			d.Right(numClicks)
 		}
 	}
+	//day 1, part 2 answer is the number of times the dial passed a zero
 	return d.GetNumPassingZero()
 }
 

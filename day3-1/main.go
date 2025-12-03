@@ -52,7 +52,7 @@ func (m *Problem) Solve(lines []string) int {
 		eulerlib.GetDebugger().Log(val)
 		sum += val
 	}
-
+	//day 3, part 1 answer is the sum of all perms
 	return sum
 }
 

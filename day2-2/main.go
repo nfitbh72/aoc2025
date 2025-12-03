@@ -48,6 +48,7 @@ func (m *Problem) Solve(lines []string) int {
 			}
 		}
 	}
+	//day 2, part 2 answer is the sum of all matching numbers
 	return sum
 }
 

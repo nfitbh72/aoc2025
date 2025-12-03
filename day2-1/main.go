@@ -43,17 +43,21 @@ func (m *Problem) IsRepeating(id int) bool {
 
 func (m *Problem) Solve(lines []string) int {
 	sum := 0
+	//codes are comma separated
 	codes := strings.Split(lines[0], ",")
 	for _, code := range codes {
+		//ids are hyphen separated
 		ids := strings.Split(code, "-")
 		left := eulerlib.StrToInt(ids[0])
 		right := eulerlib.StrToInt(ids[1])
+		//loop over the range to find repeating strings within the ids
 		for check := left; check <= right; check++ {
 			if m.IsRepeating(check) {
 				sum += check
 			}
 		}
 	}
+	//day 2, part 1 answer is the sum of all repeating strings within the ids
 	return sum
 }
 
