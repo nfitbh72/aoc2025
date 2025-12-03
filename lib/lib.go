@@ -503,3 +503,25 @@ func GetMinSum(a [][]int) int {
 	}
 	return minComboSum
 }
+
+func HasRepeatingPattern(s string) bool {
+	for subStrLen := 1; subStrLen <= len(s)/2; subStrLen++ {
+		numRepeats := len(s) / subStrLen
+		//if the id length can be fully repeating with this id
+		if subStrLen*numRepeats == len(s) {
+			p := s[:subStrLen]
+			allRepeatsFound := true
+			for j := 0; j < numRepeats; j++ {
+				compare := s[j*subStrLen : (j+1)*subStrLen]
+				if compare != p {
+					allRepeatsFound = false
+					break
+				}
+			}
+			if allRepeatsFound {
+				return true
+			}
+		}
+	}
+	return false
+}
