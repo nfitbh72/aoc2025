@@ -8,8 +8,6 @@ import { audioManager } from '../../../utils/audio.js';
  */
 export default function visualize(container, onComplete) {
   const instructionText = 'The password is the number of times that the dial passes through zero';
-  const safe = new Safe(container, instructionText);
-  let fireworks = null;
   
   // Test input directions (same as part 1)
   const directions = [
@@ -25,6 +23,9 @@ export default function visualize(container, onComplete) {
     'L82'
   ];
   
+  const safe = new Safe(container, instructionText, directions);
+  let fireworks = null;
+  
   // Parse and execute directions
   let delay = 500; // Initial delay
   const moveDuration = 800; // Duration for each move
@@ -36,6 +37,9 @@ export default function visualize(container, onComplete) {
     const clicks = parseInt(dir.slice(1));
     
     setTimeout(() => {
+      // Highlight current line in notepad
+      safe.highlightDirection(index);
+      
       safe.rotateBy(
         clicks,
         direction,

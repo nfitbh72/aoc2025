@@ -8,7 +8,7 @@ import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 
 export class Safe {
-  constructor(container, instructionText = '') {
+  constructor(container, instructionText = '', directions = []) {
     this.container = container;
     // Start at position 50 (bottom of dial = 6 o'clock = π radians)
     this.dialRotation = Math.PI;
@@ -18,6 +18,9 @@ export class Safe {
     this.zeroCounter = 0;
     this.counterBox = null;
     this.instructionPanel = null;
+    this.notepad = null;
+    this.directions = directions;
+    this.currentDirectionIndex = -1;
     this.soundsLoaded = false;
     this.isOpen = false;
     this.doorAngle = 0;
@@ -51,6 +54,11 @@ export class Safe {
       this.instructionPanel = new InstructionPanel(this.container, instructionText);
     }
     
+    // Create notepad if directions provided
+    if (this.directions.length > 0) {
+      this.createNotepad();
+    }
+    
     // Add CSS animation for pulse effect
     if (!document.getElementById('counter-animation')) {
       const style = document.createElement('style');
@@ -80,6 +88,74 @@ export class Safe {
     this.canvas.width = this.container.clientWidth;
     this.canvas.height = this.container.clientHeight;
     this.draw();
+  }
+  
+  createNotepad() {
+    this.notepad = document.createElement('div');
+    this.notepad.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: calc(50% - 50px);
+      transform: translate(-200%, -50%) rotate(-3deg);
+      width: 90px;
+      padding: 10px;
+      background: #fffef0;
+      border: 1px solid #d4c5a9;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      font-family: 'Comic Sans MS', 'Brush Script MT', cursive;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #2c3e50;
+      z-index: 150;
+      transform-origin: left center;
+      transition: transform 0.5s ease-out;
+    `;
+    
+    const noteTitle = document.createElement('div');
+    noteTitle.textContent = 'Combo:';
+    noteTitle.style.cssText = `
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-decoration: underline;
+      font-size: 10px;
+    `;
+    this.notepad.appendChild(noteTitle);
+    
+    this.directions.forEach((dir, index) => {
+      const line = document.createElement('div');
+      line.textContent = `${index + 1}. ${dir}`;
+      line.style.cssText = `
+        margin: 1px 0;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        font-size: 10px;
+      `;
+      line.dataset.index = index;
+      this.notepad.appendChild(line);
+    });
+    
+    this.container.appendChild(this.notepad);
+  }
+  
+  highlightDirection(index) {
+    if (!this.notepad) return;
+    
+    this.currentDirectionIndex = index;
+    
+    // Reset all lines
+    this.notepad.querySelectorAll('[data-index]').forEach(line => {
+      line.style.opacity = '0.7';
+      line.style.fontWeight = 'normal';
+      line.style.color = '#2c3e50';
+    });
+    
+    // Highlight current
+    const currentLine = this.notepad.querySelector(`[data-index="${index}"]`);
+    if (currentLine) {
+      currentLine.style.opacity = '1';
+      currentLine.style.fontWeight = 'bold';
+      currentLine.style.color = '#e74c3c';
+    }
   }
   
   draw() {
@@ -504,6 +580,12 @@ export class Safe {
       this.doorAngle = eased * Math.PI / 2;
       this.draw();
       
+      // Update notepad rotation to match door
+      if (this.notepad) {
+        const angleInDegrees = -(this.doorAngle * 180 / Math.PI);
+        this.notepad.style.transform = `translate(-200%, -50%) rotate(${angleInDegrees - 3}deg)`;
+      }
+      
       if (progress < 1) {
         requestAnimationFrame(animateDoor);
       }
@@ -633,6 +715,9 @@ export class Safe {
     }
     if (this.instructionPanel) {
       this.instructionPanel.cleanup();
+    }
+    if (this.notepad && this.notepad.parentNode) {
+      this.notepad.parentNode.removeChild(this.notepad);
     }
   }
 }
