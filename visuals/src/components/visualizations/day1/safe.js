@@ -21,6 +21,7 @@ export class Safe {
     this.soundsLoaded = false;
     this.isOpen = false;
     this.doorAngle = 0;
+    this.isCleanedUp = false; // Flag to stop all animations
     
     this.init(instructionText);
     this.loadSounds();
@@ -387,6 +388,11 @@ export class Safe {
     let hasLeftStartPosition = false; // Track if we've moved away from start
     
     const animate = () => {
+      // Stop animation if cleaned up
+      if (this.isCleanedUp) {
+        return;
+      }
+      
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       
@@ -612,6 +618,9 @@ export class Safe {
   }
   
   cleanup() {
+    // Set cleanup flag to stop all animations
+    this.isCleanedUp = true;
+    
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
     }
@@ -619,11 +628,11 @@ export class Safe {
     if (this.canvas && this.canvas.parentNode) {
       this.canvas.parentNode.removeChild(this.canvas);
     }
-    if (this.counterElement && this.counterElement.parentNode) {
-      this.counterElement.parentNode.removeChild(this.counterElement);
+    if (this.counterBox) {
+      this.counterBox.cleanup();
     }
-    if (this.instructionPanel && this.instructionPanel.parentNode) {
-      this.instructionPanel.parentNode.removeChild(this.instructionPanel);
+    if (this.instructionPanel) {
+      this.instructionPanel.cleanup();
     }
   }
 }

@@ -2,15 +2,23 @@ import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { 
+  createSanta, 
+  positionSanta, 
+  createParticles, 
+  createTreeGrid, 
+  getAdjacentCount,
+  loadDay4Audio 
+} from './shared.js';
 
 /**
  * Day 4 Part 2 visualization - Santa Collecting Trees in Rounds
  */
 export default function visualize(container, onComplete) {
-  audioManager.loadSound('collect', 'ding.mp3');
+  loadDay4Audio();
   
-  const instructionText = '🎅 Santa keeps collecting accessible trees until none remain!';
-  const counterLabel = 'Total Trees Collected';
+  const instructionText = '🎅 Santa collects accessible trees in rounds until none remain!';
+  const counterLabel = 'Trees Collected';
   
   const gridData = [
     '..@@.@@@@.',
@@ -43,97 +51,20 @@ export default function visualize(container, onComplete) {
     top: 120px;
     left: 50%;
     transform: translateX(-50%);
+    color: #ffd700;
     font-size: 24px;
     font-weight: bold;
-    color: #ffd700;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   `;
+  roundLabel.textContent = 'Round 0';
   container.appendChild(roundLabel);
   
-  // Create grid container
-  gridContainer = document.createElement('div');
-  gridContainer.style.cssText = `
-    display: grid;
-    grid-template-columns: repeat(10, 40px);
-    gap: 4px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 10px;
-  `;
-  container.appendChild(gridContainer);
+  // Create grid and Santa
+  const { gridContainer: gc, grid, cellElements } = createTreeGrid(container, gridData);
+  gridContainer = gc;
+  santaElement = createSanta(container);
   
-  // Create Santa element
-  santaElement = document.createElement('div');
-  santaElement.textContent = '🎅';
-  santaElement.style.cssText = `
-    position: absolute;
-    font-size: 30px;
-    transition: all 0.3s ease;
-    z-index: 100;
-    pointer-events: none;
-  `;
-  container.appendChild(santaElement);
-  
-  // Parse grid
-  const grid = gridData.map(row => row.split(''));
-  const cellElements = [];
-  
-  // Create grid cells
-  grid.forEach((row, y) => {
-    const rowElements = [];
-    row.forEach((cell, x) => {
-      const cellElement = document.createElement('div');
-      cellElement.style.cssText = `
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 5px;
-        transition: all 0.3s ease;
-      `;
-      
-      if (cell === '@') {
-        cellElement.textContent = '🎄';
-      } else {
-        cellElement.textContent = '·';
-        cellElement.style.opacity = '0.3';
-      }
-      
-      gridContainer.appendChild(cellElement);
-      rowElements.push(cellElement);
-    });
-    cellElements.push(rowElements);
-  });
-  
-  // Helper function to count adjacent trees
-  function getAdjacentCount(grid, x, y, char) {
-    let count = 0;
-    const directions = [
-      [-1, -1], [0, -1], [1, -1],
-      [-1, 0], [1, 0],
-      [-1, 1], [0, 1], [1, 1]
-    ];
-    
-    for (const [dx, dy] of directions) {
-      const newX = x + dx;
-      const newY = y + dy;
-      if (newY >= 0 && newY < grid.length && newX >= 0 && newX < grid[0].length) {
-        if (grid[newY][newX] === char) {
-          count++;
-        }
-      }
-    }
-    return count;
-  }
-  
-  // Find accessible trees
+  // Find accessible trees in current grid state
   function findAccessibleTrees(grid) {
     const accessible = [];
     grid.forEach((row, y) => {
@@ -146,16 +77,8 @@ export default function visualize(container, onComplete) {
     return accessible;
   }
   
-  // Position Santa
-  function positionSanta(x, y) {
-    const cellRect = gridContainer.getBoundingClientRect();
-    const cellSize = 44; // 40px + 4px gap
-    santaElement.style.left = `${cellRect.left + x * cellSize + 5}px`;
-    santaElement.style.top = `${cellRect.top + y * cellSize + 5}px`;
-  }
-  
   // Start at top-left
-  positionSanta(-1, 0);
+  positionSanta(santaElement, -1, 0, container.clientWidth);
   counterBox.setValue(0);
   
   let totalCollected = 0;
@@ -199,9 +122,12 @@ export default function visualize(container, onComplete) {
       const { x, y } = accessibleTrees[treeIndex];
       
       // Move Santa to tree
-      positionSanta(x, y);
+      positionSanta(santaElement, x, y, container.clientWidth);
       
       setTimeout(() => {
+        // Create particle effect
+        createParticles(container, x, y, container.clientWidth);
+        
         // Collect the tree
         cellElements[y][x].style.transform = 'scale(0)';
         cellElements[y][x].style.opacity = '0';
@@ -227,6 +153,8 @@ export default function visualize(container, onComplete) {
     cleanup: () => {
       if (counterBox) counterBox.cleanup();
       if (instructionPanel) instructionPanel.cleanup();
+      if (fireworks) fireworks.cleanup();
+      
       if (roundLabel && roundLabel.parentNode) {
         roundLabel.parentNode.removeChild(roundLabel);
       }
@@ -236,7 +164,6 @@ export default function visualize(container, onComplete) {
       if (santaElement && santaElement.parentNode) {
         santaElement.parentNode.removeChild(santaElement);
       }
-      if (fireworks) fireworks.cleanup();
     }
   };
 }

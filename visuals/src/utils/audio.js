@@ -7,6 +7,7 @@ class AudioManager {
     this.sounds = new Map();
     this.enabled = true;
     this.effectsVolume = 1.0;
+    this.activeSounds = []; // Track all playing sound clones
   }
   
   /**
@@ -49,6 +50,18 @@ class AudioManager {
       
       // Apply effects volume multiplier
       clone.volume = Math.max(0, Math.min(1, volume * this.effectsVolume));
+      
+      // Track this sound
+      this.activeSounds.push(clone);
+      
+      // Remove from active list when it ends
+      clone.addEventListener('ended', () => {
+        const index = this.activeSounds.indexOf(clone);
+        if (index > -1) {
+          this.activeSounds.splice(index, 1);
+        }
+      });
+      
       clone.play().catch(err => console.warn(`Failed to play sound: ${name}`, err));
     } else {
       console.warn(`Sound not found: ${name}`);
@@ -65,6 +78,24 @@ class AudioManager {
       sound.pause();
       sound.currentTime = 0;
     }
+  }
+
+  /**
+   * Stop all currently playing sounds
+   */
+  stopAll() {
+    // Stop all active sound clones
+    this.activeSounds.forEach(sound => {
+      sound.pause();
+      sound.currentTime = 0;
+    });
+    this.activeSounds = [];
+    
+    // Also stop all base sounds
+    this.sounds.forEach(sound => {
+      sound.pause();
+      sound.currentTime = 0;
+    });
   }
 
   /**

@@ -2,6 +2,9 @@ import '../styles/gift-buttons.css';
 import { boxColors, getRandomColor, getContrastingRibbon } from '../utils/colors.js';
 import { loadVisualization } from './visualization.js';
 
+// Track all box lids to close them when a new one is clicked
+const allBoxLids = [];
+
 function createGiftButton(day, part) {
   const container = document.createElement('div');
   container.className = 'gift-box-container';
@@ -64,15 +67,24 @@ function createGiftButton(day, part) {
   box.appendChild(lid);
   container.appendChild(box);
   
+  // Track this lid
+  allBoxLids.push(lid);
+  
   // Click handler with animation
-  container.addEventListener('click', () => {
-    // Add opening animation
-    lid.classList.add('opening');
+  container.addEventListener('click', async () => {
+    // Close all other box lids first
+    allBoxLids.forEach(otherLid => {
+      if (otherLid !== lid) {
+        otherLid.classList.remove('opening');
+      }
+    });
     
-    // Load visualization after animation starts, passing lid reference
-    setTimeout(() => {
-      loadVisualization(day, part, lid);
-    }, 300);
+    // IMMEDIATELY load visualization (which will cleanup the old one)
+    // This must happen BEFORE the animation delay
+    await loadVisualization(day, part, lid);
+    
+    // Then add opening animation to this lid
+    lid.classList.add('opening');
   });
   
   return container;
