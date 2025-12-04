@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
 
@@ -45,12 +43,14 @@ func (m *Problem) Solve(lines []string) int {
 			d.Right(numClicks)
 		}
 	}
+	val := d.GetNumZeros()
+	eulerlib.GetDebugger().Log(val)
 	//day 1, part 1 answer is the number of zeros that the dial ended up on at the end
 	//of each turn
-	return d.GetNumZeros()
+	return val
 }
 
 func main() {
 	d := Problem{}
-	fmt.Println(d.GenerateAnswer())
+	d.GenerateAnswer()
 }

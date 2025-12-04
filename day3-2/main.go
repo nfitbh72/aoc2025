@@ -8,11 +8,6 @@ import (
 
 type Problem struct {
 	eulerlib.Problem
-	current           []int
-	currentString     string
-	strLen            int
-	resultDigitLength int
-	highestFound      int
 }
 
 func (m *Problem) GetProblemName() string {
@@ -81,6 +76,7 @@ func (m *Problem) getHighestPossiblePerm(s string, resultDigitLength int) int {
 	// * 4 > 2 and we have 7 drops left
 	// * 4 > 3 and we have 6 drops left
 	// the maximum possible number is guaranteed to start with 94...
+	// 94... is always going to be larger than 93..., etc with the fixed number of digits
 	for i := 0; i < len(s); i++ {
 		c := s[i] //c is a byte/rune
 		for drop > 0 && stack.GetSize() > 0 && stack.Peek().(byte) < c {

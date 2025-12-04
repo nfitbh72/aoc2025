@@ -7,6 +7,7 @@ import (
 )
 
 func TestProblem(t *testing.T) {
+	eulerlib.SetDebugger(true)
 	p := &Problem{}
 	eulerlib.TestProblem(p, t)
 }
