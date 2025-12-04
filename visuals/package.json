@@ -1,0 +1,19 @@
+{
+  "name": "aoc-visuals",
+  "version": "1.0.0",
+  "description": "Advent of Code visualisations",
+  "main": "main.js",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "electron": "^32.1.2",
+    "vite": "^6.0.1",
+    "wait-on": "^8.0.1"
+  }
+}
