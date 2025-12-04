@@ -46,7 +46,7 @@ export default function visualize(container, onComplete) {
     margin: 0 auto;
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 40%;
     transform: translate(-50%, -50%);
   `;
   container.appendChild(batteryContainer);
@@ -127,6 +127,37 @@ function createAnimatedBattery(container, numberString, color) {
     gap: 20px;
     flex: 1;
   `;
+  
+  // Drop counter
+  const dropCounter = document.createElement('div');
+  dropCounter.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    min-width: 60px;
+  `;
+  
+  const dropLabel = document.createElement('div');
+  dropLabel.textContent = 'Drops';
+  dropLabel.style.cssText = `
+    font-size: 12px;
+    color: #888;
+    font-weight: bold;
+  `;
+  
+  const dropValue = document.createElement('div');
+  dropValue.textContent = maxDrops;
+  dropValue.style.cssText = `
+    font-size: 24px;
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  `;
+  
+  dropCounter.appendChild(dropLabel);
+  dropCounter.appendChild(dropValue);
+  wrapper.appendChild(dropCounter);
   
   // Battery body
   const body = document.createElement('div');
@@ -232,6 +263,7 @@ function createAnimatedBattery(container, numberString, color) {
     digitContainer,
     digits,
     maxValueDisplay,
+    dropValue,
     numberString,
     resultDigitLength,
     maxDrops,
@@ -245,7 +277,7 @@ function createAnimatedBattery(container, numberString, color) {
 }
 
 function animateStackAlgorithm(battery, delay, onComplete) {
-  const { digits, numberString, resultDigitLength, maxDrops, maxValueDisplay } = battery;
+  const { digits, numberString, resultDigitLength, maxDrops, maxValueDisplay, dropValue } = battery;
   const stack = [];
   let drop = maxDrops;
   let currentIndex = 0;
@@ -256,6 +288,13 @@ function animateStackAlgorithm(battery, delay, onComplete) {
       function trimStack() {
         if (stack.length > resultDigitLength) {
           const popped = stack.pop();
+          drop--;
+          
+          // Update drop counter
+          dropValue.textContent = drop;
+          dropValue.style.animation = 'counterPop 0.3s ease-out';
+          setTimeout(() => { dropValue.style.animation = ''; }, 300);
+          
           explodeDigit(popped.element);
           
           setTimeout(() => {
@@ -309,6 +348,11 @@ function animateStackAlgorithm(battery, delay, onComplete) {
             // Remove the second-to-last element (the one before current)
             const popped = stack.splice(stack.length - 2, 1)[0];
             drop--;
+            
+            // Update drop counter
+            dropValue.textContent = drop;
+            dropValue.style.animation = 'counterPop 0.3s ease-out';
+            setTimeout(() => { dropValue.style.animation = ''; }, 300);
             
             // Explode the popped digit
             explodeDigit(popped.element);

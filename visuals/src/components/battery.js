@@ -132,9 +132,9 @@ export class Battery {
       style.id = 'battery-wobble-animation';
       style.textContent = `
         @keyframes wobble {
-          0%, 100% { transform: rotate(0deg) scale(1); }
-          25% { transform: rotate(-5deg) scale(1.1); }
-          75% { transform: rotate(5deg) scale(1.1); }
+          0%, 100% { transform: translateY(-20px) rotate(0deg) scale(1); }
+          25% { transform: translateY(-20px) rotate(-5deg) scale(1.1); }
+          75% { transform: translateY(-20px) rotate(5deg) scale(1.1); }
         }
       `;
       document.head.appendChild(style);
@@ -231,10 +231,12 @@ export class Battery {
       if (positions.includes(i)) {
         span.style.color = '#ffd700';
         span.style.animation = 'wobble 0.5s ease-in-out infinite';
+        span.style.transform = 'translateY(-20px)'; // Immediate jump up
         span.classList.add('highlighted');
       } else {
         span.style.color = '#ffffff';
         span.style.animation = '';
+        span.style.transform = 'translateY(0)'; // Reset position
         span.classList.remove('highlighted');
       }
     });
@@ -246,6 +248,7 @@ export class Battery {
     digitSpans.forEach(span => {
       span.style.color = '#ffffff';
       span.style.animation = '';
+      span.style.transform = 'translateY(0)'; // Reset position
       span.classList.remove('highlighted');
     });
   }
