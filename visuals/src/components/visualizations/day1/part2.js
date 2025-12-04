@@ -59,7 +59,7 @@ export default function visualize(container, onComplete) {
           // Part 2 logic: increment counter and play sound each time we pass through zero
           // This is called during animation when zero is actually crossed
           for (let i = 0; i < count; i++) {
-            safe.incrementZeroCounter();
+            safe.incrementCounter();
           }
           audioManager.play('zero-hit', 0.6);
         }

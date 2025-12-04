@@ -15,7 +15,8 @@ function createWindow() {
   // In production, load from built files
   if (process.env.NODE_ENV === 'development' || !app.isPackaged) {
     win.loadURL('http://localhost:5173');
-    win.webContents.openDevTools();
+    // Developer tools disabled at startup
+    // win.webContents.openDevTools();
   } else {
     win.loadFile(path.join(__dirname, 'dist', 'index.html'));
   }

@@ -1,10 +1,12 @@
 import { audioManager } from '../../../utils/audio.js';
+import { CounterBox } from '../../counter-box.js';
+import { InstructionPanel } from '../../instruction-panel.js';
 
 /**
  * Animated progress bars for Day 2
  */
 export class ProgressBars {
-  constructor(container, totalBars = 11, ranges = [], specialNumbers = [], onAllComplete = null, instructionText = '') {
+  constructor(container, totalBars = 11, ranges = [], specialNumbers = [], onAllComplete = null, instructionText = '', counterLabel = 'Counter') {
     this.container = container;
     this.totalBars = totalBars;
     this.currentBar = 0;
@@ -13,12 +15,13 @@ export class ProgressBars {
     this.ranges = ranges;
     this.specialNumbers = specialNumbers;
     this.onAllComplete = onAllComplete;
-    this.instructionText = instructionText;
+    this.counterBox = null;
+    this.instructionPanel = null;
     
-    this.init();
+    this.init(instructionText, counterLabel);
   }
   
-  init() {
+  init(instructionText, counterLabel) {
     // Create container that holds bars in the center
     this.barsContainer = document.createElement('div');
     this.barsContainer.style.cssText = `
@@ -36,108 +39,12 @@ export class ProgressBars {
     
     this.container.appendChild(this.barsContainer);
     
-    // Create counter element (like Safe Password from Day 1)
-    this.counterElement = document.createElement('div');
-    this.counterElement.style.cssText = `
-      position: absolute;
-      top: 50%;
-      right: 50px;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
-      border: 5px solid #ffd700;
-      border-radius: 15px;
-      padding: 20px 30px;
-      box-shadow: 
-        0 8px 16px rgba(0, 0, 0, 0.4),
-        inset 0 2px 4px rgba(255, 215, 0, 0.3);
-      text-align: center;
-    `;
-    
-    const label = document.createElement('div');
-    label.textContent = 'Invalid Product IDs';
-    label.style.cssText = `
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
-      font-family: 'Comic Sans MS', Arial, sans-serif;
-      text-shadow: 
-        0 0 10px rgba(255, 215, 0, 0.8),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-      margin-bottom: 8px;
-      letter-spacing: 1px;
-    `;
-    
-    const counterValue = document.createElement('div');
-    counterValue.className = 'counter-value';
-    counterValue.textContent = '0';
-    counterValue.style.cssText = `
-      color: #ffd700;
-      font-size: 48px;
-      font-weight: bold;
-      font-family: 'Comic Sans MS', Arial, sans-serif;
-      text-shadow: 
-        0 0 20px rgba(255, 215, 0, 1),
-        0 0 40px rgba(255, 215, 0, 0.6),
-        3px 3px 6px rgba(0, 0, 0, 0.8);
-      animation: pulse 2s ease-in-out infinite;
-    `;
-    
-    this.counterElement.appendChild(label);
-    this.counterElement.appendChild(counterValue);
-    this.container.appendChild(this.counterElement);
-    
-    // Store counter value for incrementing
-    this.counterValue = 0;
+    // Create counter box
+    this.counterBox = new CounterBox(this.container, counterLabel);
     
     // Create instruction panel if text provided
-    if (this.instructionText) {
-      this.instructionPanel = document.createElement('div');
-      this.instructionPanel.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50px;
-        transform: translateY(-50%);
-        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-        border: 6px solid #ffd700;
-        border-radius: 20px;
-        padding: 25px 30px;
-        max-width: 300px;
-        box-shadow: 
-          0 8px 16px rgba(0, 0, 0, 0.4),
-          inset 0 2px 4px rgba(255, 215, 0, 0.3);
-      `;
-      
-      const instructionLabel = document.createElement('div');
-      instructionLabel.textContent = '🎄 Instructions 🎄';
-      instructionLabel.style.cssText = `
-        color: #fff;
-        font-size: 22px;
-        font-weight: bold;
-        font-family: 'Comic Sans MS', Arial, sans-serif;
-        text-shadow: 
-          0 0 10px rgba(255, 215, 0, 0.8),
-          2px 2px 4px rgba(0, 0, 0, 0.8);
-        margin-bottom: 15px;
-        text-align: center;
-        letter-spacing: 1px;
-      `;
-      
-      const instructionContent = document.createElement('div');
-      instructionContent.textContent = this.instructionText;
-      instructionContent.style.cssText = `
-        color: #fff;
-        font-size: 18px;
-        font-weight: bold;
-        font-family: 'Comic Sans MS', Arial, sans-serif;
-        text-shadow: 
-          1px 1px 3px rgba(0, 0, 0, 0.8);
-        line-height: 1.5;
-        text-align: center;
-      `;
-      
-      this.instructionPanel.appendChild(instructionLabel);
-      this.instructionPanel.appendChild(instructionContent);
-      this.container.appendChild(this.instructionPanel);
+    if (instructionText) {
+      this.instructionPanel = new InstructionPanel(this.container, instructionText);
     }
   }
   
@@ -210,15 +117,20 @@ export class ProgressBars {
       gap: 8px;
     `;
     
-    // Bar label
+    // Label for the bar with festive emojis
     const label = document.createElement('div');
-    label.textContent = `Range ${index + 1}`;
+    label.textContent = `🎄 Range ${index + 1} 🎁`;
     label.style.cssText = `
       color: #ffd700;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       font-family: 'Comic Sans MS', Arial, sans-serif;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      text-align: center;
+      text-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(255, 0, 0, 0.5);
+      animation: sparkle 2s ease-in-out infinite;
     `;
     
     // Get range numbers for this bar
@@ -232,16 +144,18 @@ export class ProgressBars {
       gap: 15px;
     `;
     
-    // Left number
+    // Left number with festive styling
     const leftNumber = document.createElement('div');
-    leftNumber.textContent = range.start.toLocaleString();
+    leftNumber.textContent = '🎅 ' + range.start.toLocaleString();
     leftNumber.style.cssText = `
-      color: #ecf0f1;
-      font-size: 16px;
+      color: #ffd700;
+      font-size: 18px;
       font-weight: bold;
-      font-family: 'Courier New', monospace;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-      min-width: 100px;
+      font-family: 'Comic Sans MS', Arial, sans-serif;
+      text-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+      min-width: 140px;
       text-align: right;
     `;
     
@@ -254,26 +168,25 @@ export class ProgressBars {
       border: 4px solid #27ae60;
       border-radius: 20px;
       position: relative;
-      overflow: hidden;
+      width: 100%;
+      height: 35px;
+      background: repeating-linear-gradient(
+        45deg,
+        #c41e3a,
+        #c41e3a 10px,
+        #fff 10px,
+        #fff 20px
+      );
+      border-radius: 18px;
+      overflow: visible;
       box-shadow: 
-        0 4px 8px rgba(0, 0, 0, 0.4),
-        inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        inset 0 3px 6px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(255, 215, 0, 0.4),
+        0 4px 12px rgba(0, 0, 0, 0.3);
+      border: 3px solid #ffd700;
     `;
     
-    // Right number
-    const rightNumber = document.createElement('div');
-    rightNumber.textContent = range.end.toLocaleString();
-    rightNumber.style.cssText = `
-      color: #ecf0f1;
-      font-size: 16px;
-      font-weight: bold;
-      font-family: 'Courier New', monospace;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-      min-width: 100px;
-      text-align: left;
-    `;
-    
-    // Progress fill
+    // Progress fill with festive gradient
     const fill = document.createElement('div');
     fill.className = 'progress-fill';
     fill.style.cssText = `
@@ -282,12 +195,26 @@ export class ProgressBars {
       top: 0;
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #27ae60 0%, #2ecc71 50%, #27ae60 100%);
+      background: linear-gradient(
+        90deg,
+        #c41e3a 0%,
+        #e74c3c 15%,
+        #27ae60 30%,
+        #2ecc71 45%,
+        #f39c12 60%,
+        #e67e22 75%,
+        #c41e3a 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
       transition: width 0.1s linear;
-      box-shadow: 0 0 10px rgba(46, 204, 113, 0.6);
+      box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.8),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
     `;
     
-    // Indicator (Christmas tree)
+    // Indicator (Christmas tree with extra sparkle)
     const indicator = document.createElement('div');
     indicator.className = 'progress-indicator';
     indicator.textContent = '🎄';
@@ -296,10 +223,29 @@ export class ProgressBars {
       left: 0;
       top: 50%;
       transform: translate(-50%, -50%);
-      font-size: 32px;
+      font-size: 40px;
       line-height: 1;
-      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+      filter: 
+        drop-shadow(0 0 12px rgba(255, 215, 0, 1))
+        drop-shadow(0 0 20px rgba(255, 0, 0, 0.6))
+        drop-shadow(0 0 30px rgba(0, 255, 0, 0.4));
+      animation: bounce 1s ease-in-out infinite;
       z-index: 2;
+    `;
+    
+    // Right number with festive styling
+    const rightNumber = document.createElement('div');
+    rightNumber.textContent = range.end.toLocaleString() + ' 🎄';
+    rightNumber.style.cssText = `
+      color: #ffd700;
+      font-size: 18px;
+      font-weight: bold;
+      font-family: 'Comic Sans MS', Arial, sans-serif;
+      text-shadow: 
+        0 0 10px rgba(255, 215, 0, 0.8),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+      min-width: 140px;
+      text-align: left;
     `;
     
     track.appendChild(fill);
@@ -319,7 +265,7 @@ export class ProgressBars {
    * Animate a bar from 0% to 100% over duration
    */
   animateBar(barElement, index, onComplete) {
-    const duration = 2000; // 5 seconds (twice as fast)
+    const duration = 1500; // 1.5 seconds
     const startTime = Date.now();
     
     const fill = barElement.querySelector('.progress-fill');
@@ -373,16 +319,14 @@ export class ProgressBars {
    * Increment the counter by the special number value
    */
   incrementCounter(amount) {
-    this.counterValue += amount;
-    const counterValueElement = this.counterElement.querySelector('.counter-value');
-    counterValueElement.textContent = this.counterValue.toLocaleString();
+    this.counterBox.increment(amount);
   }
   
   /**
    * Mark visualization as complete by changing counter to green
    */
   markComplete() {
-    this.counterElement.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+    this.counterBox.markComplete();
   }
   
   /**
@@ -409,16 +353,29 @@ export class ProgressBars {
       z-index: 100;
     `;
     
-    // Add CSS animation if not already added
+    // Add CSS animations if not already added
     if (!document.getElementById('special-number-animation')) {
       const style = document.createElement('style');
       style.id = 'special-number-animation';
       style.textContent = `
         @keyframes fadeInOut {
-          0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-          20% { opacity: 1; transform: translateX(-50%) translateY(0); }
-          80% { opacity: 1; transform: translateX(-50%) translateY(0); }
-          100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+          0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.5); }
+          20% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.2); }
+          40% { transform: translateX(-50%) translateY(0) scale(1); }
+          80% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.5); }
+        }
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @keyframes sparkle {
+          0%, 100% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.5); }
+          50% { text-shadow: 0 0 20px rgba(255, 215, 0, 1), 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.8); }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -60%) scale(1.1); }
         }
       `;
       document.head.appendChild(style);
@@ -446,6 +403,14 @@ export class ProgressBars {
     // Remove container
     if (this.barsContainer && this.barsContainer.parentNode) {
       this.barsContainer.parentNode.removeChild(this.barsContainer);
+    }
+    
+    // Clean up counter and instruction panel
+    if (this.counterBox) {
+      this.counterBox.cleanup();
+    }
+    if (this.instructionPanel) {
+      this.instructionPanel.cleanup();
     }
   }
 }

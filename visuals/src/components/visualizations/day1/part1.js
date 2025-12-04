@@ -39,7 +39,7 @@ export default function visualize(container, onComplete) {
       safe.rotateBy(clicks, direction, moveDuration, (finalPosition) => {
         // Part 1 logic: increment counter when dial lands on zero
         if (finalPosition === 0) {
-          safe.incrementZeroCounter();
+          safe.incrementCounter();
           audioManager.play('zero-hit', 0.6);
         }
         

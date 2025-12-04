@@ -1,7 +1,7 @@
 {
   "name": "aoc-visuals",
   "version": "1.0.0",
-  "description": "Advent of Code visualisations",
+  "description": "Advent of Code 2025 Visualisations",
   "main": "main.js",
   "scripts": {
     "dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",

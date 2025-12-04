@@ -4,6 +4,8 @@
  */
 
 import { audioManager } from '../../../utils/audio.js';
+import { CounterBox } from '../../counter-box.js';
+import { InstructionPanel } from '../../instruction-panel.js';
 
 export class Safe {
   constructor(container, instructionText = '') {
@@ -14,12 +16,13 @@ export class Safe {
     this.ctx = null;
     this.animationFrame = null;
     this.zeroCounter = 0;
-    this.counterElement = null;
+    this.counterBox = null;
     this.instructionPanel = null;
-    this.instructionText = instructionText;
     this.soundsLoaded = false;
+    this.isOpen = false;
+    this.doorAngle = 0;
     
-    this.init();
+    this.init(instructionText);
     this.loadSounds();
   }
   
@@ -29,7 +32,7 @@ export class Safe {
     this.soundsLoaded = true;
   }
   
-  init() {
+  init(instructionText) {
     // Create canvas
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.container.clientWidth;
@@ -39,105 +42,12 @@ export class Safe {
     
     this.ctx = this.canvas.getContext('2d');
     
-    // Create counter display
-    this.counterElement = document.createElement('div');
-    this.counterElement.style.cssText = `
-      position: absolute;
-      top: 50%;
-      right: 50px;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #c41e3a 0%, #e74c3c 100%);
-      border: 6px solid #ffd700;
-      border-radius: 20px;
-      padding: 30px 40px;
-      box-shadow: 
-        0 8px 16px rgba(0, 0, 0, 0.4),
-        inset 0 2px 4px rgba(255, 215, 0, 0.3);
-      text-align: center;
-    `;
-    
-    const label = document.createElement('div');
-    label.textContent = 'Safe Password';
-    label.style.cssText = `
-      color: #fff;
-      font-size: 24px;
-      font-weight: bold;
-      font-family: 'Comic Sans MS', Arial, sans-serif;
-      text-shadow: 
-        0 0 10px rgba(255, 215, 0, 0.8),
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    `;
-    
-    const counterValue = document.createElement('div');
-    counterValue.className = 'counter-value';
-    counterValue.textContent = '0';
-    counterValue.style.cssText = `
-      color: #ffd700;
-      font-size: 72px;
-      font-weight: bold;
-      font-family: 'Comic Sans MS', Arial, sans-serif;
-      text-shadow: 
-        0 0 20px rgba(255, 215, 0, 1),
-        0 0 40px rgba(255, 215, 0, 0.6),
-        3px 3px 6px rgba(0, 0, 0, 0.8);
-      animation: pulse 2s ease-in-out infinite;
-    `;
-    
-    this.counterElement.appendChild(label);
-    this.counterElement.appendChild(counterValue);
-    this.container.appendChild(this.counterElement);
+    // Create counter box
+    this.counterBox = new CounterBox(this.container, 'Safe Password');
     
     // Create instruction panel if text provided
-    if (this.instructionText) {
-      this.instructionPanel = document.createElement('div');
-      this.instructionPanel.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50px;
-        transform: translateY(-50%);
-        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-        border: 6px solid #ffd700;
-        border-radius: 20px;
-        padding: 25px 30px;
-        max-width: 300px;
-        box-shadow: 
-          0 8px 16px rgba(0, 0, 0, 0.4),
-          inset 0 2px 4px rgba(255, 215, 0, 0.3);
-      `;
-      
-      const instructionLabel = document.createElement('div');
-      instructionLabel.textContent = '🎄 Instructions 🎄';
-      instructionLabel.style.cssText = `
-        color: #fff;
-        font-size: 22px;
-        font-weight: bold;
-        font-family: 'Comic Sans MS', Arial, sans-serif;
-        text-shadow: 
-          0 0 10px rgba(255, 215, 0, 0.8),
-          2px 2px 4px rgba(0, 0, 0, 0.8);
-        margin-bottom: 15px;
-        text-align: center;
-        letter-spacing: 1px;
-      `;
-      
-      const instructionContent = document.createElement('div');
-      instructionContent.textContent = this.instructionText;
-      instructionContent.style.cssText = `
-        color: #fff;
-        font-size: 18px;
-        font-weight: bold;
-        font-family: 'Comic Sans MS', Arial, sans-serif;
-        text-shadow: 
-          1px 1px 3px rgba(0, 0, 0, 0.8);
-        line-height: 1.5;
-        text-align: center;
-      `;
-      
-      this.instructionPanel.appendChild(instructionLabel);
-      this.instructionPanel.appendChild(instructionContent);
-      this.container.appendChild(this.instructionPanel);
+    if (instructionText) {
+      this.instructionPanel = new InstructionPanel(this.container, instructionText);
     }
     
     // Add CSS animation for pulse effect
@@ -188,12 +98,24 @@ export class Safe {
     // Draw safe body
     this.drawSafeBody(ctx, safeX, safeY, safeWidth, safeHeight);
     
-    // Draw dial (centered on safe)
-    const dialCenterX = width / 2;
-    const dialCenterY = height / 2;
-    const dialRadius = Math.min(safeWidth, safeHeight) * 0.25;
+    // If safe is open, draw presents inside
+    if (this.isOpen) {
+      this.drawPresents(ctx, safeX, safeY, safeWidth, safeHeight);
+    }
     
-    this.drawDial(ctx, dialCenterX, dialCenterY, dialRadius);
+    // Draw door (if opening or open)
+    if (this.isOpen) {
+      this.drawDoor(ctx, safeX, safeY, safeWidth, safeHeight);
+    }
+    
+    // Draw dial (centered on safe) - only if not open
+    if (!this.isOpen) {
+      const dialCenterX = width / 2;
+      const dialCenterY = height / 2;
+      const dialRadius = Math.min(safeWidth, safeHeight) * 0.25;
+      
+      this.drawDial(ctx, dialCenterX, dialCenterY, dialRadius);
+    }
   }
   
   drawSafeBody(ctx, x, y, width, height) {
@@ -541,33 +463,143 @@ export class Safe {
   /**
    * Increment the zero counter with animation
    */
-  incrementZeroCounter() {
+  incrementCounter() {
     this.zeroCounter++;
-    const counterValue = this.counterElement.querySelector('.counter-value');
-    counterValue.textContent = this.zeroCounter;
-    
-    // Trigger pop animation
-    counterValue.style.animation = 'none';
-    setTimeout(() => {
-      counterValue.style.animation = 'counterPop 0.5s ease-out';
-    }, 10);
-  }
-  
-  /**
-   * Reset the zero counter
-   */
-  resetZeroCounter() {
-    this.zeroCounter = 0;
-    const counterValue = this.counterElement.querySelector('.counter-value');
-    counterValue.textContent = '0';
+    this.counterBox.setValue(this.zeroCounter);
   }
   
   /**
    * Mark visualization as complete (change counter to green)
    */
   markComplete() {
-    this.counterElement.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
-    this.counterElement.style.transition = 'background 0.5s ease';
+    // Change counter box to green
+    this.counterBox.markComplete();
+    
+    // Open the safe to reveal presents
+    this.openSafe();
+  }
+  
+  /**
+   * Open the safe door and reveal presents inside
+   */
+  openSafe() {
+    const duration = 2000;
+    const startTime = Date.now();
+    
+    const animateDoor = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Easing function for smooth opening
+      const eased = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+      
+      this.doorAngle = eased * Math.PI / 2;
+      this.draw();
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateDoor);
+      }
+    };
+    
+    this.doorAngle = 0;
+    this.isOpen = true;
+    animateDoor();
+  }
+  
+  /**
+   * Draw presents inside the safe with candy cane shelf
+   */
+  drawPresents(ctx, safeX, safeY, safeWidth, safeHeight) {
+    // Draw candy cane shelf
+    const shelfY = safeY + safeHeight * 0.6;
+    const shelfHeight = 15;
+    
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(safeX + 20, shelfY, safeWidth - 40, shelfHeight);
+    
+    // Add candy cane stripes to shelf
+    ctx.save();
+    ctx.fillStyle = '#c41e3a';
+    for (let i = 0; i < safeWidth - 40; i += 20) {
+      ctx.fillRect(safeX + 20 + i, shelfY, 10, shelfHeight);
+    }
+    ctx.restore();
+    
+    // Draw presents - various sizes and colors
+    const presents = [
+      { x: 0.2, y: 0.65, w: 60, h: 70, color: '#27ae60', ribbon: '#ffd700' },
+      { x: 0.4, y: 0.7, w: 50, h: 50, color: '#3498db', ribbon: '#e74c3c' },
+      { x: 0.6, y: 0.68, w: 55, h: 65, color: '#9b59b6', ribbon: '#fff' },
+      { x: 0.75, y: 0.72, w: 45, h: 55, color: '#e67e22', ribbon: '#27ae60' },
+      { x: 0.25, y: 0.4, w: 50, h: 60, color: '#e74c3c', ribbon: '#ffd700' },
+      { x: 0.5, y: 0.35, w: 65, h: 75, color: '#ffd700', ribbon: '#c41e3a' },
+      { x: 0.7, y: 0.42, w: 48, h: 58, color: '#1abc9c', ribbon: '#fff' },
+    ];
+    
+    presents.forEach(present => {
+      const px = safeX + safeWidth * present.x;
+      const py = safeY + safeHeight * present.y;
+      
+      // Present box
+      ctx.fillStyle = present.color;
+      ctx.fillRect(px, py, present.w, present.h);
+      
+      // Box shadow for depth
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(px + 2, py + 2, present.w, present.h);
+      ctx.fillStyle = present.color;
+      ctx.fillRect(px, py, present.w, present.h);
+      
+      // Ribbon vertical
+      ctx.fillStyle = present.ribbon;
+      ctx.fillRect(px + present.w / 2 - 3, py, 6, present.h);
+      
+      // Ribbon horizontal
+      ctx.fillRect(px, py + present.h / 3, present.w, 6);
+      
+      // Bow
+      ctx.beginPath();
+      ctx.arc(px + present.w / 2, py + present.h / 3, 8, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+  
+  /**
+   * Draw the safe door swinging open
+   */
+  drawDoor(ctx, safeX, safeY, safeWidth, safeHeight) {
+    ctx.save();
+    
+    // Door pivot point (left edge)
+    const pivotX = safeX;
+    const pivotY = safeY + safeHeight / 2;
+    
+    ctx.translate(pivotX, pivotY);
+    ctx.rotate(-this.doorAngle);
+    ctx.translate(-pivotX, -pivotY);
+    
+    // Door - same festive red as safe
+    const gradient = ctx.createLinearGradient(safeX, safeY, safeX + safeWidth, safeY + safeHeight);
+    gradient.addColorStop(0, '#c41e3a');
+    gradient.addColorStop(0.5, '#e74c3c');
+    gradient.addColorStop(1, '#c41e3a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(safeX, safeY, safeWidth, safeHeight);
+    
+    // Golden border
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 10;
+    ctx.strokeRect(safeX, safeY, safeWidth, safeHeight);
+    
+    // Draw dial on door
+    const dialCenterX = safeX + safeWidth / 2;
+    const dialCenterY = safeY + safeHeight / 2;
+    const dialRadius = Math.min(safeWidth, safeHeight) * 0.25;
+    this.drawDial(ctx, dialCenterX, dialCenterY, dialRadius);
+    
+    ctx.restore();
   }
   
   /**

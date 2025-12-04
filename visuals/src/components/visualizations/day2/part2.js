@@ -41,7 +41,7 @@ export default function visualize(container, onComplete) {
     }, 500);
   };
   
-  const bars = new ProgressBars(container, 11, ranges, specialNumbers, onBarsComplete, instructionText);
+  const bars = new ProgressBars(container, 11, ranges, specialNumbers, onBarsComplete, instructionText, 'Invalid Product IDs');
   
   // Start the bar sequence
   setTimeout(() => {

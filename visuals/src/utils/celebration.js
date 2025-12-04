@@ -12,6 +12,7 @@ class Fireworks {
     this.ctx = null;
     this.particles = [];
     this.animationFrame = null;
+    this.launchInterval = null;
     this.isActive = false;
     
     this.init();
@@ -37,10 +38,9 @@ class Fireworks {
     const startTime = Date.now();
     
     // Launch fireworks at intervals
-    const launchInterval = setInterval(() => {
-      if (Date.now() - startTime > duration) {
-        clearInterval(launchInterval);
-        this.isActive = false;
+    this.launchInterval = setInterval(() => {
+      if (!this.isActive) {
+        clearInterval(this.launchInterval);
         return;
       }
       
@@ -53,10 +53,7 @@ class Fireworks {
     
     this.animate();
     
-    // Auto cleanup after duration
-    setTimeout(() => {
-      this.stop();
-    }, duration + 2000);
+    // Don't auto cleanup - let it run until manually stopped
   }
   
   launchFirework() {
@@ -130,6 +127,9 @@ class Fireworks {
   
   stop() {
     this.isActive = false;
+    if (this.launchInterval) {
+      clearInterval(this.launchInterval);
+    }
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
     }
@@ -137,10 +137,14 @@ class Fireworks {
   
   cleanup() {
     this.stop();
-    this.particles = [];
-    if (this.canvas && this.canvas.parentNode) {
-      this.canvas.parentNode.removeChild(this.canvas);
-    }
+    
+    // Give particles a moment to finish their animation before removing
+    setTimeout(() => {
+      this.particles = [];
+      if (this.canvas && this.canvas.parentNode) {
+        this.canvas.parentNode.removeChild(this.canvas);
+      }
+    }, 1500);
   }
 }
 
