@@ -4,7 +4,7 @@
 
 import { audioManager } from '../utils/audio.js';
 
-let musicVolume = 0.5;
+let musicVolume = 0;
 let effectsVolume = 1.0;
 let musicAudio = null;
 
@@ -64,7 +64,7 @@ function createVolumeControl(label, initialVolume, onChange) {
     gap: 8px;
   `;
   
-  // Create bars container
+  // Create bars container with mute button
   const barsContainer = document.createElement('div');
   barsContainer.style.cssText = `
     display: flex;
@@ -74,8 +74,20 @@ function createVolumeControl(label, initialVolume, onChange) {
     cursor: pointer;
   `;
   
+  // Create mute button (represents 0 volume)
+  const muteButton = document.createElement('div');
+  muteButton.style.cssText = `
+    width: 8px;
+    height: 10px;
+    background: ${initialVolume === 0 ? '#2ecc71' : '#555'};
+    border-radius: 2px;
+    transition: background 0.2s;
+  `;
+  muteButton.dataset.level = '0';
+  barsContainer.appendChild(muteButton);
+  
   // Create 10 bars
-  const bars = [];
+  const bars = [muteButton];
   for (let i = 0; i < 10; i++) {
     const bar = document.createElement('div');
     const height = 10 + (i * 4); // Increasing height
@@ -98,9 +110,10 @@ function createVolumeControl(label, initialVolume, onChange) {
       const level = parseInt(bar.dataset.level);
       const volume = level / 10;
       
-      // Update bar colors
+      // Update bar colors (level 0 means only mute button is active)
       bars.forEach((b, index) => {
-        b.style.background = index < level ? '#2ecc71' : '#555';
+        const barLevel = parseInt(b.dataset.level);
+        b.style.background = barLevel <= level ? '#2ecc71' : '#555';
       });
       
       onChange(volume);

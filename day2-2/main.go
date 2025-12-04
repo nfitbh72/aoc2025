@@ -44,6 +44,7 @@ func (m *Problem) Solve(lines []string) int {
 		for check := left; check <= right; check++ {
 			//sum the matching numbers
 			if eulerlib.HasRepeatingPattern(eulerlib.IntToStr(check)) {
+				//fmt.Println(check)
 				sum += check
 			}
 		}

@@ -53,6 +53,7 @@ func (m *Problem) Solve(lines []string) int {
 		//loop over the range to find repeating strings within the ids
 		for check := left; check <= right; check++ {
 			if m.IsRepeating(check) {
+				//fmt.Println(check)
 				sum += check
 			}
 		}
