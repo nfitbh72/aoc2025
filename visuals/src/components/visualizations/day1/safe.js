@@ -57,7 +57,7 @@ export class Safe {
     `;
     
     const label = document.createElement('div');
-    label.textContent = 'Zeros Hit';
+    label.textContent = 'Safe Password';
     label.style.cssText = `
       color: #fff;
       font-size: 24px;
@@ -560,6 +560,14 @@ export class Safe {
     this.zeroCounter = 0;
     const counterValue = this.counterElement.querySelector('.counter-value');
     counterValue.textContent = '0';
+  }
+  
+  /**
+   * Mark visualization as complete (change counter to green)
+   */
+  markComplete() {
+    this.counterElement.style.background = 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)';
+    this.counterElement.style.transition = 'background 0.5s ease';
   }
   
   /**

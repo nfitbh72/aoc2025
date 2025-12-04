@@ -6,7 +6,7 @@ import { audioManager } from '../../../utils/audio.js';
  * Day 1 Part 2 visualization
  * Test input from day1-1/input-test.txt
  */
-export default function visualize(container) {
+export default function visualize(container, onComplete) {
   const instructionText = 'The password is the number of times that the dial passes through zero';
   const safe = new Safe(container, instructionText);
   let fireworks = null;
@@ -45,7 +45,13 @@ export default function visualize(container) {
           if (index === directions.length - 1) {
             // Visualization complete! Celebrate!
             setTimeout(() => {
+              safe.markComplete();
               fireworks = celebrate(container, 5000);
+              
+              // Notify that visualization is complete
+              if (onComplete) {
+                onComplete();
+              }
             }, 500);
           }
         },

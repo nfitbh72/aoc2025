@@ -1,39 +1,81 @@
 import '../styles/gift-buttons.css';
-import { boxColors, ribbonColors, getRandomColor } from '../utils/colors.js';
+import { boxColors, getRandomColor, getContrastingRibbon } from '../utils/colors.js';
 import { loadVisualization } from './visualization.js';
 
 function createGiftButton(day, part) {
-  const button = document.createElement('button');
-  button.className = 'gift-button';
-  button.dataset.day = day;
-  button.dataset.part = part;
+  const container = document.createElement('div');
+  container.className = 'gift-box-container';
+  container.dataset.day = day;
+  container.dataset.part = part;
   
   const boxColor = getRandomColor(boxColors);
-  const ribbonColor = getRandomColor(ribbonColors);
+  const ribbonColor = getContrastingRibbon(boxColor);
   
-  button.style.backgroundColor = boxColor;
+  // Create the box structure
+  const box = document.createElement('div');
+  box.className = 'gift-box';
   
-  // Apply ribbon colors to pseudo-elements via inline style
-  const styleSheet = document.styleSheets[0];
-  const ruleIndex = styleSheet.cssRules.length;
-  styleSheet.insertRule(
-    `.gift-button[data-day="${day}"][data-part="${part}"]::before { background-color: ${ribbonColor}; }`,
-    ruleIndex
-  );
-  styleSheet.insertRule(
-    `.gift-button[data-day="${day}"][data-part="${part}"]::after { background-color: ${ribbonColor}; }`,
-    ruleIndex + 1
-  );
+  // Box body
+  const body = document.createElement('div');
+  body.className = 'box-body';
+  body.style.backgroundColor = boxColor;
   
-  const label = document.createElement('span');
+  // Box lid (opens on click)
+  const lid = document.createElement('div');
+  lid.className = 'box-lid';
+  lid.style.backgroundColor = boxColor;
+  
+  // Ribbon on lid
+  const lidRibbonVertical = document.createElement('div');
+  lidRibbonVertical.className = 'ribbon-vertical';
+  lidRibbonVertical.style.backgroundColor = ribbonColor;
+  
+  const lidRibbonHorizontal = document.createElement('div');
+  lidRibbonHorizontal.className = 'ribbon-horizontal';
+  lidRibbonHorizontal.style.backgroundColor = ribbonColor;
+  
+  const bow = document.createElement('div');
+  bow.className = 'bow';
+  bow.style.borderColor = ribbonColor;
+  
+  lid.appendChild(lidRibbonVertical);
+  lid.appendChild(lidRibbonHorizontal);
+  lid.appendChild(bow);
+  
+  // Ribbon on body (behind label)
+  const bodyRibbonVertical = document.createElement('div');
+  bodyRibbonVertical.className = 'ribbon-vertical body-ribbon';
+  bodyRibbonVertical.style.backgroundColor = ribbonColor;
+  
+  const bodyRibbonHorizontal = document.createElement('div');
+  bodyRibbonHorizontal.className = 'ribbon-horizontal body-ribbon';
+  bodyRibbonHorizontal.style.backgroundColor = ribbonColor;
+  
+  body.appendChild(bodyRibbonVertical);
+  body.appendChild(bodyRibbonHorizontal);
+  
+  // Part label inside box
+  const label = document.createElement('div');
+  label.className = 'part-label';
   label.textContent = part;
-  button.appendChild(label);
   
-  button.addEventListener('click', () => {
-    loadVisualization(day, part);
+  body.appendChild(label);
+  box.appendChild(body);
+  box.appendChild(lid);
+  container.appendChild(box);
+  
+  // Click handler with animation
+  container.addEventListener('click', () => {
+    // Add opening animation
+    lid.classList.add('opening');
+    
+    // Load visualization after animation starts, passing lid reference
+    setTimeout(() => {
+      loadVisualization(day, part, lid);
+    }, 300);
   });
   
-  return button;
+  return container;
 }
 
 export function initializeButtons() {

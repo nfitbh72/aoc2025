@@ -1,4 +1,5 @@
 let currentVisualization = null;
+let currentBoxLid = null;
 
 export function initializeVisualization() {
   const area = document.getElementById('visualization-area');
@@ -6,10 +7,13 @@ export function initializeVisualization() {
   area.innerHTML = '';
 }
 
-export async function loadVisualization(day, part) {
+export async function loadVisualization(day, part, boxLid = null) {
   console.log(`Loading visualization for Day ${day}, Part ${part}`);
   
   const area = document.getElementById('visualization-area');
+  
+  // Store reference to box lid for closing later
+  currentBoxLid = boxLid;
   
   // Clear current visualization
   if (currentVisualization) {
@@ -22,7 +26,7 @@ export async function loadVisualization(day, part) {
   try {
     // Dynamic import of day-specific visualization
     const module = await import(`./visualizations/day${day}/part${part}.js`);
-    currentVisualization = module.default(area);
+    currentVisualization = module.default(area, onVisualizationComplete);
   } catch (error) {
     console.error(`Failed to load visualization for Day ${day} Part ${part}:`, error);
     
@@ -43,5 +47,18 @@ export async function loadVisualization(day, part) {
       <div style="font-size: 16px; color: #888;">Visualization not yet implemented</div>
     `;
     area.appendChild(placeholder);
+  }
+}
+
+/**
+ * Called when a visualization completes
+ */
+function onVisualizationComplete() {
+  console.log('Visualization complete - closing box lid');
+  
+  // Close the box lid
+  if (currentBoxLid) {
+    currentBoxLid.classList.remove('opening');
+    currentBoxLid = null;
   }
 }
