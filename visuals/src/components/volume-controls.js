@@ -4,7 +4,7 @@
 
 import { audioManager } from '../utils/audio.js';
 
-let musicVolume = 0;
+let musicVolume = 0.5;
 let effectsVolume = 1.0;
 let musicAudio = null;
 
