@@ -756,3 +756,208 @@ func TestGridToString(t *testing.T) {
 		t.Errorf("ToString rune grid: expect %q, got %q", expectRune, s)
 	}
 }
+
+func TestGetAdjacentCount(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// Create a 3x3 grid:
+	// X O X
+	// O X O
+	// X O X
+	g.ParseTable([]string{"XOX", "OXO", "XOX"}, false)
+
+	// Test center position (1,1) - should have 8 neighbors, 4 X's and 4 O's
+	if count := g.GetAdjacentCount(1, 1, 'X'); count != 4 {
+		t.Errorf("center position (1,1) expected 4 X's, got %d", count)
+	}
+	if count := g.GetAdjacentCount(1, 1, 'O'); count != 4 {
+		t.Errorf("center position (1,1) expected 4 O's, got %d", count)
+	}
+
+	// Test corner position (0,0) - should have 3 neighbors: O, O, X
+	if count := g.GetAdjacentCount(0, 0, 'O'); count != 2 {
+		t.Errorf("corner position (0,0) expected 2 O's, got %d", count)
+	}
+	if count := g.GetAdjacentCount(0, 0, 'X'); count != 1 {
+		t.Errorf("corner position (0,0) expected 1 X, got %d", count)
+	}
+
+	// Test edge position (1,0) - should have 5 neighbors
+	if count := g.GetAdjacentCount(1, 0, 'X'); count != 3 {
+		t.Errorf("edge position (1,0) expected 3 X's, got %d", count)
+	}
+	if count := g.GetAdjacentCount(1, 0, 'O'); count != 2 {
+		t.Errorf("edge position (1,0) expected 2 O's, got %d", count)
+	}
+
+	// Test with character that doesn't exist
+	if count := g.GetAdjacentCount(1, 1, 'Z'); count != 0 {
+		t.Errorf("expected 0 Z's around (1,1), got %d", count)
+	}
+}
+
+func TestGetAdjacentCountAllSame(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// Create a 3x3 grid of all A's
+	g.ParseTable([]string{"AAA", "AAA", "AAA"}, false)
+
+	// Center position should have 8 A's
+	if count := g.GetAdjacentCount(1, 1, 'A'); count != 8 {
+		t.Errorf("center in all-A grid expected 8 A's, got %d", count)
+	}
+
+	// Corner should have 3 A's
+	if count := g.GetAdjacentCount(0, 0, 'A'); count != 3 {
+		t.Errorf("corner in all-A grid expected 3 A's, got %d", count)
+	}
+
+	// Edge should have 5 A's
+	if count := g.GetAdjacentCount(1, 0, 'A'); count != 5 {
+		t.Errorf("edge in all-A grid expected 5 A's, got %d", count)
+	}
+}
+
+func TestGetAdjacentCountSingleCell(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// 1x1 grid
+	g.ParseTable([]string{"X"}, false)
+
+	// Only cell has no neighbors
+	if count := g.GetAdjacentCount(0, 0, 'X'); count != 0 {
+		t.Errorf("single cell grid expected 0 adjacent X's, got %d", count)
+	}
+}
+
+func TestGetAdjacentCountLargerGrid(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// Create a 5x5 grid with a pattern
+	g.ParseTable([]string{
+		"ABCDE",
+		"FGHIJ",
+		"KLMNO",
+		"PQRST",
+		"UVWXY",
+	}, false)
+
+	// Test center position (2,2) - M surrounded by H,I,J,L,N,Q,R,S
+	if count := g.GetAdjacentCount(2, 2, 'M'); count != 0 {
+		t.Errorf("expected 0 M's around (2,2), got %d", count)
+	}
+
+	// Count specific adjacent characters
+	if count := g.GetAdjacentCount(2, 2, 'H'); count != 1 {
+		t.Errorf("expected 1 H around (2,2), got %d", count)
+	}
+	if count := g.GetAdjacentCount(2, 2, 'R'); count != 1 {
+		t.Errorf("expected 1 R around (2,2), got %d", count)
+	}
+}
+
+func TestGetAdjacentList(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// Create a 3x3 grid:
+	// X O X
+	// O X O
+	// X O X
+	g.ParseTable([]string{"XOX", "OXO", "XOX"}, false)
+
+	// Test center position (1,1) - should have 4 X's at corners
+	xList := g.GetAdjacentList(1, 1, 'X')
+	if len(xList) != 4 {
+		t.Errorf("center position (1,1) expected 4 X coordinates, got %d", len(xList))
+	}
+	// Verify the coordinates are correct (corners)
+	expectedX := [][]int{{0, 0}, {2, 0}, {0, 2}, {2, 2}}
+	for _, expected := range expectedX {
+		found := false
+		for _, coord := range xList {
+			if coord[0] == expected[0] && coord[1] == expected[1] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected coordinate (%d,%d) not found in X list: %v", expected[0], expected[1], xList)
+		}
+	}
+
+	// Test center position (1,1) - should have 4 O's at edges
+	oList := g.GetAdjacentList(1, 1, 'O')
+	if len(oList) != 4 {
+		t.Errorf("center position (1,1) expected 4 O coordinates, got %d", len(oList))
+	}
+	expectedO := [][]int{{1, 0}, {0, 1}, {2, 1}, {1, 2}}
+	for _, expected := range expectedO {
+		found := false
+		for _, coord := range oList {
+			if coord[0] == expected[0] && coord[1] == expected[1] {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected coordinate (%d,%d) not found in O list: %v", expected[0], expected[1], oList)
+		}
+	}
+
+	// Test corner position (0,0) - should have 2 O's and 1 X
+	cornerO := g.GetAdjacentList(0, 0, 'O')
+	if len(cornerO) != 2 {
+		t.Errorf("corner position (0,0) expected 2 O coordinates, got %d", len(cornerO))
+	}
+
+	// Test with character that doesn't exist
+	zList := g.GetAdjacentList(1, 1, 'Z')
+	if len(zList) != 0 {
+		t.Errorf("expected empty list for Z around (1,1), got %v", zList)
+	}
+}
+
+func TestGetAdjacentListSpecificCoordinates(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// Create a 5x5 grid with a pattern
+	g.ParseTable([]string{
+		"ABCDE",
+		"FGHIJ",
+		"KLMNO",
+		"PQRST",
+		"UVWXY",
+	}, false)
+
+	// Test center position (2,2) - M surrounded by H,I,J,L,N,Q,R,S
+	// H is at (1,1), so should be in the list
+	hList := g.GetAdjacentList(2, 2, 'H')
+	if len(hList) != 1 {
+		t.Errorf("expected 1 H coordinate around (2,2), got %d", len(hList))
+	}
+	if len(hList) > 0 && (hList[0][0] != 1 || hList[0][1] != 1) {
+		t.Errorf("expected H at (1,1), got (%d,%d)", hList[0][0], hList[0][1])
+	}
+
+	// R is at (2,3), so should be in the list
+	rList := g.GetAdjacentList(2, 2, 'R')
+	if len(rList) != 1 {
+		t.Errorf("expected 1 R coordinate around (2,2), got %d", len(rList))
+	}
+	if len(rList) > 0 && (rList[0][0] != 2 || rList[0][1] != 3) {
+		t.Errorf("expected R at (2,3), got (%d,%d)", rList[0][0], rList[0][1])
+	}
+}
+
+func TestGetAdjacentListEmptyGrid(t *testing.T) {
+	g := &TGrid{}
+	g.Init()
+	// 1x1 grid
+	g.ParseTable([]string{"X"}, false)
+
+	// Only cell has no neighbors
+	list := g.GetAdjacentList(0, 0, 'X')
+	if len(list) != 0 {
+		t.Errorf("single cell grid expected empty list, got %v", list)
+	}
+}

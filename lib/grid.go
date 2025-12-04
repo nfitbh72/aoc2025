@@ -396,6 +396,54 @@ func (m *TGrid) CountValues(v any) int {
 	return valueCount
 }
 
+// GetAdjacentCount counts how many of the (up to) 8 surrounding cells at
+// position (x, y) contain the specified character.
+func (m *TGrid) GetAdjacentCount(x, y int, char rune) int {
+	count := 0
+	// Define the 8 adjacent directions: up, down, left, right, and 4 diagonals
+	directions := [][]int{
+		{-1, -1}, {0, -1}, {1, -1}, // top-left, top, top-right
+		{-1, 0}, {1, 0}, // left, right
+		{-1, 1}, {0, 1}, {1, 1}, // bottom-left, bottom, bottom-right
+	}
+
+	for _, dir := range directions {
+		newX := x + dir[0]
+		newY := y + dir[1]
+		// Check bounds
+		if newX >= 0 && newX < len(m.Values[0]) && newY >= 0 && newY < len(m.Values) {
+			if val, ok := m.Values[newY][newX].(rune); ok && val == char {
+				count++
+			}
+		}
+	}
+	return count
+}
+
+// GetAdjacentList returns the coordinates [x, y] of all (up to) 8 surrounding
+// cells at position (x, y) that contain the specified character.
+func (m *TGrid) GetAdjacentList(x, y int, char rune) [][]int {
+	matches := [][]int{}
+	// Define the 8 adjacent directions: up, down, left, right, and 4 diagonals
+	directions := [][]int{
+		{-1, -1}, {0, -1}, {1, -1}, // top-left, top, top-right
+		{-1, 0}, {1, 0}, // left, right
+		{-1, 1}, {0, 1}, {1, 1}, // bottom-left, bottom, bottom-right
+	}
+
+	for _, dir := range directions {
+		newX := x + dir[0]
+		newY := y + dir[1]
+		// Check bounds
+		if newX >= 0 && newX < len(m.Values[0]) && newY >= 0 && newY < len(m.Values) {
+			if val, ok := m.Values[newY][newX].(rune); ok && val == char {
+				matches = append(matches, []int{newX, newY})
+			}
+		}
+	}
+	return matches
+}
+
 // SearchHorizantal counts how many times the given string appears left-to-right
 // or right-to-left in any row of the grid.
 func (m *TGrid) SearchHorizantal(s string) int {
