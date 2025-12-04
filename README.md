@@ -9,10 +9,12 @@ This repository is a Go module (`github.com/nfitbh72/aoc2025`) with:
   - `main.go` – entrypoint for that part.
   - `main_test.go` – test harness for that part.
   - `input.txt` / `input-test.txt` – puzzle input and sample input.
+- **`visuals/`** – Electron app for visualizing solutions.
  
 ## Requirements
  
 - Go **1.21+** (the module declares `go 1.24.5`; any recent Go toolchain should work).
+- Node.js (for running visualizations).
  
 ## Setup
  
@@ -36,6 +38,16 @@ go run .
 Each program can read `input.txt` (or `input-test.txt` for the short answer) from the current directory and all programs print the computed answer.
 
 `go test` will run the sample (where the output is known ahead of time) and `go run .` will run the main input provided to get the answer that needs to be submitted on https://adventofcode.com/
+
+## Running visualizations
+
+To run the Electron visualization app:
+
+```bash
+cd visuals
+npm install
+npm run dev
+```
  
 ## Running tests
  
