@@ -2,11 +2,14 @@ import { Battery } from '../../battery.js';
 import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 import { celebrate } from '../../../utils/celebration.js';
+import { audioManager } from '../../../utils/audio.js';
 
 /**
  * Day 3 Part 1 visualization - Christmas Battery Display
  */
 export default function visualize(container, onComplete) {
+  // Load ding sound
+  audioManager.loadSound('max-update', 'ding.mp3');
   const batteries = [];
   const batteryNumbers = [
     '987654321111111',
@@ -125,6 +128,8 @@ export default function visualize(container, onComplete) {
       if (pair.value > currentMax) {
         currentMax = pair.value;
         battery.updateMaxValue(currentMax);
+        // Play ding sound when max value updates
+        audioManager.play('max-update', 0.5);
       }
       
       pairIndex++;

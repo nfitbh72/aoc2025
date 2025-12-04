@@ -22,6 +22,9 @@ export class ProgressBars {
   }
   
   init(instructionText, counterLabel) {
+    // Load ding sound
+    audioManager.loadSound('bar-complete', 'ding.mp3');
+    
     // Create container that holds bars in the center
     this.barsContainer = document.createElement('div');
     this.barsContainer.style.cssText = `
@@ -292,6 +295,8 @@ export class ProgressBars {
           shownNumbers.add(specialNum);
           this.showSpecialNumber(specialNum, barElement);
           this.incrementCounter(specialNum);
+          // Play ding sound when special number is found
+          audioManager.play('bar-complete', 0.6);
         }
       });
       

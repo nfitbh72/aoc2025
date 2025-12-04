@@ -2,11 +2,16 @@ import { Battery } from '../../battery.js';
 import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 import { celebrate } from '../../../utils/celebration.js';
+import { audioManager } from '../../../utils/audio.js';
 
 /**
  * Day 3 Part 2 visualization - Stack Algorithm
  */
 export default function visualize(container, onComplete) {
+  // Load sounds
+  audioManager.loadSound('battery-complete', 'ding.mp3');
+  audioManager.loadSound('digit-explode', 'explosion.mp3');
+  audioManager.loadSound('digit-add', 'click.mp3');
   const batteries = [];
   const batteryNumbers = [
     '987654321111111',
@@ -80,7 +85,8 @@ export default function visualize(container, onComplete) {
     
     const battery = batteries[batteryIndex];
     animateStackAlgorithm(battery, delayPerStep, () => {
-      // Battery complete, update counter
+      // Battery complete, play ding sound and update counter
+      audioManager.play('battery-complete', 0.6);
       displaySum += parseInt(battery.finalNumber);
       counterBox.setValue(displaySum);
       batteryIndex++;
@@ -281,6 +287,9 @@ function animateStackAlgorithm(battery, delay, onComplete) {
       // Add digit to DOM and animate it in
       battery.digitContainer.appendChild(currentDigit);
       
+      // Play click sound when digit is added
+      audioManager.play('digit-add', 0.3);
+      
       // Trigger animation
       setTimeout(() => {
         currentDigit.style.opacity = '1';
@@ -324,6 +333,9 @@ function animateStackAlgorithm(battery, delay, onComplete) {
 }
 
 function explodeDigit(digitElement) {
+  // Play explosion sound
+  audioManager.play('digit-explode', 0.4);
+  
   digitElement.style.transition = 'all 0.5s ease-out';
   digitElement.style.transform = 'scale(2) rotate(360deg)';
   digitElement.style.opacity = '0';

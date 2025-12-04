@@ -52,6 +52,44 @@ export class Battery {
       border-radius: 8px 8px 0 0;
     `;
     body.appendChild(shine);
+    
+    // Festive decorations - snowflakes
+    const snowflakes = ['❄️', '⭐', '✨', '❄️', '⭐'];
+    snowflakes.forEach((flake, index) => {
+      const decoration = document.createElement('div');
+      decoration.textContent = flake;
+      decoration.style.cssText = `
+        position: absolute;
+        top: ${10 + index * 15}%;
+        left: ${5 + index * 18}%;
+        font-size: ${12 + Math.random() * 8}px;
+        opacity: 0.6;
+        animation: sparkle-float ${2 + Math.random() * 2}s ease-in-out infinite;
+        animation-delay: ${index * 0.3}s;
+        pointer-events: none;
+        z-index: 0;
+      `;
+      body.appendChild(decoration);
+    });
+    
+    // Add sparkle animation if not already added
+    if (!document.getElementById('battery-sparkle-animation')) {
+      const style = document.createElement('style');
+      style.id = 'battery-sparkle-animation';
+      style.textContent = `
+        @keyframes sparkle-float {
+          0%, 100% { 
+            transform: translateY(0) scale(1);
+            opacity: 0.6;
+          }
+          50% { 
+            transform: translateY(-5px) scale(1.2);
+            opacity: 0.9;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     // Number display
     this.numberDisplay = document.createElement('div');
@@ -114,7 +152,34 @@ export class Battery {
       border-radius: 0 8px 8px 0;
       margin-left: -20px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      position: relative;
     `;
+    
+    // Add a festive bow on the terminal
+    const bow = document.createElement('div');
+    bow.textContent = '🎀';
+    bow.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      animation: bow-pulse 1.5s ease-in-out infinite;
+    `;
+    terminal.appendChild(bow);
+    
+    // Add bow pulse animation
+    if (!document.getElementById('bow-pulse-animation')) {
+      const style = document.createElement('style');
+      style.id = 'bow-pulse-animation';
+      style.textContent = `
+        @keyframes bow-pulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.15); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     this.element.appendChild(body);
     this.element.appendChild(terminal);

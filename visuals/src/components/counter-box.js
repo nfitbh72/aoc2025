@@ -61,7 +61,7 @@ export class CounterBox {
     }
     
     const labelElement = document.createElement('div');
-    labelElement.textContent = this.label;
+    labelElement.textContent = `🎄 ${this.label} 🎄`;
     labelElement.style.cssText = `
       color: #fff;
       font-size: 18px;
