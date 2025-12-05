@@ -46,7 +46,7 @@ export default function visualize(container, onComplete) {
     margin: 0 auto;
     position: absolute;
     top: 50%;
-    left: 40%;
+    left: 45%;
     transform: translate(-50%, -50%);
   `;
   container.appendChild(batteryContainer);
@@ -162,7 +162,7 @@ function createAnimatedBattery(container, numberString, color) {
   // Battery body
   const body = document.createElement('div');
   body.style.cssText = `
-    flex: 1;
+    width: 400px;
     height: 80px;
     background: linear-gradient(180deg, ${color}dd 0%, ${color} 50%, ${color}aa 100%);
     border: 4px solid ${color};
