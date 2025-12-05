@@ -1,5 +1,6 @@
 import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
+import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
 import { 
@@ -8,7 +9,9 @@ import {
   createParticles, 
   createTreeGrid, 
   getAdjacentCount,
-  loadDay4Audio 
+  loadDay4Audio,
+  createBucket,
+  throwTreeToBucket
 } from './shared.js';
 
 /**
@@ -35,12 +38,15 @@ export default function visualize(container, onComplete) {
   
   let counterBox = null;
   let instructionPanel = null;
+  let dayTitle = null;
   let fireworks = null;
   let gridContainer = null;
   let santaElement = null;
   let roundLabel = null;
+  let bucketInfo = null;
   
-  // Create counter and instruction panel
+  // Create title, counter and instruction panel
+  dayTitle = new DayTitle(container, 4, 2);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
@@ -59,10 +65,11 @@ export default function visualize(container, onComplete) {
   roundLabel.textContent = 'Round 0';
   container.appendChild(roundLabel);
   
-  // Create grid and Santa
+  // Create grid, Santa, and bucket
   const { gridContainer: gc, grid, cellElements } = createTreeGrid(container, gridData);
   gridContainer = gc;
   santaElement = createSanta(container);
+  bucketInfo = createBucket(container);
   
   // Find accessible trees in current grid state
   function findAccessibleTrees(grid) {
@@ -120,26 +127,25 @@ export default function visualize(container, onComplete) {
       }
       
       const { x, y } = accessibleTrees[treeIndex];
+      const tree = { x, y, element: cellElements[y][x] };
       
       // Move Santa to tree
       positionSanta(santaElement, x, y, container.clientWidth);
       
       setTimeout(() => {
-        // Create particle effect
-        createParticles(container, x, y, container.clientWidth);
-        
-        // Collect the tree
-        cellElements[y][x].style.transform = 'scale(0)';
-        cellElements[y][x].style.opacity = '0';
+        // Update grid state
         cellElements[y][x].textContent = '·';
         grid[y][x] = '.';
         
-        totalCollected++;
-        counterBox.setValue(totalCollected);
-        audioManager.play('collect', 0.3);
+        // Santa throws tree to bucket
+        throwTreeToBucket(container, tree, bucketInfo, () => {
+          // Counter increments when tree lands in bucket
+          totalCollected++;
+          counterBox.setValue(totalCollected);
+        });
         
         treeIndex++;
-        setTimeout(collectNextTree, 300);
+        setTimeout(collectNextTree, 1400);
       }, 250);
     }
     
@@ -151,6 +157,7 @@ export default function visualize(container, onComplete) {
   
   return {
     cleanup: () => {
+      if (dayTitle) dayTitle.cleanup();
       if (counterBox) counterBox.cleanup();
       if (instructionPanel) instructionPanel.cleanup();
       if (fireworks) fireworks.cleanup();
@@ -163,6 +170,9 @@ export default function visualize(container, onComplete) {
       }
       if (santaElement && santaElement.parentNode) {
         santaElement.parentNode.removeChild(santaElement);
+      }
+      if (bucketInfo && bucketInfo.bucketContainer && bucketInfo.bucketContainer.parentNode) {
+        bucketInfo.bucketContainer.parentNode.removeChild(bucketInfo.bucketContainer);
       }
     }
   };

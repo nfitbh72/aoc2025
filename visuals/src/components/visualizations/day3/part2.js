@@ -1,6 +1,7 @@
 import { Battery } from '../../battery.js';
 import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
+import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
 
@@ -28,10 +29,12 @@ export default function visualize(container, onComplete) {
   
   let counterBox = null;
   let instructionPanel = null;
+  let dayTitle = null;
   let fireworks = null;
   let displaySum = 0;
   
-  // Create counter and instruction panel
+  // Create title, counter and instruction panel
+  dayTitle = new DayTitle(container, 3, 2);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   counterBox.setValue(0);
@@ -98,6 +101,9 @@ export default function visualize(container, onComplete) {
   
   return {
     cleanup: () => {
+      if (dayTitle) {
+        dayTitle.cleanup();
+      }
       if (counterBox) {
         counterBox.cleanup();
       }

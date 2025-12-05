@@ -52,8 +52,10 @@ export function initializeVolumeControls(audioManager) {
     audioManagerRef.setEffectsVolume(effectsVolume);
   }
   
-  // Start playing background music
-  startBackgroundMusic();
+  // Start playing background music after 5 second delay
+  setTimeout(() => {
+    startBackgroundMusic();
+  }, 5000);
 }
 
 function createVolumeControl(label, initialVolume, onChange) {

@@ -1,4 +1,5 @@
 import { ProgressBars } from './bars.js';
+import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 
 /**
@@ -26,6 +27,7 @@ export default function visualize(container, onComplete) {
   // Instruction text for Part 2
   const instructionText = 'Find IDs that are made only of some sequence of digits repeated at least twice';
   
+  const dayTitle = new DayTitle(container, 2, 2);
   let fireworks = null;
   
   // Callback when all bars complete
@@ -51,6 +53,7 @@ export default function visualize(container, onComplete) {
   return {
     bars,
     cleanup: () => {
+      dayTitle.cleanup();
       bars.cleanup();
       if (fireworks) {
         fireworks.cleanup();

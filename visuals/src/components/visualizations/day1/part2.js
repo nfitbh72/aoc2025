@@ -1,4 +1,5 @@
 import { Safe } from './safe.js';
+import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
 
@@ -23,6 +24,7 @@ export default function visualize(container, onComplete) {
     'L82'
   ];
   
+  const dayTitle = new DayTitle(container, 1, 2);
   const safe = new Safe(container, instructionText, directions);
   let fireworks = null;
   
@@ -74,6 +76,7 @@ export default function visualize(container, onComplete) {
   return {
     safe,
     cleanup: () => {
+      dayTitle.cleanup();
       safe.cleanup();
       if (fireworks) {
         fireworks.cleanup();

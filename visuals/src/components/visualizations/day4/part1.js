@@ -1,5 +1,6 @@
 import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
+import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
 import { 
@@ -8,7 +9,9 @@ import {
   createParticles, 
   createTreeGrid, 
   getAdjacentCount,
-  loadDay4Audio 
+  loadDay4Audio,
+  createBucket,
+  throwTreeToBucket
 } from './shared.js';
 
 /**
@@ -35,18 +38,22 @@ export default function visualize(container, onComplete) {
   
   let counterBox = null;
   let instructionPanel = null;
+  let dayTitle = null;
   let fireworks = null;
   let gridContainer = null;
   let santaElement = null;
+  let bucketInfo = null;
   
-  // Create counter and instruction panel
+  // Create title, counter and instruction panel
+  dayTitle = new DayTitle(container, 4, 1);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
-  // Create grid and Santa
+  // Create grid, Santa, and bucket
   const { gridContainer: gc, grid, cellElements } = createTreeGrid(container, gridData);
   gridContainer = gc;
   santaElement = createSanta(container);
+  bucketInfo = createBucket(container);
   
   // Find accessible trees (those with < 4 adjacent trees)
   const accessibleTrees = [];
@@ -90,18 +97,15 @@ export default function visualize(container, onComplete) {
     positionSanta(santaElement, tree.x, tree.y, container.clientWidth);
     
     setTimeout(() => {
-      // Create particle effect at the tree's position
-      createParticles(container, tree.x, tree.y, container.clientWidth);
-      
-      // Collect the tree
-      tree.element.style.transform = 'scale(0)';
-      tree.element.style.opacity = '0';
-      collectedCount++;
-      counterBox.setValue(collectedCount);
-      audioManager.play('collect', 0.3);
+      // Santa throws tree to bucket
+      throwTreeToBucket(container, tree, bucketInfo, () => {
+        // Counter increments when tree lands in bucket
+        collectedCount++;
+        counterBox.setValue(collectedCount);
+      });
       
       currentTreeIndex++;
-      setTimeout(collectNextTree, 400);
+      setTimeout(collectNextTree, 1400);
     }, 300);
   }
   
@@ -110,6 +114,7 @@ export default function visualize(container, onComplete) {
   
   return {
     cleanup: () => {
+      if (dayTitle) dayTitle.cleanup();
       if (counterBox) counterBox.cleanup();
       if (instructionPanel) instructionPanel.cleanup();
       if (fireworks) fireworks.cleanup();
@@ -119,6 +124,9 @@ export default function visualize(container, onComplete) {
       }
       if (santaElement && santaElement.parentNode) {
         santaElement.parentNode.removeChild(santaElement);
+      }
+      if (bucketInfo && bucketInfo.bucketContainer && bucketInfo.bucketContainer.parentNode) {
+        bucketInfo.bucketContainer.parentNode.removeChild(bucketInfo.bucketContainer);
       }
     }
   };
