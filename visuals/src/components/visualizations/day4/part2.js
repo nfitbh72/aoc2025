@@ -48,11 +48,11 @@ export default function visualize(container, onComplete) {
   roundLabel = document.createElement('div');
   roundLabel.style.cssText = `
     position: absolute;
-    top: 120px;
+    top: 80px;
     left: 50%;
     transform: translateX(-50%);
+    font-size: 32px;
     color: #ffd700;
-    font-size: 24px;
     font-weight: bold;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   `;

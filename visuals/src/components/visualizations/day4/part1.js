@@ -54,7 +54,9 @@ export default function visualize(container, onComplete) {
     row.forEach((cell, x) => {
       if (cell === '@' && getAdjacentCount(grid, x, y, '@') < 4) {
         accessibleTrees.push({ x, y, element: cellElements[y][x] });
-        cellElements[y][x].style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.5)';
+        cellElements[y][x].style.boxShadow = '0 0 20px rgba(255, 215, 0, 1), 0 0 35px rgba(255, 50, 50, 0.8)';
+        cellElements[y][x].style.transform = 'scale(1.15)';
+        cellElements[y][x].style.filter = 'brightness(1.3)';
       }
     });
   });

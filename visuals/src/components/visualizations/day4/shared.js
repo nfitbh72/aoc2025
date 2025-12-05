@@ -45,10 +45,12 @@ export function createParticles(container, x, y, containerWidth) {
   const centerX = gridLeft + x * cellSize + cellSize / 2;
   const centerY = gridTop + y * cellSize + cellSize / 2;
   
+  const particleEmojis = ['✨', '⭐', '🎁', '🔔', '❄️', '💫'];
+  
   // Create 12 particles
   for (let i = 0; i < 12; i++) {
     const particle = document.createElement('div');
-    particle.textContent = '✨';
+    particle.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
     particle.style.cssText = `
       position: absolute;
       left: ${centerX}px;
@@ -57,6 +59,7 @@ export function createParticles(container, x, y, containerWidth) {
       pointer-events: none;
       z-index: 1000;
       transition: all 0.6s ease-out;
+      filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
     `;
     container.appendChild(particle);
     
@@ -86,6 +89,27 @@ export function createParticles(container, x, y, containerWidth) {
  * Create the grid of trees
  */
 export function createTreeGrid(container, gridData) {
+  // Add CSS animations if not already added
+  if (!document.getElementById('day4-animations')) {
+    const style = document.createElement('style');
+    style.id = 'day4-animations';
+    style.textContent = `
+      @keyframes treeGlow {
+        0%, 100% { filter: drop-shadow(0 0 12px rgba(0, 255, 0, 0.8)); }
+        50% { filter: drop-shadow(0 0 20px rgba(0, 255, 0, 1)); }
+      }
+      @keyframes ornamentTwinkle {
+        0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 215, 0, 1)); }
+        50% { opacity: 0.7; transform: scale(1.3); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 1)); }
+      }
+      @keyframes gridPulse {
+        0%, 100% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.15); }
+        50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), inset 0 0 50px rgba(255, 255, 255, 0.25); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
   const gridContainer = document.createElement('div');
   gridContainer.style.cssText = `
     display: grid;
@@ -93,8 +117,14 @@ export function createTreeGrid(container, gridData) {
     grid-gap: 0;
     position: absolute;
     left: 50%;
-    top: 200px;
+    top: 150px;
     transform: translateX(-50%);
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 50, 80, 0.08) 0%, rgba(20, 200, 120, 0.08) 100%);
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 215, 0, 0.8);
+    animation: gridPulse 3s ease-in-out infinite;
   `;
   container.appendChild(gridContainer);
   
@@ -112,16 +142,36 @@ export function createTreeGrid(container, gridData) {
         align-items: center;
         justify-content: center;
         font-size: 24px;
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.1);
         border-radius: 5px;
         transition: all 0.3s ease;
+        position: relative;
       `;
       
       if (cell === '@') {
         cellElement.textContent = '🎄';
+        // Add festive glow to trees
+        cellElement.style.filter = 'drop-shadow(0 0 12px rgba(0, 255, 0, 0.8)) brightness(1.2)';
+        cellElement.style.animation = `treeGlow ${2 + Math.random()}s ease-in-out infinite`;
+        
+        // Random ornaments on some trees
+        if (Math.random() > 0.7) {
+          const ornament = document.createElement('div');
+          ornament.textContent = ['🔴', '🟡', '⭐'][Math.floor(Math.random() * 3)];
+          ornament.style.cssText = `
+            position: absolute;
+            font-size: 12px;
+            top: ${5 + Math.random() * 15}px;
+            left: ${10 + Math.random() * 15}px;
+            animation: ornamentTwinkle ${1 + Math.random()}s ease-in-out infinite;
+          `;
+          cellElement.appendChild(ornament);
+        }
       } else {
-        cellElement.textContent = '·';
-        cellElement.style.opacity = '0.3';
+        cellElement.textContent = '❄️';
+        cellElement.style.opacity = '0.4';
+        cellElement.style.fontSize = '16px';
+        cellElement.style.filter = 'drop-shadow(0 0 3px rgba(150, 200, 255, 0.6))';
       }
       
       gridContainer.appendChild(cellElement);
