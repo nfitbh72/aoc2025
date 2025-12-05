@@ -1,7 +1,16 @@
 import { audioManager } from '../utils/audio.js';
+import { createIntroScreen } from './intro-screen.js';
 
 let currentVisualization = null;
 let currentBoxLid = null;
+let introScreen = null;
+
+// Track header animation frame separately to preserve it
+let headerAnimationFrameId = null;
+
+export function setHeaderAnimationFrameId(id) {
+  headerAnimationFrameId = id;
+}
 
 // Override setTimeout and setInterval to track all timers
 const originalSetTimeout = window.setTimeout;
@@ -44,13 +53,25 @@ function clearAllTimers() {
   allIntervals.forEach(id => clearInterval(id));
   allIntervals.clear();
   
-  allAnimationFrames.forEach(id => cancelAnimationFrame(id));
+  // Clear all animation frames EXCEPT the header animation
+  allAnimationFrames.forEach(id => {
+    if (id !== headerAnimationFrameId) {
+      cancelAnimationFrame(id);
+    }
+  });
+  // Keep the header animation frame in the set
   allAnimationFrames.clear();
+  if (headerAnimationFrameId) {
+    allAnimationFrames.add(headerAnimationFrameId);
+  }
 }
 
 export function initializeVisualization() {
   const area = document.getElementById('visualization-area');
   area.innerHTML = '';
+  
+  // Show the festive intro screen
+  introScreen = createIntroScreen(area);
 }
 
 export async function loadVisualization(day, part, boxLid = null) {
@@ -63,6 +84,16 @@ export async function loadVisualization(day, part, boxLid = null) {
   audioManager.stopAll();
   
   const area = document.getElementById('visualization-area');
+  
+  // Clear intro screen if it exists
+  if (introScreen) {
+    try {
+      introScreen.cleanup();
+    } catch (error) {
+      console.error('Error during intro screen cleanup:', error);
+    }
+    introScreen = null;
+  }
   
   // Clear current visualization
   if (currentVisualization) {

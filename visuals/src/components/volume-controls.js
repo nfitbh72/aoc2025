@@ -3,6 +3,7 @@
  */
 
 import { audioManager } from '../utils/audio.js';
+import { connectMusicAnalyzer } from './header-emojis.js';
 
 let musicVolume = 0.5;
 let effectsVolume = 1.0;
@@ -146,12 +147,17 @@ async function startBackgroundMusic() {
     // Try to play, but handle autoplay restrictions
     try {
       await musicAudio.play();
+      // Connect music analyzer after successful play
+      connectMusicAnalyzer(musicAudio);
     } catch (err) {
       console.log('Autoplay prevented, music will start on first user interaction');
       
       // Start music on first user interaction
       const startMusic = () => {
-        musicAudio.play().catch(() => {});
+        musicAudio.play().then(() => {
+          // Connect music analyzer after successful play
+          connectMusicAnalyzer(musicAudio);
+        }).catch(() => {});
         document.removeEventListener('click', startMusic);
         document.removeEventListener('keydown', startMusic);
       };
