@@ -24,7 +24,7 @@ export default function visualize(container, onComplete) {
   const colors = ['#c41e3a', '#0f8a5f', '#c41e3a', '#0f8a5f'];
   
   const instructionText = 'Find the largest 12-digit number from each line by combining digits in order, then sum them all.';
-  const counterLabel = 'Total Sum';
+  const counterLabel = 'Total Joltage';
   
   let counterBox = null;
   let instructionPanel = null;
