@@ -596,3 +596,14 @@ func HasRepeatingPattern(s string) bool {
 	}
 	return false
 }
+
+// DeepCopy creates a deep copy of a 2D integer slice.
+// Returns a new slice with the same values but independent memory allocation.
+func DeepCopy(a [][]int) [][]int {
+	b := make([][]int, len(a))
+	for i := range a {
+		b[i] = make([]int, len(a[i]))
+		copy(b[i], a[i])
+	}
+	return b
+}

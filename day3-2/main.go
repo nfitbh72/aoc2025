@@ -11,7 +11,7 @@ type Problem struct {
 }
 
 func (m *Problem) GetProblemName() string {
-	return "Day 3, Part 1"
+	return "Day 3, Part 2"
 }
 
 func (m *Problem) GetAnswer() string {

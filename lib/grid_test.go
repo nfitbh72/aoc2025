@@ -188,10 +188,6 @@ func TestTableMergeAllRows(t *testing.T) {
 }
 
 func TestTableGetSumOfMaxOfEachRow(t *testing.T) {
-	type TTableParseRowArgs struct {
-		lines     []string
-		delimiter string
-	}
 	table := &TTable{}
 	table.Init()
 	tests := []TTest{
@@ -930,13 +926,13 @@ func TestGetAdjacentListSpecificCoordinates(t *testing.T) {
 	}, false)
 
 	// Test center position (2,2) - M surrounded by H,I,J,L,N,Q,R,S
-	// H is at (1,1), so should be in the list
+	// H is at (2,1), so should be in the list
 	hList := g.GetAdjacentList(2, 2, 'H')
 	if len(hList) != 1 {
 		t.Errorf("expected 1 H coordinate around (2,2), got %d", len(hList))
 	}
-	if len(hList) > 0 && (hList[0][0] != 1 || hList[0][1] != 1) {
-		t.Errorf("expected H at (1,1), got (%d,%d)", hList[0][0], hList[0][1])
+	if len(hList) > 0 && (hList[0][0] != 2 || hList[0][1] != 1) {
+		t.Errorf("expected H at (2,1), got (%d,%d)", hList[0][0], hList[0][1])
 	}
 
 	// R is at (2,3), so should be in the list

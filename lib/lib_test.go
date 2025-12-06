@@ -1191,3 +1191,49 @@ func TestHasRepeatingPattern(t *testing.T) {
 		CheckTest(t, "lib.HasRepeatingPattern", test, HasRepeatingPattern(test.Input.(string)))
 	}
 }
+
+func TestDeepCopy(t *testing.T) {
+	tests := []TTest{
+		{
+			Name:   "empty 2D slice",
+			Input:  [][]int{},
+			Expect: [][]int{},
+		},
+		{
+			Name:   "simple 2D slice",
+			Input:  [][]int{{1, 2, 3}, {4, 5, 6}},
+			Expect: [][]int{{1, 2, 3}, {4, 5, 6}},
+		},
+		{
+			Name:   "2D slice with different row lengths",
+			Input:  [][]int{{1, 2}, {3, 4, 5}, {6}},
+			Expect: [][]int{{1, 2}, {3, 4, 5}, {6}},
+		},
+		{
+			Name:   "2D slice with negative numbers",
+			Input:  [][]int{{-1, -2}, {3, -4}},
+			Expect: [][]int{{-1, -2}, {3, -4}},
+		},
+	}
+
+	for _, test := range tests {
+		input := test.Input.([][]int)
+		result := DeepCopy(input)
+
+		// Check that the result matches expected
+		CheckTest(t, "lib.DeepCopy", test, result)
+
+		// Verify it's a deep copy by modifying the original and checking the copy is unchanged
+		if len(input) > 0 && len(input[0]) > 0 {
+			originalValue := input[0][0]
+			input[0][0] = 99999
+			if result[0][0] != originalValue {
+				ReportError(t, "lib.DeepCopy (independence check)", test, result)
+			} else {
+				ReportSuccess("lib.DeepCopy (independence check)", test)
+			}
+			// Restore original value for other tests
+			input[0][0] = originalValue
+		}
+	}
+}
