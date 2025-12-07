@@ -61,7 +61,7 @@ func GetReplaceSameDigit(pattern string, replace string) []int {
 // either GetReplaceSameDigit or GetAllInt, and returns those values that
 // satisfy the predicate f.
 func GetWildcardMatches(pattern string, replace string, sameDigit bool, f func(int) bool) []int {
-	m := []int{}
+	var m []int
 	if sameDigit {
 		m = GetReplaceSameDigit(pattern, replace)
 	} else {
