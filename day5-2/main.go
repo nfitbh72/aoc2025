@@ -12,7 +12,7 @@ type Problem struct {
 }
 
 func (m *Problem) GetProblemName() string {
-	return "Day 5, Part 1"
+	return "Day 5, Part 2"
 }
 
 func (m *Problem) GetAnswer() string {
