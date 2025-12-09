@@ -31,6 +31,7 @@ export class CounterBox {
         #fff 20px
       );
       animation: candyCaneSlide 2s linear infinite;
+      z-index: 100;
     `;
     
     // Create counter element

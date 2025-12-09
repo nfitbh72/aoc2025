@@ -32,6 +32,7 @@ export class InstructionPanel {
         #fff 20px
       );
       animation: candyCaneSlide 2s linear infinite;
+      z-index: 100;
     `;
     
     this.element = document.createElement('div');
