@@ -243,20 +243,20 @@ func (m *TGrid) CreateSpiralFromCenter(sizeX, sizeY int) {
 		}
 	}
 
-	p := TGridPosition{X: sizeX / 2, Y: sizeY / 2, direction: RightDirection}
+	p := TGridPosition{X: sizeX / 2, Y: sizeY / 2, Direction: RightDirection}
 	for i := range sizeX * sizeY {
 		m.Values[p.Y][p.X] = i + 1
 		p.Walk()
 
 		//if we turn right is there still a zero?
-		testDirection := TurnRight[p.direction]
+		testDirection := TurnRight[p.Direction]
 		//fmt.Printf("testing direction %d, %d\n", testDirection.X, testDirection.Y)
 		testY := p.Y + testDirection.Y
 		testX := p.X + testDirection.X
 		//fmt.Printf("[%d][%d] is %d\n", testX, testY, m.Values[testY][testX])
 		if testX < 0 || testY < 0 || testX >= sizeX || testY >= sizeY || m.Values[testY][testX] == 0 {
 			//fmt.Println("turning right")
-			p.direction = testDirection
+			p.Direction = testDirection
 		}
 	}
 }
@@ -349,7 +349,7 @@ func (m *TGrid) WalkFromWithBlocker(gp *TGridPosition, blockingCharacter rune) (
 	currentGridPos := TGridPosition{}
 	currentGridPos.X = gp.X
 	currentGridPos.Y = gp.Y
-	currentGridPos.direction = gp.direction
+	currentGridPos.Direction = gp.Direction
 	err := m.WalkFrom(gp)
 	//fmt.Println(gp)
 	if err != nil {
@@ -678,28 +678,28 @@ func (m *TGrid) GetAllWords(numChrs int) [][]any {
 type TGridPosition struct {
 	X         int
 	Y         int
-	direction *TDirection
+	Direction *TDirection
 }
 
 // ToString returns a human-readable representation of the grid position and
 // direction.
 func (m *TGridPosition) ToString() string {
-	return fmt.Sprintf("%d, %d: %s", m.X, m.Y, DirectionToStr[m.direction])
+	return fmt.Sprintf("%d, %d: %s", m.X, m.Y, DirectionToStr[m.Direction])
 }
 
 // Walk advances the position by one step in its current direction.
 func (m *TGridPosition) Walk() {
-	m.X += m.direction.X
-	m.Y += m.direction.Y
+	m.X += m.Direction.X
+	m.Y += m.Direction.Y
 }
 
 // NextPos returns the coordinates of the cell one step ahead in the current
 // direction.
 func (m *TGridPosition) NextPos() (int, int) {
-	return m.X + m.direction.X, m.Y + m.direction.Y
+	return m.X + m.Direction.X, m.Y + m.Direction.Y
 }
 
 // ChangeDirection updates the direction of travel for the grid position.
 func (m *TGridPosition) ChangeDirection(direction *TDirection) {
-	m.direction = direction
+	m.Direction = direction
 }

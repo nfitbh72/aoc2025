@@ -527,7 +527,7 @@ func TestWalkFromWithBlockerAndBounds(t *testing.T) {
 	g.ParseTable([]string{"ABC", "D#F"}, false)
 
 	// normal move (no blocker)
-	pos := &TGridPosition{X: 0, Y: 0, direction: RightDirection}
+	pos := &TGridPosition{X: 0, Y: 0, Direction: RightDirection}
 	newPos, err := g.WalkFromWithBlocker(pos, '#')
 	if err != nil {
 		t.Fatalf("unexpected error on normal move: %v", err)
@@ -537,7 +537,7 @@ func TestWalkFromWithBlockerAndBounds(t *testing.T) {
 	}
 
 	// move into blocker
-	pos = &TGridPosition{X: 0, Y: 1, direction: RightDirection}
+	pos = &TGridPosition{X: 0, Y: 1, Direction: RightDirection}
 	newPos, err = g.WalkFromWithBlocker(pos, '#')
 	if err == nil {
 		t.Fatalf("expected error when moving into blocker, got nil")
@@ -547,7 +547,7 @@ func TestWalkFromWithBlockerAndBounds(t *testing.T) {
 	}
 
 	// move out of bounds
-	pos = &TGridPosition{X: 2, Y: 0, direction: RightDirection}
+	pos = &TGridPosition{X: 2, Y: 0, Direction: RightDirection}
 	newPos, err = g.WalkFromWithBlocker(pos, '#')
 	if err == nil {
 		t.Fatalf("expected error when moving out of bounds, got nil")
@@ -562,7 +562,7 @@ func TestGetValueSetValueCountValues(t *testing.T) {
 	g.Init()
 	g.ParseSpaceDTable([]string{"1 2", "3 4"}, true)
 
-	gp := &TGridPosition{X: 1, Y: 0, direction: RightDirection}
+	gp := &TGridPosition{X: 1, Y: 0, Direction: RightDirection}
 	if g.GetValue(gp) != 2 {
 		t.Errorf("expected value 2 at (1,0), got %v", g.GetValue(gp))
 	}
@@ -674,7 +674,7 @@ func TestFindElementNotFound(t *testing.T) {
 }
 
 func TestGridPositionHelpers(t *testing.T) {
-	gp := &TGridPosition{X: 1, Y: 2, direction: RightDirection}
+	gp := &TGridPosition{X: 1, Y: 2, Direction: RightDirection}
 
 	// NextPos should move one step in current direction
 	nx, ny := gp.NextPos()
