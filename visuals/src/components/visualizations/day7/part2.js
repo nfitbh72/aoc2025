@@ -85,6 +85,8 @@ export default function visualize(container, onComplete) {
   
   // Track ALL beams (not just unique positions)
   let totalBeams = 0;
+  const expectedAnswer = 40;
+  let hasCompleted = false;
   
   const tree = new ChristmasTree(
     container, 
@@ -98,6 +100,16 @@ export default function visualize(container, onComplete) {
       totalBeams++;
       counter.increment(1);
       audioManager.play('ding', 0.3);
+      
+      // Check if we just reached the expected answer
+      if (!hasCompleted && counter.counterValue === expectedAnswer) {
+        hasCompleted = true;
+        counter.markComplete();
+        fireworks = celebrate(container, 8000);
+        setTimeout(() => {
+          audioManager.play('yay', 0.8);
+        }, 500);
+      }
     }
   );
   
@@ -113,15 +125,11 @@ export default function visualize(container, onComplete) {
   setTimeout(async () => {
     await tree.animateBeam(7, 0);
     
-    // Wait a moment then celebrate
+    // Wait for animations to complete, then show messages
     setTimeout(() => {
-      counter.markComplete();
-      
-      // Create extra festive celebration
-      fireworks = celebrate(container, 8000);
-      
       // Wait 2 seconds before showing messages
       setTimeout(() => {
+        
         // Add floating Christmas messages
         const messages = [
           '🎄 Merry Christmas! 🎄',
@@ -167,17 +175,12 @@ export default function visualize(container, onComplete) {
             }
           }, index * 500);
         });
-        
-        // Play celebration sound
-        setTimeout(() => {
-          audioManager.play('yay', 0.8);
-        }, 500);
       }, 2000);
       
       if (onComplete) {
         setTimeout(onComplete, 4000);
       }
-    }, 1000);
+    }, 3000); // Wait 3 seconds for all beams to finish
   }, 1000);
   
   return {

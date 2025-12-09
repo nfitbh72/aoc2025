@@ -45,6 +45,9 @@ export class ChristmasTree {
   }
   
   drawTree() {
+    // Draw Christmas tree background shape
+    this.drawTreeBackground();
+    
     // Draw the tree structure
     for (let y = 0; y < this.grid.length; y++) {
       for (let x = 0; x < this.grid[y].length; x++) {
@@ -61,6 +64,150 @@ export class ChristmasTree {
         }
       }
     }
+  }
+  
+  drawTreeBackground() {
+    const centerX = this.canvas.width / 2;
+    const treeTop = this.offsetY;
+    const treeHeight = this.grid.length * this.cellSize;
+    const treeWidth = this.grid[0].length * this.cellSize * 0.9;
+    
+    this.ctx.save();
+    
+    // Draw tree foliage (triangular shape)
+    const gradient = this.ctx.createLinearGradient(
+      centerX - treeWidth / 2, treeTop,
+      centerX + treeWidth / 2, treeTop + treeHeight
+    );
+    gradient.addColorStop(0, '#0d5c0d');
+    gradient.addColorStop(0.5, '#0f7d0f');
+    gradient.addColorStop(1, '#0a4a0a');
+    
+    this.ctx.fillStyle = gradient;
+    this.ctx.shadowBlur = 20;
+    this.ctx.shadowColor = 'rgba(15, 125, 15, 0.5)';
+    
+    // Draw triangular tree shape
+    this.ctx.beginPath();
+    this.ctx.moveTo(centerX, treeTop + 20); // Top point
+    this.ctx.lineTo(centerX - treeWidth / 2, treeTop + treeHeight - 40); // Bottom left
+    this.ctx.lineTo(centerX + treeWidth / 2, treeTop + treeHeight - 40); // Bottom right
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    // Add some texture with darker triangles
+    this.ctx.shadowBlur = 0;
+    this.ctx.fillStyle = 'rgba(10, 60, 10, 0.3)';
+    
+    // Left side shading
+    this.ctx.beginPath();
+    this.ctx.moveTo(centerX, treeTop + 20);
+    this.ctx.lineTo(centerX - treeWidth / 2, treeTop + treeHeight - 40);
+    this.ctx.lineTo(centerX, treeTop + treeHeight / 2);
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    // Draw tree trunk
+    const trunkWidth = 40;
+    const trunkHeight = 60;
+    const trunkGradient = this.ctx.createLinearGradient(
+      centerX - trunkWidth / 2, treeTop + treeHeight - 40,
+      centerX + trunkWidth / 2, treeTop + treeHeight - 40
+    );
+    trunkGradient.addColorStop(0, '#4a2511');
+    trunkGradient.addColorStop(0.5, '#6b3a1e');
+    trunkGradient.addColorStop(1, '#4a2511');
+    
+    this.ctx.fillStyle = trunkGradient;
+    this.ctx.fillRect(
+      centerX - trunkWidth / 2,
+      treeTop + treeHeight - 40,
+      trunkWidth,
+      trunkHeight
+    );
+    
+    // Add trunk texture
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    this.ctx.fillRect(
+      centerX - trunkWidth / 2,
+      treeTop + treeHeight - 40,
+      trunkWidth / 3,
+      trunkHeight
+    );
+    
+    // Draw Christmas presents under the tree
+    this.drawPresents(centerX, treeTop + treeHeight + 20);
+    
+    this.ctx.restore();
+  }
+  
+  drawPresents(centerX, baseY) {
+    // Present 1 - Red with gold ribbon
+    this.drawPresent(centerX - 60, baseY, 40, 35, '#c41e3a', '#ffd700');
+    
+    // Present 2 - Green with red ribbon
+    this.drawPresent(centerX - 10, baseY, 35, 40, '#27ae60', '#ff0000');
+    
+    // Present 3 - Blue with silver ribbon
+    this.drawPresent(centerX + 35, baseY, 45, 30, '#3498db', '#c0c0c0');
+    
+    // Present 4 - Purple with gold ribbon (smaller, in front)
+    this.drawPresent(centerX - 35, baseY + 15, 30, 25, '#9b59b6', '#ffd700');
+    
+    // Present 5 - Orange with white ribbon (smaller, in front)
+    this.drawPresent(centerX + 10, baseY + 15, 28, 28, '#e67e22', '#ffffff');
+  }
+  
+  drawPresent(x, y, width, height, boxColor, ribbonColor) {
+    this.ctx.save();
+    
+    // Draw box
+    const gradient = this.ctx.createLinearGradient(x, y, x + width, y + height);
+    gradient.addColorStop(0, boxColor);
+    gradient.addColorStop(1, this.darkenColor(boxColor));
+    
+    this.ctx.fillStyle = gradient;
+    this.ctx.shadowBlur = 5;
+    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    this.ctx.fillRect(x, y, width, height);
+    
+    // Draw vertical ribbon
+    this.ctx.fillStyle = ribbonColor;
+    this.ctx.fillRect(x + width / 2 - 3, y, 6, height);
+    
+    // Draw horizontal ribbon
+    this.ctx.fillRect(x, y + height / 2 - 3, width, 6);
+    
+    // Draw bow
+    this.ctx.fillStyle = ribbonColor;
+    this.ctx.shadowBlur = 3;
+    this.ctx.shadowColor = ribbonColor;
+    
+    // Left bow loop
+    this.ctx.beginPath();
+    this.ctx.arc(x + width / 2 - 8, y + height / 2, 6, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    // Right bow loop
+    this.ctx.beginPath();
+    this.ctx.arc(x + width / 2 + 8, y + height / 2, 6, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    // Center knot
+    this.ctx.beginPath();
+    this.ctx.arc(x + width / 2, y + height / 2, 4, 0, Math.PI * 2);
+    this.ctx.fill();
+    
+    this.ctx.restore();
+  }
+  
+  darkenColor(color) {
+    // Simple color darkening
+    const hex = color.replace('#', '');
+    const r = Math.max(0, parseInt(hex.substr(0, 2), 16) - 40);
+    const g = Math.max(0, parseInt(hex.substr(2, 2), 16) - 40);
+    const b = Math.max(0, parseInt(hex.substr(4, 2), 16) - 40);
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   }
   
   drawStar(x, y, size, color) {

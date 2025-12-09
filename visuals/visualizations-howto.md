@@ -279,16 +279,28 @@ export default function visualize(container, onComplete) {
     // Your animation logic here
     await animateVisualization(data, counter);
     
-    // 7. Mark complete and celebrate!
+    // 7. Check if answer is correct, then celebrate!
     setTimeout(() => {
-      counter.markComplete();
-      fireworks = celebrate(container, 5000);
+      // Define the expected answer for this visualization
+      const expectedAnswer = 42; // Replace with your expected answer
+      const isCorrect = counter.counterValue === expectedAnswer;
+      
+      // Only celebrate if the answer is correct
+      if (isCorrect) {
+        counter.markComplete(); // Turn counter green
+        fireworks = celebrate(container, 5000); // Trigger fireworks
+        
+        // Play celebration sound
+        setTimeout(() => {
+          audioManager.play('yay', 0.8);
+        }, 500);
+      }
       
       // 8. Notify completion (closes gift box)
       if (onComplete) {
-        onComplete();
+        setTimeout(onComplete, 2000);
       }
-    }, 500);
+    }, 1000);
   }, 1000);
   
   // 9. Return cleanup function
@@ -346,6 +358,37 @@ if (condition) {
   audioManager.play('ding', 0.6);
 }
 ```
+
+#### Conditional Celebrations (IMPORTANT!)
+
+**Always verify the answer before celebrating!** This helps catch bugs and provides clear visual feedback.
+
+```javascript
+// After animation completes, check the answer
+setTimeout(() => {
+  // Define expected answer from your test input
+  const expectedAnswer = 21; // Get this from your Go solution
+  const isCorrect = counter.counterValue === expectedAnswer;
+  
+  // Only celebrate if correct
+  if (isCorrect) {
+    counter.markComplete();           // Turn green
+    fireworks = celebrate(container); // Fireworks
+    audioManager.play('yay', 0.8);   // Success sound
+  }
+  // If incorrect: counter stays red, no fireworks, no sound
+  
+  if (onComplete) {
+    setTimeout(onComplete, 2000);
+  }
+}, 1000);
+```
+
+**Why this matters:**
+- ✅ Green counter = correct answer
+- ❌ Red counter = bug in visualization
+- Immediate visual feedback during development
+- Prevents false celebrations
 
 ---
 
