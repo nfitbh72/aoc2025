@@ -67,16 +67,11 @@ func (m *Problem) getCircuits(distances eulerlib.ThreedDistances) eulerlib.Three
 
 		// both in same circuit - do nothing
 		if fromCircuit != nil && toCircuit != nil && fromCircuitIdx == toCircuitIdx {
-			fmt.Println("both found in same circuit, doing nothing")
-			fmt.Print(fromCircuit.ToString())
 			continue
 		}
 
 		// both in different circuits - merge them
 		if fromCircuit != nil && toCircuit != nil && fromCircuitIdx != toCircuitIdx {
-			fmt.Println("merging two circuits!")
-			fmt.Print(fromCircuit.ToString())
-			fmt.Print(toCircuit.ToString())
 
 			// add all nodes from toCircuit to fromCircuit
 			for node := toCircuit; node != nil; node = node.Next {
@@ -87,24 +82,18 @@ func (m *Problem) getCircuits(distances eulerlib.ThreedDistances) eulerlib.Three
 
 			// remove toCircuit from the list
 			circuits = slices.Delete(circuits, toCircuitIdx, toCircuitIdx+1)
-			fmt.Println("merged circuit:")
-			fmt.Print(fromCircuit.ToString())
 			continue
 		}
 
 		// only From found - add To to that circuit
 		if fromCircuit != nil && toCircuit == nil {
 			fromCircuit.Add(d.To)
-			fmt.Println("found from, adding", d.To, "to circuit")
-			fmt.Print(fromCircuit.ToString())
 			continue
 		}
 
 		// only To found - add From to that circuit
 		if toCircuit != nil && fromCircuit == nil {
 			toCircuit.Add(d.From)
-			fmt.Println("found to, adding", d.From, "to circuit")
-			fmt.Print(toCircuit.ToString())
 			continue
 		}
 
@@ -112,8 +101,6 @@ func (m *Problem) getCircuits(distances eulerlib.ThreedDistances) eulerlib.Three
 		newCircuit := eulerlib.ThreedCircuit{Start: d.From}
 		newCircuit.Add(d.To)
 		circuits = append(circuits, &newCircuit)
-		fmt.Println("added new circuit")
-		fmt.Print(newCircuit.ToString())
 	}
 	return circuits
 }
@@ -126,10 +113,7 @@ func (m *Problem) Solve(lines []string, numIterations int) int {
 		distances = distances[:numIterations]
 	}
 	fmt.Println("we have", len(distances), "distances")
-	fmt.Print(distances.ToString())
-	fmt.Println()
 	circuits := m.getCircuits(distances)
-	fmt.Print(circuits.ToString())
 
 	circuits = *circuits.SortByLengthDesc()
 	counter := 1
@@ -139,11 +123,8 @@ func (m *Problem) Solve(lines []string, numIterations int) int {
 	}
 	fmt.Println("have circuits:", len(circuits))
 	for _, c := range circuits[0:3] {
-		fmt.Println("multiplying by", c.GetLength())
 		counter = counter * c.GetLength()
 	}
-	fmt.Println("longest circuits:")
-	//fmt.Print(circuits.ToString())
 	return counter
 
 }

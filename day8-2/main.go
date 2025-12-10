@@ -17,7 +17,7 @@ func (m *Problem) GetProblemName() string {
 }
 
 func (m *Problem) GetAnswer() string {
-	return "40941112789504"
+	return "673096646"
 }
 
 func (m *Problem) GenerateAnswer() string {
