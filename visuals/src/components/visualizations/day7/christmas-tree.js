@@ -3,6 +3,8 @@
  * Displays the beam-splitting tree with festive decorations
  */
 
+import { COMMON_CONFIG } from './config.js';
+
 export class ChristmasTree {
   constructor(container, grid, onBeamHit, onBeamReachBottom) {
     this.container = container;
@@ -57,7 +59,7 @@ export class ChristmasTree {
         
         if (char === 'S') {
           // Draw star at top
-          this.drawStar(px + this.cellSize / 2, py + this.cellSize / 2, 15, '#ffd700');
+          this.drawStar(px + this.cellSize / 2, py + this.cellSize / 2, 15, COMMON_CONFIG.STAR_TOP_COLOR);
         } else if (char === '^') {
           // Draw ornament (blocker)
           this.drawOrnament(px + this.cellSize / 2, py + this.cellSize / 2, false);
@@ -79,13 +81,13 @@ export class ChristmasTree {
       centerX - treeWidth / 2, treeTop,
       centerX + treeWidth / 2, treeTop + treeHeight
     );
-    gradient.addColorStop(0, '#0d5c0d');
-    gradient.addColorStop(0.5, '#0f7d0f');
-    gradient.addColorStop(1, '#0a4a0a');
+    gradient.addColorStop(0, COMMON_CONFIG.TREE_GRADIENT_START);
+    gradient.addColorStop(0.5, COMMON_CONFIG.TREE_GRADIENT_MID);
+    gradient.addColorStop(1, COMMON_CONFIG.TREE_GRADIENT_END);
     
     this.ctx.fillStyle = gradient;
     this.ctx.shadowBlur = 20;
-    this.ctx.shadowColor = 'rgba(15, 125, 15, 0.5)';
+    this.ctx.shadowColor = COMMON_CONFIG.TREE_SHADOW_COLOR;
     
     // Draw triangular tree shape
     this.ctx.beginPath();
@@ -114,9 +116,9 @@ export class ChristmasTree {
       centerX - trunkWidth / 2, treeTop + treeHeight - 40,
       centerX + trunkWidth / 2, treeTop + treeHeight - 40
     );
-    trunkGradient.addColorStop(0, '#4a2511');
-    trunkGradient.addColorStop(0.5, '#6b3a1e');
-    trunkGradient.addColorStop(1, '#4a2511');
+    trunkGradient.addColorStop(0, COMMON_CONFIG.TRUNK_GRADIENT_START);
+    trunkGradient.addColorStop(0.5, COMMON_CONFIG.TRUNK_GRADIENT_MID);
+    trunkGradient.addColorStop(1, COMMON_CONFIG.TRUNK_GRADIENT_END);
     
     this.ctx.fillStyle = trunkGradient;
     this.ctx.fillRect(
@@ -142,20 +144,20 @@ export class ChristmasTree {
   }
   
   drawPresents(centerX, baseY) {
-    // Present 1 - Red with gold ribbon
-    this.drawPresent(centerX - 60, baseY, 40, 35, '#c41e3a', '#ffd700');
+    // Present 1 - Red with white ribbon
+    this.drawPresent(centerX - 60, baseY, 40, 35, COMMON_CONFIG.PRESENT_BOX_COLORS[0], COMMON_CONFIG.PRESENT_RIBBON_COLOR);
     
-    // Present 2 - Green with red ribbon
-    this.drawPresent(centerX - 10, baseY, 35, 40, '#27ae60', '#ff0000');
+    // Present 2 - Blue with white ribbon
+    this.drawPresent(centerX - 10, baseY, 35, 40, COMMON_CONFIG.PRESENT_BOX_COLORS[1], COMMON_CONFIG.PRESENT_RIBBON_COLOR);
     
-    // Present 3 - Blue with silver ribbon
-    this.drawPresent(centerX + 35, baseY, 45, 30, '#3498db', '#c0c0c0');
+    // Present 3 - Orange with white ribbon
+    this.drawPresent(centerX + 35, baseY, 45, 30, COMMON_CONFIG.PRESENT_BOX_COLORS[2], COMMON_CONFIG.PRESENT_RIBBON_COLOR);
     
-    // Present 4 - Purple with gold ribbon (smaller, in front)
-    this.drawPresent(centerX - 35, baseY + 15, 30, 25, '#9b59b6', '#ffd700');
+    // Present 4 - Red with white ribbon (smaller, in front)
+    this.drawPresent(centerX - 35, baseY + 15, 30, 25, COMMON_CONFIG.PRESENT_BOX_COLORS[0], COMMON_CONFIG.PRESENT_RIBBON_COLOR);
     
     // Present 5 - Orange with white ribbon (smaller, in front)
-    this.drawPresent(centerX + 10, baseY + 15, 28, 28, '#e67e22', '#ffffff');
+    this.drawPresent(centerX + 10, baseY + 15, 28, 28, COMMON_CONFIG.PRESENT_BOX_COLORS[2], COMMON_CONFIG.PRESENT_RIBBON_COLOR);
   }
   
   drawPresent(x, y, width, height, boxColor, ribbonColor) {
@@ -239,8 +241,8 @@ export class ChristmasTree {
   
   drawOrnament(x, y, lit) {
     const colors = lit 
-      ? ['#ff0000', '#ffd700', '#00ff00', '#ff69b4', '#00ffff']
-      : ['#8b0000', '#b8860b', '#006400', '#8b008b', '#008b8b'];
+      ? COMMON_CONFIG.ORNAMENT_COLORS_LIT
+      : COMMON_CONFIG.ORNAMENT_COLORS_UNLIT;
     
     const color = colors[Math.floor((x + y) * 7) % colors.length];
     
@@ -261,18 +263,17 @@ export class ChristmasTree {
     this.ctx.fill();
     
     // Ornament cap
-    this.ctx.fillStyle = '#ffd700';
+    this.ctx.fillStyle = COMMON_CONFIG.STAR_TOP_COLOR;
     this.ctx.fillRect(x - 3, y - 12, 6, 4);
     
     this.ctx.restore();
   }
   
   addSparkle(x, y) {
-    const sparkleEmojis = ['✨', '⭐', '💫', '🌟'];
     this.sparkles.push({
       x,
       y,
-      emoji: sparkleEmojis[Math.floor(Math.random() * sparkleEmojis.length)],
+      emoji: COMMON_CONFIG.SPARKLE_EMOJIS[Math.floor(Math.random() * COMMON_CONFIG.SPARKLE_EMOJIS.length)],
       life: 1.0,
       vx: (Math.random() - 0.5) * 2,
       vy: -2 - Math.random() * 2,
@@ -292,7 +293,7 @@ export class ChristmasTree {
       y: this.offsetY + startY * this.cellSize + this.cellSize / 2,
       targetY: this.offsetY + (startY + 1) * this.cellSize + this.cellSize / 2,
       progress: 0,
-      speed: 0.1,
+      speed: COMMON_CONFIG.BEAM_SPEED,
       trail: [],
       active: true
     };
@@ -333,10 +334,10 @@ export class ChristmasTree {
             beam.active = false;
             
             if (beam.gridX - 1 >= 0 && beam.gridY + 2 < this.grid.length) {
-              setTimeout(() => this.animateBeam(beam.gridX - 1, beam.gridY + 1), 100);
+              setTimeout(() => this.animateBeam(beam.gridX - 1, beam.gridY + 1), COMMON_CONFIG.SPLIT_BEAM_DELAY_MS);
             }
             if (beam.gridX + 1 < this.grid[0].length && beam.gridY + 2 < this.grid.length) {
-              setTimeout(() => this.animateBeam(beam.gridX + 1, beam.gridY + 1), 100);
+              setTimeout(() => this.animateBeam(beam.gridX + 1, beam.gridY + 1), COMMON_CONFIG.SPLIT_BEAM_DELAY_MS);
             }
             
             resolve();
@@ -344,7 +345,7 @@ export class ChristmasTree {
             // Continue moving down
             beam.gridY++;
             beam.targetY = this.offsetY + (beam.gridY + 1) * this.cellSize + this.cellSize / 2;
-            setTimeout(checkBeam, 150);
+            setTimeout(checkBeam, COMMON_CONFIG.BEAM_CHECK_DELAY_MS);
           }
         } else {
           // Reached bottom
@@ -364,7 +365,7 @@ export class ChristmasTree {
         }
       };
       
-      setTimeout(checkBeam, 150);
+      setTimeout(checkBeam, COMMON_CONFIG.BEAM_CHECK_DELAY_MS);
     });
   }
   
@@ -410,9 +411,9 @@ export class ChristmasTree {
         const alpha = (index / beam.trail.length) * point.alpha;
         this.ctx.save();
         this.ctx.globalAlpha = alpha;
-        this.ctx.fillStyle = '#00ffff';
+        this.ctx.fillStyle = COMMON_CONFIG.BEAM_COLOR;
         this.ctx.shadowBlur = 10;
-        this.ctx.shadowColor = '#00ffff';
+        this.ctx.shadowColor = COMMON_CONFIG.BEAM_COLOR;
         this.ctx.beginPath();
         this.ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
         this.ctx.fill();
@@ -421,9 +422,9 @@ export class ChristmasTree {
       
       // Draw beam head
       this.ctx.save();
-      this.ctx.fillStyle = '#ffffff';
+      this.ctx.fillStyle = COMMON_CONFIG.BEAM_HEAD_COLOR;
       this.ctx.shadowBlur = 20;
-      this.ctx.shadowColor = '#00ffff';
+      this.ctx.shadowColor = COMMON_CONFIG.BEAM_COLOR;
       this.ctx.beginPath();
       this.ctx.arc(beam.x, beam.y, 5, 0, Math.PI * 2);
       this.ctx.fill();
@@ -436,9 +437,9 @@ export class ChristmasTree {
       
       s.x += s.vx;
       s.y += s.vy;
-      s.vy += 0.2; // gravity
+      s.vy += COMMON_CONFIG.SPARKLE_GRAVITY;
       s.rotation += s.rotationSpeed;
-      s.life -= 0.02;
+      s.life -= COMMON_CONFIG.SPARKLE_LIFE_DECAY;
       
       if (s.life <= 0) {
         this.sparkles.splice(i, 1);

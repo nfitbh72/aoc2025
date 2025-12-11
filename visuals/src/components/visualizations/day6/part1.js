@@ -4,27 +4,20 @@ import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { CalculatorColumn } from './calculator-column.js';
 import { 
-  GRID_LINES, 
   createGridDisplay, 
   calculateColumnPositions, 
   runCalculations 
 } from './shared.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Day 6 Part 1 visualization
  * Parse columns of numbers with operators at the bottom
  */
 export default function visualize(container, onComplete) {
-  const instructionText = '🎄 Calculate each column using the operator at the bottom!';
-  const counterLabel = 'Total Sum';
-  
-  // Test input data - reading columns from top to bottom
-  const columns = [
-    { numbers: [123, 45, 6], operator: 2 },    // * (multiply)
-    { numbers: [328, 64, 98], operator: 0 },   // + (add)
-    { numbers: [51, 387, 215], operator: 2 },  // * (multiply)
-    { numbers: [64, 23, 314], operator: 0 }    // + (add)
-  ];
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = COMMON_CONFIG.COUNTER_LABEL;
+  const columns = PART1_CONFIG.TEST_COLUMNS;
   
   let dayTitle = null;
   let counterBox = null;
@@ -33,17 +26,17 @@ export default function visualize(container, onComplete) {
   let calculatorColumns = [];
   
   // Create UI components
-  dayTitle = new DayTitle(container, 6, 1);
+  dayTitle = new DayTitle(container, PART1_CONFIG.DAY_NUMBER, PART1_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
   // Create visual grid display at the top
-  const gridDisplay = createGridDisplay(container, GRID_LINES);
+  const gridDisplay = createGridDisplay(container, COMMON_CONFIG.TEST_GRID_LINES);
   
   // Create calculator columns
   const containerWidth = container.clientWidth || 1920;
-  const { startX, spacing } = calculateColumnPositions(containerWidth, columns.length);
-  const startY = 280;
+  const { startX, spacing } = calculateColumnPositions(containerWidth, columns.length, COMMON_CONFIG.COLUMN_WIDTH, COMMON_CONFIG.COLUMN_SPACING);
+  const startY = COMMON_CONFIG.COLUMN_START_Y;
   
   columns.forEach((col, index) => {
     const column = new CalculatorColumn(
@@ -62,7 +55,7 @@ export default function visualize(container, onComplete) {
     await runCalculations(calculatorColumns, counterBox);
     
     counterBox.markComplete();
-    fireworks = celebrate(container, 5000);
+    fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
     
     if (onComplete) {
       onComplete();

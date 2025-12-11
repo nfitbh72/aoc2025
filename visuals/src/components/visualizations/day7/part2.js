@@ -4,36 +4,18 @@ import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG, PART2_CONFIG } from './config.js';
 
 /**
  * Day 7 Part 2 visualization
  * Count ALL beams that reach the bottom (not just unique positions)!
  */
 export default function visualize(container, onComplete) {
-  const instructionText = 'Count TOTAL beams reaching the bottom! 🎄✨';
-  
-  // Test input - Christmas tree shaped!
-  const grid = [
-    '.......S.......'.split(''),
-    '...............'.split(''),
-    '.......^.......'.split(''),
-    '...............'.split(''),
-    '......^.^......'.split(''),
-    '...............'.split(''),
-    '.....^.^.^.....'.split(''),
-    '...............'.split(''),
-    '....^.^...^....'.split(''),
-    '...............'.split(''),
-    '...^.^...^.^...'.split(''),
-    '...............'.split(''),
-    '..^...^.....^..'.split(''),
-    '...............'.split(''),
-    '.^.^.^.^.^...^.'.split(''),
-    '...............'.split('')
-  ];
+  const instructionText = PART2_CONFIG.INSTRUCTION_TEXT;
+  const grid = COMMON_CONFIG.TEST_GRID;
   
   // Create festive background
-  container.style.background = 'radial-gradient(circle at 50% 50%, #0a0a1e 0%, #000000 100%)';
+  container.style.background = COMMON_CONFIG.BACKGROUND_GRADIENT;
   
   // Add twinkling stars background
   const starsContainer = document.createElement('div');
@@ -49,19 +31,19 @@ export default function visualize(container, onComplete) {
   container.appendChild(starsContainer);
   
   // Create twinkling stars
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < COMMON_CONFIG.STAR_COUNT; i++) {
     const star = document.createElement('div');
     star.style.cssText = `
       position: absolute;
       left: ${Math.random() * 100}%;
       top: ${Math.random() * 100}%;
-      width: 2px;
-      height: 2px;
-      background: white;
+      width: ${COMMON_CONFIG.STAR_SIZE}px;
+      height: ${COMMON_CONFIG.STAR_SIZE}px;
+      background: ${COMMON_CONFIG.STAR_COLOR};
       border-radius: 50%;
-      animation: twinkle ${2 + Math.random() * 3}s ease-in-out infinite;
-      animation-delay: ${Math.random() * 2}s;
-      box-shadow: 0 0 ${2 + Math.random() * 3}px white;
+      animation: twinkle ${COMMON_CONFIG.STAR_MIN_ANIMATION_DURATION + Math.random() * COMMON_CONFIG.STAR_MAX_ANIMATION_DURATION}s ease-in-out infinite;
+      animation-delay: ${Math.random() * COMMON_CONFIG.STAR_MAX_ANIMATION_DELAY}s;
+      box-shadow: 0 0 ${COMMON_CONFIG.STAR_MIN_GLOW + Math.random() * COMMON_CONFIG.STAR_MAX_GLOW}px ${COMMON_CONFIG.STAR_COLOR};
     `;
     starsContainer.appendChild(star);
   }
@@ -79,13 +61,13 @@ export default function visualize(container, onComplete) {
     document.head.appendChild(style);
   }
   
-  const dayTitle = new DayTitle(container, 7, 2);
-  const counter = new CounterBox(container, 'Total Beams 🌟');
+  const dayTitle = new DayTitle(container, PART2_CONFIG.DAY_NUMBER, PART2_CONFIG.PART_NUMBER);
+  const counter = new CounterBox(container, PART2_CONFIG.COUNTER_LABEL);
   const instructions = new InstructionPanel(container, instructionText);
   
   // Track ALL beams (not just unique positions)
   let totalBeams = 0;
-  const expectedAnswer = 40;
+  const expectedAnswer = PART2_CONFIG.EXPECTED_ANSWER;
   let hasCompleted = false;
   
   const tree = new ChristmasTree(
@@ -99,16 +81,16 @@ export default function visualize(container, onComplete) {
       // Part 2: ONLY count beams reaching the bottom
       totalBeams++;
       counter.increment(1);
-      audioManager.play('ding', 0.3);
+      audioManager.play(COMMON_CONFIG.SOUND_NAME_DING, PART2_CONFIG.DING_VOLUME);
       
       // Check if we just reached the expected answer
       if (!hasCompleted && counter.counterValue === expectedAnswer) {
         hasCompleted = true;
         counter.markComplete();
-        fireworks = celebrate(container, 8000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         setTimeout(() => {
-          audioManager.play('yay', 0.8);
-        }, 500);
+          audioManager.play(COMMON_CONFIG.SOUND_NAME_YAY, COMMON_CONFIG.YAY_VOLUME);
+        }, COMMON_CONFIG.CELEBRATION_SOUND_DELAY_MS);
       }
     }
   );
@@ -116,27 +98,24 @@ export default function visualize(container, onComplete) {
   let fireworks = null;
   
   // Load sounds
-  audioManager.loadSound('ding', 'ding.mp3');
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.SOUND_FILE_DING);
   
   // Start animation
   tree.start();
   
-  // Start the beam from 'S' position (7, 0)
+  // Start the beam from 'S' position
   setTimeout(async () => {
-    await tree.animateBeam(7, 0);
+    await tree.animateBeam(COMMON_CONFIG.BEAM_START_X, COMMON_CONFIG.BEAM_START_Y);
     
     // Wait for animations to complete, then show messages
     setTimeout(() => {
-      // Wait 2 seconds before showing messages
+      // Wait before showing messages
       setTimeout(() => {
         
         // Add floating Christmas messages
-        const messages = [
-          '🎄 Merry Christmas! 🎄',
-          `🌟 ${counter.counterValue} Total Beams! 🌟`,
-          '⭐ Tree Complete! ⭐',
-          '🎁 Happy Holidays! 🎁'
-        ];
+        const messages = PART2_CONFIG.COMPLETION_MESSAGES.map(msg => 
+          msg.replace('{count}', counter.counterValue)
+        );
         
         messages.forEach((msg, index) => {
           setTimeout(() => {
@@ -145,15 +124,12 @@ export default function visualize(container, onComplete) {
             messageEl.style.cssText = `
               position: absolute;
               left: 50%;
-              top: ${30 + index * 15}%;
+              top: ${PART2_CONFIG.MESSAGE_TOP_START + index * PART2_CONFIG.MESSAGE_TOP_SPACING}%;
               transform: translateX(-50%);
-              font-size: 36px;
+              font-size: ${COMMON_CONFIG.MESSAGE_FONT_SIZE};
               font-weight: bold;
-              color: #ffd700;
-              text-shadow: 
-                0 0 20px rgba(255, 215, 0, 1),
-                0 0 40px rgba(255, 215, 0, 0.6),
-                3px 3px 6px rgba(0, 0, 0, 0.8);
+              color: ${COMMON_CONFIG.MESSAGE_COLOR};
+              text-shadow: ${COMMON_CONFIG.MESSAGE_TEXT_SHADOW};
               animation: floatIn 1s ease-out forwards;
               opacity: 0;
               z-index: 2000;
@@ -173,15 +149,15 @@ export default function visualize(container, onComplete) {
               `;
               document.head.appendChild(style);
             }
-          }, index * 500);
+          }, index * COMMON_CONFIG.MESSAGE_STAGGER_DELAY_MS);
         });
-      }, 2000);
+      }, COMMON_CONFIG.MESSAGE_SHOW_DELAY_MS);
       
       if (onComplete) {
-        setTimeout(onComplete, 4000);
+        setTimeout(onComplete, COMMON_CONFIG.COMPLETION_CALLBACK_DELAY_MS);
       }
-    }, 3000); // Wait 3 seconds for all beams to finish
-  }, 1000);
+    }, COMMON_CONFIG.ANIMATION_COMPLETE_WAIT_MS);
+  }, COMMON_CONFIG.BEAM_START_DELAY_MS);
   
   return {
     cleanup: () => {

@@ -1,54 +1,38 @@
 import { ProgressBars } from './bars.js';
 import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Day 2 Part 1 visualization
  */
 export default function visualize(container, onComplete) {
-  // Parse ranges from input
-  const ranges = [
-    { start: 11, end: 22 },
-    { start: 95, end: 115 },
-    { start: 998, end: 1012 },
-    { start: 1188511880, end: 1188511890 },
-    { start: 222220, end: 222224 },
-    { start: 1698522, end: 1698528 },
-    { start: 446443, end: 446449 },
-    { start: 38593856, end: 38593862 },
-    { start: 565653, end: 565659 },
-    { start: 824824821, end: 824824827 },
-    { start: 2121212118, end: 2121212124 }
-  ];
+  const ranges = COMMON_CONFIG.TEST_RANGES;
+  const specialNumbers = PART1_CONFIG.SPECIAL_NUMBERS;
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
   
-  // Special numbers to highlight for Part 1
-  const specialNumbers = [11, 22, 99, 1010, 1188511885, 222222, 446446, 38593859];
-  
-  // Instruction text for Part 1
-  const instructionText = 'Find IDs which are made only of a sequence of digits repeated twice';
-  
-  const dayTitle = new DayTitle(container, 2, 1);
+  const dayTitle = new DayTitle(container, PART1_CONFIG.DAY_NUMBER, PART1_CONFIG.PART_NUMBER);
   let fireworks = null;
   
   // Callback when all bars complete
   const onBarsComplete = () => {
     // Visualization complete! Celebrate!
     setTimeout(() => {
-      fireworks = celebrate(container, 5000);
+      fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
       
       // Notify completion
       if (onComplete) {
         onComplete();
       }
-    }, 500);
+    }, COMMON_CONFIG.COMPLETION_DELAY_MS);
   };
   
-  const bars = new ProgressBars(container, 11, ranges, specialNumbers, onBarsComplete, instructionText, 'Invalid Product IDs');
+  const bars = new ProgressBars(container, COMMON_CONFIG.TOTAL_BARS, ranges, specialNumbers, onBarsComplete, instructionText, COMMON_CONFIG.COUNTER_LABEL);
   
   // Start the bar sequence
   setTimeout(() => {
     bars.start();
-  }, 1000);
+  }, COMMON_CONFIG.START_DELAY_MS);
   
   return {
     bars,

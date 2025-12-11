@@ -2,36 +2,24 @@ import { Safe } from './safe.js';
 import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG, PART2_CONFIG } from './config.js';
 
 /**
  * Day 1 Part 2 visualization
  * Test input from day1-1/input-test.txt
  */
 export default function visualize(container, onComplete) {
-  const instructionText = 'The password is the number of times that the dial passes through zero';
+  const instructionText = PART2_CONFIG.INSTRUCTION_TEXT;
+  const directions = COMMON_CONFIG.TEST_DIRECTIONS;
   
-  // Test input directions (same as part 1)
-  const directions = [
-    'L68',
-    'L30',
-    'R48',
-    'L5',
-    'R60',
-    'L55',
-    'L1',
-    'L99',
-    'R14',
-    'L82'
-  ];
-  
-  const dayTitle = new DayTitle(container, 1, 2);
+  const dayTitle = new DayTitle(container, PART2_CONFIG.DAY_NUMBER, PART2_CONFIG.PART_NUMBER);
   const safe = new Safe(container, instructionText, directions);
   let fireworks = null;
   
   // Parse and execute directions
-  let delay = 500; // Initial delay
-  const moveDuration = 800; // Duration for each move
-  const pauseBetween = 200; // Pause between moves
+  let delay = COMMON_CONFIG.INITIAL_DELAY_MS;
+  const moveDuration = COMMON_CONFIG.MOVE_DURATION_MS;
+  const pauseBetween = COMMON_CONFIG.PAUSE_BETWEEN_MS;
   
   // Schedule the rotations
   directions.forEach((dir, index) => {
@@ -52,13 +40,13 @@ export default function visualize(container, onComplete) {
             // Visualization complete! Celebrate!
             setTimeout(() => {
               safe.markComplete();
-              fireworks = celebrate(container, 5000);
+              fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
               
               // Notify that visualization is complete
               if (onComplete) {
                 onComplete();
               }
-            }, 500);
+            }, COMMON_CONFIG.COMPLETION_DELAY_MS);
           }
         },
         (count) => {
@@ -67,7 +55,7 @@ export default function visualize(container, onComplete) {
           for (let i = 0; i < count; i++) {
             safe.incrementCounter();
           }
-          audioManager.play('zero-hit', 0.6);
+          audioManager.play('zero-hit', COMMON_CONFIG.ZERO_HIT_VOLUME);
         }
       );
     }, delay + index * (moveDuration + pauseBetween));

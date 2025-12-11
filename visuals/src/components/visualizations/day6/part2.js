@@ -4,30 +4,21 @@ import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { CalculatorColumn } from './calculator-column.js';
 import { 
-  GRID_LINES, 
   createGridDisplay, 
   calculateColumnPositions, 
   runCalculations,
   delay
 } from './shared.js';
+import { COMMON_CONFIG, PART2_CONFIG } from './config.js';
 
 /**
  * Day 6 Part 2 visualization
  * Read numbers vertically from columns with operators between them
  */
 export default function visualize(container, onComplete) {
-  const instructionText = '🎁 Now read the numbers VERTICALLY and calculate!';
-  const counterLabel = 'Total Sum';
-  
-  // Part 2: Read vertically (right-to-left within each field, top-to-bottom across rows)
-  // Fields are separated by operators in the last row
-  const fields = [
-    { numbers: [356, 24, 1], operator: 2 },      // * (multiply) = 8544
-    { numbers: [8, 248, 369], operator: 0 },     // + (add) = 625
-    { numbers: [175, 581, 32], operator: 2 },    // * (multiply) = 3253600
-    { numbers: [4, 431, 623], operator: 0 }      // + (add) = 1058
-  ];
-  // Total: 3,263,827
+  const instructionText = PART2_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = COMMON_CONFIG.COUNTER_LABEL;
+  const fields = PART2_CONFIG.TEST_FIELDS;
   
   let dayTitle = null;
   let counterBox = null;
@@ -38,14 +29,14 @@ export default function visualize(container, onComplete) {
   let transformedGrid = null;
   
   // Create UI components
-  dayTitle = new DayTitle(container, 6, 2);
+  dayTitle = new DayTitle(container, PART2_CONFIG.DAY_NUMBER, PART2_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
   // Create original grid display
-  originalGrid = createGridDisplay(container, GRID_LINES, {
-    top: '100px',
-    left: '30%',
+  originalGrid = createGridDisplay(container, COMMON_CONFIG.TEST_GRID_LINES, {
+    top: PART2_CONFIG.TRANSFORMED_GRID_TOP,
+    left: PART2_CONFIG.ORIGINAL_GRID_LEFT,
     transform: 'none'
   });
   
@@ -53,40 +44,37 @@ export default function visualize(container, onComplete) {
   transformedGrid = document.createElement('div');
   transformedGrid.style.cssText = `
     position: absolute;
-    top: 100px;
-    left: 52%;
+    top: ${PART2_CONFIG.TRANSFORMED_GRID_TOP};
+    left: ${PART2_CONFIG.TRANSFORMED_GRID_LEFT};
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding: 15px 20px;
-    background: rgba(30, 50, 70, 0.9);
-    border-radius: 15px;
-    border: 2px solid rgba(100, 200, 255, 0.5);
+    padding: ${PART2_CONFIG.TRANSFORMED_PADDING};
+    background: linear-gradient(135deg, rgba(196, 30, 58, 0.9), rgba(15, 138, 95, 0.9));
+    border-radius: ${PART2_CONFIG.TRANSFORMED_BORDER_RADIUS};
+    border: 3px solid #ffd700;
+    box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
     font-family: 'Courier New', monospace;
-    font-size: 15px;
-    color: #94a3b8;
+    font-size: ${PART2_CONFIG.TRANSFORMED_FONT_SIZE};
+    color: #ffffff;
     opacity: 0;
     pointer-events: none;
   `;
   
   const transformTitle = document.createElement('div');
   transformTitle.style.cssText = `
-    font-size: 14px;
-    color: #60a5fa;
+    font-size: ${PART2_CONFIG.TRANSFORMED_TITLE_SIZE};
+    color: #ffd700;
     font-weight: 600;
     text-align: center;
     margin-bottom: 5px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
   `;
-  transformTitle.textContent = '📖 Reading Vertically:';
+  transformTitle.textContent = '🎄 Reading Vertically 🎄';
   transformedGrid.appendChild(transformTitle);
   
   // Show the vertical reading interpretation (right-to-left within field)
-  const verticalLines = [
-    'Field 1: 3→5→6, 2→4, 1  (×) = 8,544',
-    'Field 2: 8, 2→4→8, 3→6→9  (+) = 625',
-    'Field 3: 1→7→5, 5→8→1, 3→2  (×) = 3,253,600',
-    'Field 4: 4, 4→3→1, 6→2→3  (+) = 1,058'
-  ];
+  const verticalLines = PART2_CONFIG.VERTICAL_LINES;
   
   verticalLines.forEach(line => {
     const lineEl = document.createElement('div');
@@ -102,12 +90,12 @@ export default function visualize(container, onComplete) {
   
   // Animate transformation
   async function showTransformation() {
-    await delay(1000);
+    await delay(PART2_CONFIG.TRANSFORMATION_DELAY_MS);
     
     // Fade in transformed grid (keep original visible)
     transformedGrid.style.opacity = '1';
     
-    await delay(2000);
+    await delay(PART2_CONFIG.TRANSFORMATION_SHOW_MS);
   }
   
   // Create calculator columns (after transformation)
@@ -115,8 +103,8 @@ export default function visualize(container, onComplete) {
     await showTransformation();
     
     const containerWidth = container.clientWidth || 1920;
-    const { startX, spacing } = calculateColumnPositions(containerWidth, fields.length);
-    const startY = 320;
+    const { startX, spacing } = calculateColumnPositions(containerWidth, fields.length, COMMON_CONFIG.COLUMN_WIDTH, COMMON_CONFIG.COLUMN_SPACING);
+    const startY = PART2_CONFIG.COLUMN_START_Y;
     
     fields.forEach((field, index) => {
       const column = new CalculatorColumn(
@@ -134,7 +122,7 @@ export default function visualize(container, onComplete) {
     await runCalculations(calculatorColumns, counterBox);
     
     counterBox.markComplete();
-    fireworks = celebrate(container, 5000);
+    fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
     
     if (onComplete) {
       onComplete();

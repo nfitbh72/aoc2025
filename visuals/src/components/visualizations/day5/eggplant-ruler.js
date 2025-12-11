@@ -1,5 +1,6 @@
 import { audioManager } from '../../../utils/audio.js';
 import { createWoodenRuler, createEggplant } from './wooden-ruler.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Eggplant Ruler component for Day 5 Part 1
@@ -100,7 +101,7 @@ export class EggplantRuler {
     });
   }
   
-  async checkValue(value, delay = 1000) {
+  async checkValue(value, delay = PART1_CONFIG.CHECK_VALUE_DELAY_MS) {
     return new Promise(resolve => {
       setTimeout(() => {
         // Create marker for the value
@@ -114,7 +115,7 @@ export class EggplantRuler {
           height: 0;
           border-left: 10px solid transparent;
           border-right: 10px solid transparent;
-          border-bottom: 15px solid #ff6b6b;
+          border-bottom: 15px solid ${PART1_CONFIG.MARKER_COLOR};
           animation: bounce 0.5s ease;
         `;
         
@@ -128,7 +129,7 @@ export class EggplantRuler {
           transform: translateX(-50%);
           font-size: 16px;
           font-weight: bold;
-          color: #ff6b6b;
+          color: ${PART1_CONFIG.MARKER_COLOR};
         `;
         marker.appendChild(valueLabel);
         
@@ -141,12 +142,12 @@ export class EggplantRuler {
             found = true;
             // Highlight the eggplant
             this.eggplantElements[index].style.transform = 'scale(1.1)';
-            this.eggplantElements[index].style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.8)';
+            this.eggplantElements[index].style.boxShadow = COMMON_CONFIG.EGGPLANT_HIGHLIGHT_SHADOW;
             
             setTimeout(() => {
               this.eggplantElements[index].style.transform = 'scale(1)';
-              this.eggplantElements[index].style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-            }, 800);
+              this.eggplantElements[index].style.boxShadow = COMMON_CONFIG.EGGPLANT_SHADOW;
+            }, PART1_CONFIG.EGGPLANT_PULSE_DURATION_MS);
           }
         });
         
@@ -157,7 +158,9 @@ export class EggplantRuler {
           } else if (this.counterDisplay) {
             this.counterDisplay.textContent = `Values in ranges: ${this.matchCount}`;
           }
-          marker.style.borderBottomColor = '#51cf66';
+          // Change marker to green when found
+          marker.style.borderBottomColor = PART1_CONFIG.MARKER_FOUND_COLOR;
+          valueLabel.style.color = PART1_CONFIG.MARKER_FOUND_COLOR;
           
           // Play ding sound
           audioManager.play('ding', 0.4);
@@ -167,7 +170,7 @@ export class EggplantRuler {
         setTimeout(() => {
           marker.remove();
           resolve(found);
-        }, 1500);
+        }, PART1_CONFIG.MARKER_REMOVE_DELAY_MS);
       }, delay);
     });
   }

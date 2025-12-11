@@ -1,5 +1,6 @@
 import { audioManager } from '../../../utils/audio.js';
 import { createWoodenRuler, createEggplant } from './wooden-ruler.js';
+import { PART2_CONFIG } from './config.js';
 
 /**
  * Merging Eggplants component for Day 5 Part 2
@@ -81,7 +82,7 @@ export class MergingEggplants {
       eggplants.push(eggplant);
     });
     
-    await this.delay(1500);
+    await this.delay(PART2_CONFIG.INITIAL_SHOW_DELAY_MS);
     return eggplants;
   }
   
@@ -127,7 +128,7 @@ export class MergingEggplants {
       iteration++;
       
       if (changed) {
-        await this.delay(500);
+        await this.delay(PART2_CONFIG.MERGE_ITERATION_DELAY_MS);
       }
     }
   }
@@ -151,7 +152,7 @@ export class MergingEggplants {
       e1.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.8)';
       e2.style.boxShadow = '0 6px 16px rgba(255, 215, 0, 0.8)';
       
-      await this.delay(500);
+      await this.delay(PART2_CONFIG.MERGE_HIGHLIGHT_DELAY_MS);
       
       // Create merged eggplant
       const y = 120 + (iteration % 3) * 80;
@@ -170,9 +171,9 @@ export class MergingEggplants {
       setTimeout(() => {
         merged.style.opacity = '1';
         merged.style.transform = 'scale(1)';
-      }, 100);
+      }, PART2_CONFIG.MERGED_FADE_IN_DELAY_MS);
       
-      await this.delay(800);
+      await this.delay(PART2_CONFIG.MERGE_ANIMATION_DELAY_MS);
       
       // Remove old eggplants
       e1.remove();
@@ -206,7 +207,7 @@ export class MergingEggplants {
               if (e) {
                 e.style.opacity = '0';
                 e.style.transform = 'scale(0.5)';
-                await this.delay(500);
+                await this.delay(PART2_CONFIG.REMOVE_CONTAINED_DELAY_MS);
                 e.remove();
               }
             }
@@ -280,10 +281,10 @@ export class MergingEggplants {
         audioManager.play('ding', 0.3);
         
         // Remove marker after animation
-        setTimeout(() => marker.remove(), 300);
+        setTimeout(() => marker.remove(), PART2_CONFIG.MARKER_FADE_DELAY_MS);
         
-        // Delay between counts (twice as slow)
-        await this.delay(100);
+        // Delay between counts
+        await this.delay(PART2_CONFIG.COUNT_VALUE_DELAY_MS);
       }
       
       if (eggplant) {
@@ -292,7 +293,7 @@ export class MergingEggplants {
         eggplant.style.transform = 'scale(1)';
       }
       
-      await this.delay(200);
+      await this.delay(PART2_CONFIG.COUNT_COMPLETE_DELAY_MS);
     }
     
     return totalCount;
@@ -302,17 +303,17 @@ export class MergingEggplants {
     // Show initial ranges
     await this.showInitialRanges();
     
-    await this.delay(1000);
+    await this.delay(PART2_CONFIG.PHASE_TRANSITION_DELAY_MS);
     
     // Merge ranges
     await this.mergeRanges();
     
-    await this.delay(1000);
+    await this.delay(PART2_CONFIG.PHASE_TRANSITION_DELAY_MS);
     
     // Remove contained ranges
     await this.removeContainedRanges();
     
-    await this.delay(1000);
+    await this.delay(PART2_CONFIG.PHASE_TRANSITION_DELAY_MS);
     
     // Animate counting all values
     const total = await this.animateCountingValues();

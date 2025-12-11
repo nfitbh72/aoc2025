@@ -4,28 +4,21 @@ import { InstructionPanel } from '../../instruction-panel.js';
 import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG, PART2_CONFIG } from './config.js';
 
 /**
  * Day 3 Part 2 visualization - Stack Algorithm
  */
 export default function visualize(container, onComplete) {
   // Load sounds
-  audioManager.loadSound('battery-complete', 'ding.mp3');
-  audioManager.loadSound('digit-explode', 'explosion.mp3');
-  audioManager.loadSound('digit-add', 'click.mp3');
+  audioManager.loadSound(PART2_CONFIG.SOUND_NAME_BATTERY_COMPLETE, COMMON_CONFIG.SOUND_FILE_DING);
+  audioManager.loadSound(PART2_CONFIG.SOUND_NAME_DIGIT_EXPLODE, COMMON_CONFIG.SOUND_FILE_EXPLOSION);
+  audioManager.loadSound(PART2_CONFIG.SOUND_NAME_DIGIT_ADD, COMMON_CONFIG.SOUND_FILE_CLICK);
   const batteries = [];
-  const batteryNumbers = [
-    '987654321111111',
-    '811111111111119',
-    '234234234234278',
-    '818181911112111'
-  ];
-  
-  // Christmas colors: red and green alternating
-  const colors = ['#c41e3a', '#0f8a5f', '#c41e3a', '#0f8a5f'];
-  
-  const instructionText = 'Find the largest 12-digit number from each line by combining digits in order, then sum them all.';
-  const counterLabel = 'Total Joltage';
+  const batteryNumbers = COMMON_CONFIG.TEST_BATTERY_NUMBERS;
+  const colors = COMMON_CONFIG.BATTERY_COLORS;
+  const instructionText = PART2_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = COMMON_CONFIG.COUNTER_LABEL;
   
   let counterBox = null;
   let instructionPanel = null;
@@ -34,7 +27,7 @@ export default function visualize(container, onComplete) {
   let displaySum = 0;
   
   // Create title, counter and instruction panel
-  dayTitle = new DayTitle(container, 3, 2);
+  dayTitle = new DayTitle(container, PART2_CONFIG.DAY_NUMBER, PART2_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   counterBox.setValue(0);
@@ -44,12 +37,12 @@ export default function visualize(container, onComplete) {
   batteryContainer.style.cssText = `
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-width: 1000px;
+    gap: ${COMMON_CONFIG.BATTERY_GAP}px;
+    max-width: ${COMMON_CONFIG.BATTERY_CONTAINER_MAX_WIDTH}px;
     margin: 0 auto;
     position: absolute;
-    top: 50%;
-    left: 45%;
+    top: ${COMMON_CONFIG.BATTERY_CONTAINER_TOP};
+    left: ${PART2_CONFIG.BATTERY_CONTAINER_LEFT};
     transform: translate(-50%, -50%);
   `;
   container.appendChild(batteryContainer);
@@ -70,34 +63,34 @@ export default function visualize(container, onComplete) {
   
   // Animate through all batteries
   let batteryIndex = 0;
-  const delayPerStep = 300; // ms between each step
+  const delayPerStep = PART2_CONFIG.DELAY_PER_STEP_MS;
   
   function animateNextBattery() {
     if (batteryIndex >= batteries.length) {
       // All done
       setTimeout(() => {
         counterBox.markComplete();
-        fireworks = celebrate(container, 5000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         
         if (onComplete) {
           onComplete();
         }
-      }, 500);
+      }, COMMON_CONFIG.COMPLETION_DELAY_MS);
       return;
     }
     
     const battery = batteries[batteryIndex];
     animateStackAlgorithm(battery, delayPerStep, () => {
       // Battery complete, play ding sound and update counter
-      audioManager.play('battery-complete', 0.6);
+      audioManager.play(PART2_CONFIG.SOUND_NAME_BATTERY_COMPLETE, COMMON_CONFIG.BATTERY_COMPLETE_VOLUME);
       displaySum += parseInt(battery.finalNumber);
       counterBox.setValue(displaySum);
       batteryIndex++;
-      setTimeout(animateNextBattery, 500);
+      setTimeout(animateNextBattery, COMMON_CONFIG.BATTERY_TRANSITION_DELAY_MS);
     });
   }
   
-  setTimeout(animateNextBattery, 500);
+  setTimeout(animateNextBattery, COMMON_CONFIG.START_DELAY_MS);
   
   return {
     cleanup: () => {
@@ -122,7 +115,7 @@ export default function visualize(container, onComplete) {
 }
 
 function createAnimatedBattery(container, numberString, color) {
-  const resultDigitLength = 12;
+  const resultDigitLength = PART2_CONFIG.RESULT_DIGIT_LENGTH;
   const totalDigits = numberString.length; // 15
   const maxDrops = totalDigits - resultDigitLength; // 3
   
@@ -141,13 +134,13 @@ function createAnimatedBattery(container, numberString, color) {
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    min-width: 60px;
+    min-width: ${PART2_CONFIG.DROP_COUNTER_MIN_WIDTH}px;
   `;
   
   const dropLabel = document.createElement('div');
   dropLabel.textContent = 'Drops';
   dropLabel.style.cssText = `
-    font-size: 12px;
+    font-size: ${PART2_CONFIG.DROP_LABEL_FONT_SIZE}px;
     color: #888;
     font-weight: bold;
   `;
@@ -155,8 +148,8 @@ function createAnimatedBattery(container, numberString, color) {
   const dropValue = document.createElement('div');
   dropValue.textContent = maxDrops;
   dropValue.style.cssText = `
-    font-size: 24px;
-    color: #ffd700;
+    font-size: ${PART2_CONFIG.DROP_VALUE_FONT_SIZE}px;
+    color: ${PART2_CONFIG.DROP_VALUE_COLOR};
     font-weight: bold;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
   `;
@@ -168,18 +161,18 @@ function createAnimatedBattery(container, numberString, color) {
   // Battery body
   const body = document.createElement('div');
   body.style.cssText = `
-    width: 400px;
-    height: 80px;
+    width: ${PART2_CONFIG.BATTERY_WIDTH}px;
+    height: ${PART2_CONFIG.BATTERY_HEIGHT}px;
     background: linear-gradient(180deg, ${color}dd 0%, ${color} 50%, ${color}aa 100%);
-    border: 4px solid ${color};
-    border-radius: 12px;
+    border: ${PART2_CONFIG.BATTERY_BORDER_WIDTH}px solid ${color};
+    border-radius: ${PART2_CONFIG.BATTERY_BORDER_RADIUS}px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 2px 10px rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: visible;
-    padding: 0 20px;
+    padding: 0 ${PART2_CONFIG.BATTERY_PADDING}px;
   `;
   
   // Shine effect

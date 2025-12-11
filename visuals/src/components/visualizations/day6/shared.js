@@ -1,16 +1,9 @@
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG } from './config.js';
 
 /**
  * Shared utilities for Day 6 visualizations
  */
-
-// Test input grid lines
-export const GRID_LINES = [
-  '123 328  51 64 ',
-  ' 45 64  387 23 ',
-  '  6 98  215 314',
-  '*   +   *   +  '
-];
 
 /**
  * Delay utility
@@ -49,7 +42,7 @@ export function animateCounterTo(counter, target, duration) {
  */
 export async function loadDay6Audio() {
   try {
-    await audioManager.loadSound('ding', 'ding.mp3');
+    await audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.SOUND_FILE_DING);
   } catch (e) {
     console.log('Failed to load ding sound:', e);
   }
@@ -62,22 +55,36 @@ export function createGridDisplay(container, gridLines, styles = {}) {
   const gridDisplay = document.createElement('div');
   const defaultStyles = {
     position: 'absolute',
-    top: '120px',
+    top: COMMON_CONFIG.GRID_TOP,
     left: '50%',
     transform: 'translateX(-50%)',
     display: 'flex',
     flexDirection: 'column',
-    gap: '5px',
-    padding: '20px',
-    background: 'rgba(20, 20, 40, 0.8)',
-    borderRadius: '15px',
-    border: '2px solid rgba(255, 255, 255, 0.3)',
+    gap: COMMON_CONFIG.GRID_GAP,
+    padding: COMMON_CONFIG.GRID_PADDING,
+    background: 'linear-gradient(135deg, rgba(196, 30, 58, 0.8), rgba(15, 138, 95, 0.8))',
+    borderRadius: COMMON_CONFIG.GRID_BORDER_RADIUS,
+    border: '3px solid #ffd700',
+    boxShadow: '0 8px 32px rgba(255, 215, 0, 0.3), 0 0 20px rgba(255, 215, 0, 0.2)',
     fontFamily: "'Courier New', monospace",
-    fontSize: '18px',
-    color: '#94a3b8'
+    fontSize: COMMON_CONFIG.GRID_FONT_SIZE,
+    color: '#ffffff'
   };
   
   Object.assign(gridDisplay.style, defaultStyles, styles);
+  
+  // Add festive title
+  const title = document.createElement('div');
+  title.style.cssText = `
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  `;
+  title.textContent = '🎁 Calculator Grid 🎁';
+  gridDisplay.appendChild(title);
   
   gridLines.forEach((line, index) => {
     const lineEl = document.createElement('div');
@@ -93,7 +100,7 @@ export function createGridDisplay(container, gridLines, styles = {}) {
     setTimeout(() => {
       lineEl.style.opacity = '1';
       lineEl.style.transform = 'translateY(0)';
-    }, index * 150);
+    }, index * COMMON_CONFIG.GRID_LINE_DELAY_MS);
   });
   
   container.appendChild(gridDisplay);
@@ -118,16 +125,16 @@ export async function runCalculations(calculatorColumns, counterBox, onComplete)
   let totalSum = 0;
   counterBox.setValue(0);
   
-  await delay(1500);
+  await delay(COMMON_CONFIG.INITIAL_DELAY_MS);
   
   for (let i = 0; i < calculatorColumns.length; i++) {
     const result = await calculatorColumns[i].calculate();
     totalSum += result;
     
-    await animateCounterTo(counterBox, totalSum, 500);
-    await delay(300);
+    await animateCounterTo(counterBox, totalSum, COMMON_CONFIG.COUNTER_ANIMATE_DURATION_MS);
+    await delay(COMMON_CONFIG.COLUMN_DELAY_MS);
   }
   
-  await delay(500);
+  await delay(COMMON_CONFIG.COMPLETION_DELAY_MS);
   return totalSum;
 }

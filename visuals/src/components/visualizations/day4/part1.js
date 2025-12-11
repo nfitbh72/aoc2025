@@ -13,6 +13,7 @@ import {
   createBucket,
   throwTreeToBucket
 } from './shared.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Day 4 Part 1 visualization - Santa Collecting Christmas Trees
@@ -20,21 +21,9 @@ import {
 export default function visualize(container, onComplete) {
   loadDay4Audio();
   
-  const instructionText = '🎅 Santa collects trees that have fewer than 4 neighboring trees!';
-  const counterLabel = 'Trees Collected';
-  
-  const gridData = [
-    '..@@.@@@@.',
-    '@@@.@.@.@@',
-    '@@@@@.@.@@',
-    '@.@@@@..@.',
-    '@@.@@@@.@@',
-    '.@@@@@@@.@',
-    '.@.@.@.@@@',
-    '@.@@@.@@@@',
-    '.@@@@@@@@.',
-    '@.@.@@@.@.'
-  ];
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = COMMON_CONFIG.COUNTER_LABEL;
+  const gridData = COMMON_CONFIG.TEST_GRID_DATA;
   
   let counterBox = null;
   let instructionPanel = null;
@@ -45,7 +34,7 @@ export default function visualize(container, onComplete) {
   let bucketInfo = null;
   
   // Create title, counter and instruction panel
-  dayTitle = new DayTitle(container, 4, 1);
+  dayTitle = new DayTitle(container, PART1_CONFIG.DAY_NUMBER, PART1_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
@@ -59,17 +48,17 @@ export default function visualize(container, onComplete) {
   const accessibleTrees = [];
   grid.forEach((row, y) => {
     row.forEach((cell, x) => {
-      if (cell === '@' && getAdjacentCount(grid, x, y, '@') < 4) {
+      if (cell === COMMON_CONFIG.TREE_SYMBOL && getAdjacentCount(grid, x, y, COMMON_CONFIG.TREE_SYMBOL) < COMMON_CONFIG.MAX_ADJACENT_TREES) {
         accessibleTrees.push({ x, y, element: cellElements[y][x] });
-        cellElements[y][x].style.boxShadow = '0 0 20px rgba(255, 215, 0, 1), 0 0 35px rgba(255, 50, 50, 0.8)';
-        cellElements[y][x].style.transform = 'scale(1.15)';
-        cellElements[y][x].style.filter = 'brightness(1.3)';
+        cellElements[y][x].style.boxShadow = COMMON_CONFIG.ACCESSIBLE_TREE_BOX_SHADOW;
+        cellElements[y][x].style.transform = `scale(${COMMON_CONFIG.ACCESSIBLE_TREE_SCALE})`;
+        cellElements[y][x].style.filter = `brightness(${COMMON_CONFIG.ACCESSIBLE_TREE_BRIGHTNESS})`;
       }
     });
   });
   
   // Start at top-left
-  positionSanta(santaElement, -1, 0, container.clientWidth);
+  positionSanta(santaElement, COMMON_CONFIG.SANTA_START_X, COMMON_CONFIG.SANTA_START_Y, container.clientWidth);
   counterBox.setValue(0);
   
   // Animate Santa collecting trees
@@ -82,12 +71,12 @@ export default function visualize(container, onComplete) {
       setTimeout(() => {
         santaElement.style.opacity = '0';
         counterBox.markComplete();
-        fireworks = celebrate(container, 5000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         
         if (onComplete) {
           onComplete();
         }
-      }, 500);
+      }, COMMON_CONFIG.COMPLETION_DELAY_MS);
       return;
     }
     
@@ -97,20 +86,21 @@ export default function visualize(container, onComplete) {
     positionSanta(santaElement, tree.x, tree.y, container.clientWidth);
     
     setTimeout(() => {
-      // Santa throws tree to bucket
+      // Santa throws tree to bucket (async - doesn't block Santa)
       throwTreeToBucket(container, tree, bucketInfo, () => {
         // Counter increments when tree lands in bucket
         collectedCount++;
         counterBox.setValue(collectedCount);
       });
       
+      // Santa moves on immediately to next tree
       currentTreeIndex++;
-      setTimeout(collectNextTree, 1400);
-    }, 300);
+      setTimeout(collectNextTree, COMMON_CONFIG.SANTA_MOVE_DELAY_MS);
+    }, COMMON_CONFIG.SANTA_MOVE_DELAY_MS);
   }
   
   // Start collecting after a short delay
-  setTimeout(collectNextTree, 1000);
+  setTimeout(collectNextTree, COMMON_CONFIG.START_DELAY_MS);
   
   return {
     cleanup: () => {

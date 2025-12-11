@@ -4,6 +4,7 @@
  */
 
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG } from './config.js';
 
 /**
  * Create 3D space container with perspective
@@ -15,9 +16,9 @@ export function create3DSpace(container) {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 600px;
-    height: 600px;
-    perspective: 1200px;
+    width: ${COMMON_CONFIG.SPACE_WIDTH}px;
+    height: ${COMMON_CONFIG.SPACE_HEIGHT}px;
+    perspective: ${COMMON_CONFIG.PERSPECTIVE}px;
     transform-style: preserve-3d;
   `;
   container.appendChild(space3D);
@@ -28,7 +29,7 @@ export function create3DSpace(container) {
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    animation: rotate3d 30s linear infinite;
+    animation: rotate3d ${COMMON_CONFIG.ROTATION_DURATION_S}s linear infinite;
   `;
   space3D.appendChild(scene);
   
@@ -42,12 +43,12 @@ export function addOrnamentStyles() {
   const style = document.createElement('style');
   style.textContent = `
     @keyframes rotate3d {
-      0% { transform: rotateX(20deg) rotateY(0deg); }
-      100% { transform: rotateX(20deg) rotateY(360deg); }
+      0% { transform: rotateX(${COMMON_CONFIG.ROTATION_X_DEG}deg) rotateY(0deg); }
+      100% { transform: rotateX(${COMMON_CONFIG.ROTATION_X_DEG}deg) rotateY(360deg); }
     }
     @keyframes ornamentGlow {
-      0%, 100% { filter: brightness(1) drop-shadow(0 0 5px currentColor); }
-      50% { filter: brightness(1.5) drop-shadow(0 0 15px currentColor); }
+      0%, 100% { filter: brightness(${COMMON_CONFIG.GLOW_BRIGHTNESS_MIN}) drop-shadow(0 0 ${COMMON_CONFIG.GLOW_DROP_SHADOW_SMALL}px currentColor); }
+      50% { filter: brightness(${COMMON_CONFIG.GLOW_BRIGHTNESS_MAX}) drop-shadow(0 0 ${COMMON_CONFIG.GLOW_DROP_SHADOW_LARGE}px currentColor); }
     }
     @keyframes lightPulse {
       0%, 100% { opacity: 0.6; }
@@ -55,16 +56,16 @@ export function addOrnamentStyles() {
     }
     @keyframes twinkle {
       0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.2) rotate(180deg); }
+      50% { transform: scale(${COMMON_CONFIG.SPARKLE_SCALE_MAX}) rotate(${COMMON_CONFIG.SPARKLE_ROTATION_DEG}deg); }
     }
     @keyframes specialGlow {
       0%, 100% { 
-        filter: brightness(1.5) drop-shadow(0 0 20px gold) drop-shadow(0 0 40px gold);
+        filter: brightness(${COMMON_CONFIG.SPECIAL_BRIGHTNESS}) drop-shadow(0 0 ${COMMON_CONFIG.SPECIAL_GLOW_SMALL}px ${COMMON_CONFIG.SPECIAL_COLOR}) drop-shadow(0 0 ${COMMON_CONFIG.SPECIAL_GLOW_LARGE}px ${COMMON_CONFIG.SPECIAL_COLOR});
         transform: scale(1);
       }
       50% { 
-        filter: brightness(2) drop-shadow(0 0 30px gold) drop-shadow(0 0 60px gold);
-        transform: scale(1.3);
+        filter: brightness(${COMMON_CONFIG.SPECIAL_BRIGHTNESS_PEAK}) drop-shadow(0 0 30px ${COMMON_CONFIG.SPECIAL_COLOR}) drop-shadow(0 0 ${COMMON_CONFIG.SPECIAL_GLOW_EXTRA}px ${COMMON_CONFIG.SPECIAL_COLOR});
+        transform: scale(${COMMON_CONFIG.SPECIAL_SCALE});
       }
     }
   `;
@@ -75,7 +76,7 @@ export function addOrnamentStyles() {
 /**
  * Normalize 3D coordinates to fit in display space
  */
-export function normalize(coords, maxVal = 1000, scale = 500) {
+export function normalize(coords, maxVal = COMMON_CONFIG.NORMALIZE_MAX_VAL, scale = COMMON_CONFIG.NORMALIZE_SCALE) {
   return coords.map(c => ((c / maxVal) - 0.5) * scale);
 }
 
@@ -84,9 +85,9 @@ export function normalize(coords, maxVal = 1000, scale = 500) {
  */
 export function createOrnament(scene, coords, index, options = {}) {
   const {
-    emoji = '🎄',
-    colors = ['#ff0000', '#00ff00', '#0088ff', '#ffaa00', '#ff00ff', '#00ffff'],
-    size = 30,
+    emoji = COMMON_CONFIG.ORNAMENT_EMOJI,
+    colors = COMMON_CONFIG.ORNAMENT_COLORS,
+    size = COMMON_CONFIG.ORNAMENT_SIZE,
     interactive = true,
     special = false
   } = options;
@@ -104,13 +105,13 @@ export function createOrnament(scene, coords, index, options = {}) {
     height: ${size}px;
     transform: translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%);
     font-size: ${size}px;
-    animation: ${special ? 'specialGlow' : 'ornamentGlow'} 2s ease-in-out infinite;
-    animation-delay: ${index * 0.1}s;
-    color: ${special ? 'gold' : color};
+    animation: ${special ? 'specialGlow' : 'ornamentGlow'} ${COMMON_CONFIG.ORNAMENT_GLOW_DURATION_S}s ease-in-out infinite;
+    animation-delay: ${index * COMMON_CONFIG.ORNAMENT_ANIMATION_DELAY_S}s;
+    color: ${special ? COMMON_CONFIG.SPECIAL_COLOR : color};
     cursor: ${interactive ? 'pointer' : 'default'};
-    filter: drop-shadow(0 0 10px ${special ? 'gold' : color});
-    transition: all 0.3s ease;
-    z-index: ${special ? 100 : 1};
+    filter: drop-shadow(0 0 ${COMMON_CONFIG.CONNECTION_GLOW_SMALL}px ${special ? COMMON_CONFIG.SPECIAL_COLOR : color});
+    transition: all ${COMMON_CONFIG.ORNAMENT_TRANSITION_DURATION_S}s ease;
+    z-index: ${special ? COMMON_CONFIG.SPECIAL_Z_INDEX : 1};
   `;
   ornament.textContent = emoji;
   ornament.dataset.index = index;
@@ -120,8 +121,8 @@ export function createOrnament(scene, coords, index, options = {}) {
   
   if (interactive) {
     ornament.addEventListener('mouseenter', () => {
-      ornament.style.transform = `translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%) scale(1.5)`;
-      audioManager.play('ding', 0.3);
+      ornament.style.transform = `translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%) scale(${COMMON_CONFIG.ORNAMENT_HOVER_SCALE})`;
+      audioManager.play(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.DING_VOLUME);
     });
     ornament.addEventListener('mouseleave', () => {
       ornament.style.transform = `translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%) scale(1)`;
@@ -137,9 +138,9 @@ export function createOrnament(scene, coords, index, options = {}) {
  */
 export function createConnection(scene, from, to, options = {}) {
   const {
-    colors = ['#ffff00', '#ff00ff', '#00ffff', '#ff8800'],
+    colors = COMMON_CONFIG.CONNECTION_COLORS,
     colorIndex = 0,
-    width = 3,
+    width = COMMON_CONFIG.CONNECTION_WIDTH,
     playSound = true,
     special = false
   } = options;
@@ -161,13 +162,13 @@ export function createConnection(scene, from, to, options = {}) {
   const angleY = Math.atan2(dx, dz) * 180 / Math.PI;
   const angleX = Math.atan2(dy, Math.sqrt(dx*dx + dz*dz)) * 180 / Math.PI;
   
-  const color = special ? 'gold' : colors[colorIndex % colors.length];
+  const color = special ? COMMON_CONFIG.SPECIAL_COLOR : colors[colorIndex % colors.length];
   
   line.style.cssText = `
     position: absolute;
     left: 50%;
     top: 50%;
-    width: ${special ? width * 2 : width}px;
+    width: ${special ? width * COMMON_CONFIG.SPECIAL_CONNECTION_WIDTH_MULTIPLIER : width}px;
     height: ${length}px;
     background: linear-gradient(to bottom, 
       ${color} 0%, 
@@ -178,11 +179,11 @@ export function createConnection(scene, from, to, options = {}) {
                rotateY(${angleY}deg) 
                rotateX(${-angleX}deg) 
                translateX(-50%);
-    box-shadow: 0 0 ${special ? 20 : 10}px ${color}, 0 0 ${special ? 40 : 20}px ${color};
-    animation: lightPulse 1.5s ease-in-out infinite;
-    animation-delay: ${colorIndex * 0.1}s;
+    box-shadow: 0 0 ${special ? COMMON_CONFIG.SPECIAL_GLOW_SMALL : COMMON_CONFIG.CONNECTION_GLOW_SMALL}px ${color}, 0 0 ${special ? COMMON_CONFIG.SPECIAL_GLOW_LARGE : COMMON_CONFIG.CONNECTION_GLOW_LARGE}px ${color};
+    animation: lightPulse ${COMMON_CONFIG.CONNECTION_PULSE_DURATION_S}s ease-in-out infinite;
+    animation-delay: ${colorIndex * COMMON_CONFIG.CONNECTION_ANIMATION_DELAY_S}s;
     opacity: 0;
-    transition: opacity 0.5s ease-in;
+    transition: opacity ${COMMON_CONFIG.CONNECTION_FADE_IN_TRANSITION_S}s ease-in;
     z-index: ${special ? 50 : 1};
   `;
   
@@ -190,11 +191,11 @@ export function createConnection(scene, from, to, options = {}) {
   
   // Fade in
   setTimeout(() => {
-    line.style.opacity = special ? '1' : '0.8';
+    line.style.opacity = special ? COMMON_CONFIG.SPECIAL_CONNECTION_OPACITY : COMMON_CONFIG.CONNECTION_OPACITY;
     if (playSound) {
-      audioManager.play('energy', 0.4);
+      audioManager.play(COMMON_CONFIG.SOUND_NAME_ENERGY, COMMON_CONFIG.ENERGY_VOLUME);
     }
-  }, 50);
+  }, COMMON_CONFIG.CONNECTION_FADE_IN_DURATION_MS);
   
   return line;
 }
@@ -202,15 +203,15 @@ export function createConnection(scene, from, to, options = {}) {
 /**
  * Create sparkle effect at 3D position
  */
-export function createSparkle(scene, x, y, z, emoji = '✨') {
+export function createSparkle(scene, x, y, z, emoji = COMMON_CONFIG.SPARKLE_EMOJI) {
   const sparkle = document.createElement('div');
   sparkle.style.cssText = `
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate3d(${x}px, ${y}px, ${z}px) translate(-50%, -50%);
-    font-size: 20px;
-    animation: twinkle 1s ease-in-out;
+    font-size: ${COMMON_CONFIG.SPARKLE_SIZE}px;
+    animation: twinkle ${COMMON_CONFIG.SPARKLE_DURATION_MS / 1000}s ease-in-out;
     pointer-events: none;
   `;
   sparkle.textContent = emoji;
@@ -220,7 +221,7 @@ export function createSparkle(scene, x, y, z, emoji = '✨') {
     if (sparkle.parentNode) {
       sparkle.parentNode.removeChild(sparkle);
     }
-  }, 1000);
+  }, COMMON_CONFIG.SPARKLE_DURATION_MS);
   
   return sparkle;
 }
@@ -244,7 +245,7 @@ export async function createOrnaments(scene, boxes, timers, options = {}) {
       ornaments.push(ornament);
       
       if (playSound) {
-        audioManager.play('ding', 0.3);
+        audioManager.play(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.DING_VOLUME);
       }
       
       if (sparkles) {

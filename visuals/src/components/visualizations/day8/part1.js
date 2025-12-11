@@ -9,23 +9,16 @@ import {
   createOrnaments, 
   createConnections 
 } from './ornament-3d.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Day 8 Part 1 - Christmas Ornament Circuit Visualization
  * Visualizes junction boxes as 3D Christmas ornaments connecting via glowing light strings
  */
 export default function visualize(container, onComplete) {
-  const instructionText = '🎄 Connect Christmas ornaments with glowing light strings to form festive circuits! 🎄';
-  const counterLabel = 'Circuit Score';
-  
-  // Test data - junction boxes as 3D coordinates
-  const boxes = [
-    [162,817,812], [57,618,57], [906,360,560], [592,479,940],
-    [352,342,300], [466,668,158], [542,29,236], [431,825,988],
-    [739,650,466], [52,470,668], [216,146,977], [819,987,18],
-    [117,168,530], [805,96,715], [346,949,466], [970,615,88],
-    [941,993,340], [862,61,35], [984,92,344], [425,690,689]
-  ];
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = PART1_CONFIG.COUNTER_LABEL;
+  const boxes = COMMON_CONFIG.TEST_BOXES;
   
   let dayTitle = null;
   let counterBox = null;
@@ -34,7 +27,7 @@ export default function visualize(container, onComplete) {
   const timers = [];
   
   // Create components
-  dayTitle = new DayTitle(container, 8, 1);
+  dayTitle = new DayTitle(container, PART1_CONFIG.DAY_NUMBER, PART1_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
@@ -43,58 +36,54 @@ export default function visualize(container, onComplete) {
   const style = addOrnamentStyles();
   
   // Load audio files
-  audioManager.loadSound('ding', 'ding.mp3');
-  audioManager.loadSound('energy', 'energy.mp3');
-  audioManager.loadSound('yay', 'yay.mp3');
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.SOUND_FILE_DING);
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_ENERGY, COMMON_CONFIG.SOUND_FILE_ENERGY);
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_YAY, COMMON_CONFIG.SOUND_FILE_YAY);
   
   // Animation sequence
   async function animate() {
     // Create all ornaments
     const ornaments = await createOrnaments(scene, boxes, timers, {
-      delay: 100,
-      playSound: true,
-      sparkles: true
+      delay: PART1_CONFIG.ORNAMENT_CREATE_DELAY_MS,
+      ...PART1_CONFIG.ORNAMENT_OPTIONS
     });
     
     // Connect ornaments to form circuits (simulating the algorithm)
-    const connectionPairs = [
-      [0, 19], [0, 7], [2, 14], [4, 9], [3, 16], [5, 11],
-      [8, 2], [0, 14], [2, 16], [1, 6]
-    ];
+    const connectionPairs = PART1_CONFIG.CONNECTION_PAIRS;
     
     // Keep counter at 0 during connections
     await createConnections(scene, ornaments, connectionPairs, timers, {
-      delay: 400
+      delay: PART1_CONFIG.CONNECTION_CREATE_DELAY_MS
     });
     
     // Final score calculation (3 longest circuits multiplied: 5 * 4 * 2 = 40)
-    await new Promise(resolve => timers.push(setTimeout(resolve, 500)));
-    counterBox.setValue(40); // Expected answer
+    await new Promise(resolve => timers.push(setTimeout(resolve, PART1_CONFIG.SCORE_CALCULATION_DELAY_MS)));
+    counterBox.setValue(PART1_CONFIG.EXPECTED_ANSWER);
     
     // Check if correct and celebrate
     timers.push(setTimeout(() => {
-      const expectedAnswer = 40;
+      const expectedAnswer = PART1_CONFIG.EXPECTED_ANSWER;
       const isCorrect = counterBox.counterValue === expectedAnswer;
       
       if (isCorrect) {
         counterBox.markComplete();
-        fireworks = celebrate(container, 5000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         
         setTimeout(() => {
-          audioManager.play('yay', 0.8);
-        }, 500);
+          audioManager.play(COMMON_CONFIG.SOUND_NAME_YAY, COMMON_CONFIG.YAY_VOLUME);
+        }, COMMON_CONFIG.CELEBRATION_SOUND_DELAY_MS);
       }
       
       if (onComplete) {
-        setTimeout(onComplete, 2000);
+        setTimeout(onComplete, COMMON_CONFIG.COMPLETION_CALLBACK_DELAY_MS);
       }
-    }, 1000));
+    }, COMMON_CONFIG.COMPLETION_CHECK_DELAY_MS));
   }
   
   // Start animation
   timers.push(setTimeout(() => {
     animate();
-  }, 1000));
+  }, COMMON_CONFIG.START_DELAY_MS));
   
   return {
     cleanup: () => {

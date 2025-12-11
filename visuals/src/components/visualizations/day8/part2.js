@@ -11,23 +11,16 @@ import {
   normalize,
   createSparkle
 } from './ornament-3d.js';
+import { COMMON_CONFIG, PART2_CONFIG } from './config.js';
 
 /**
  * Day 8 Part 2 - Find the Golden Connection
  * Visualizes finding the specific connection that unites all ornaments into a single circuit
  */
 export default function visualize(container, onComplete) {
-  const instructionText = '⭐ Find the GOLDEN connection that unites all ornaments into one magical circuit! ⭐';
-  const counterLabel = 'Connections';
-  
-  // Test data - junction boxes as 3D coordinates
-  const boxes = [
-    [162,817,812], [57,618,57], [906,360,560], [592,479,940],
-    [352,342,300], [466,668,158], [542,29,236], [431,825,988],
-    [739,650,466], [52,470,668], [216,146,977], [819,987,18],
-    [117,168,530], [805,96,715], [346,949,466], [970,615,88],
-    [941,993,340], [862,61,35], [984,92,344], [425,690,689]
-  ];
+  const instructionText = PART2_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = PART2_CONFIG.COUNTER_LABEL;
+  const boxes = COMMON_CONFIG.TEST_BOXES;
   
   let dayTitle = null;
   let counterBox = null;
@@ -38,7 +31,7 @@ export default function visualize(container, onComplete) {
   const connections = [];
   
   // Create components
-  dayTitle = new DayTitle(container, 8, 2);
+  dayTitle = new DayTitle(container, PART2_CONFIG.DAY_NUMBER, PART2_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
@@ -47,36 +40,24 @@ export default function visualize(container, onComplete) {
   const style = addOrnamentStyles();
   
   // Load audio files
-  audioManager.loadSound('ding', 'ding.mp3');
-  audioManager.loadSound('energy', 'energy.mp3');
-  audioManager.loadSound('explosion', 'explosion.mp3');
-  audioManager.loadSound('yay', 'yay.mp3');
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_DING, COMMON_CONFIG.SOUND_FILE_DING);
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_ENERGY, COMMON_CONFIG.SOUND_FILE_ENERGY);
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_EXPLOSION, COMMON_CONFIG.SOUND_FILE_EXPLOSION);
+  audioManager.loadSound(COMMON_CONFIG.SOUND_NAME_YAY, COMMON_CONFIG.SOUND_FILE_YAY);
   
   // Animation sequence
   async function animate() {
     // Create all ornaments at once (faster than part 1)
     boxes.forEach((coords, index) => {
-      const ornament = createOrnament(scene, coords, index, {
-        emoji: '🎄',
-        interactive: true
-      });
+      const ornament = createOrnament(scene, coords, index, PART2_CONFIG.ORNAMENT_OPTIONS);
       ornaments.push(ornament);
     });
     
-    await new Promise(resolve => timers.push(setTimeout(resolve, 500)));
+    await new Promise(resolve => timers.push(setTimeout(resolve, PART2_CONFIG.INITIAL_WAIT_MS)));
     
     // Simulate the algorithm finding connections one by one
-    // These are the connections processed before finding the golden one
-    const regularConnections = [
-      [0, 19], [0, 7], [2, 14], [0, 7], [4, 16], [9, 12],
-      [11, 17], [8, 2], [14, 0], [2, 16], [1, 6], [5, 11],
-      [13, 2], [15, 18], [3, 9], [7, 0], [10, 12], [14, 8],
-      [16, 13], [6, 7], [18, 17], [19, 7], [12, 13], [17, 18],
-      [11, 5], [16, 2], [9, 3], [13, 16]
-    ];
-    
-    // The golden connection (29th iteration) - connects box 10 and 12
-    const goldenConnection = [10, 12];
+    const regularConnections = PART2_CONFIG.REGULAR_CONNECTIONS;
+    const goldenConnection = PART2_CONFIG.GOLDEN_CONNECTION;
     
     // Create regular connections (keep counter at 0)
     for (let i = 0; i < regularConnections.length; i++) {
@@ -91,15 +72,15 @@ export default function visualize(container, onComplete) {
       connections.push(line);
       
       // Play subtle sound every few connections
-      if (i % 3 === 0) {
-        audioManager.play('ding', 0.2);
+      if (i % PART2_CONFIG.DING_SOUND_FREQUENCY === 0) {
+        audioManager.play(COMMON_CONFIG.SOUND_NAME_DING, PART2_CONFIG.DING_VOLUME_SUBTLE);
       }
       
-      await new Promise(resolve => timers.push(setTimeout(resolve, 150)));
+      await new Promise(resolve => timers.push(setTimeout(resolve, PART2_CONFIG.REGULAR_CONNECTION_DELAY_MS)));
     }
     
     // Dramatic pause before the golden connection
-    await new Promise(resolve => timers.push(setTimeout(resolve, 1000)));
+    await new Promise(resolve => timers.push(setTimeout(resolve, PART2_CONFIG.GOLDEN_PAUSE_MS)));
     
     // Highlight the two ornaments that will be connected
     const goldenFrom = ornaments[goldenConnection[0]];
@@ -107,10 +88,10 @@ export default function visualize(container, onComplete) {
     
     // Make them special (gold and larger)
     [goldenFrom, goldenTo].forEach(orn => {
-      orn.style.color = 'gold';
-      orn.style.animation = 'specialGlow 1s ease-in-out infinite';
-      orn.textContent = '⭐';
-      audioManager.play('energy', 0.6);
+      orn.style.color = COMMON_CONFIG.SPECIAL_COLOR;
+      orn.style.animation = PART2_CONFIG.GOLDEN_ANIMATION;
+      orn.textContent = PART2_CONFIG.GOLDEN_EMOJI;
+      audioManager.play(COMMON_CONFIG.SOUND_NAME_ENERGY, PART2_CONFIG.ENERGY_VOLUME_GOLDEN);
     });
     
     // Add sparkles around them
@@ -125,14 +106,14 @@ export default function visualize(container, onComplete) {
       boxes[goldenConnection[1]][2]
     ]);
     
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < PART2_CONFIG.GOLDEN_SPARKLE_COUNT; i++) {
       timers.push(setTimeout(() => {
-        createSparkle(scene, x1, y1, z1, '✨');
-        createSparkle(scene, x2, y2, z2, '✨');
-      }, i * 200));
+        createSparkle(scene, x1, y1, z1, COMMON_CONFIG.SPARKLE_EMOJI);
+        createSparkle(scene, x2, y2, z2, COMMON_CONFIG.SPARKLE_EMOJI);
+      }, i * PART2_CONFIG.GOLDEN_SPARKLE_DELAY_MS));
     }
     
-    await new Promise(resolve => timers.push(setTimeout(resolve, 1500)));
+    await new Promise(resolve => timers.push(setTimeout(resolve, PART2_CONFIG.GOLDEN_HIGHLIGHT_DURATION_MS)));
     
     // Create the GOLDEN connection
     const goldenLine = createConnection(
@@ -148,23 +129,23 @@ export default function visualize(container, onComplete) {
     connections.push(goldenLine);
     
     // Big celebration sound
-    audioManager.play('explosion', 0.7);
+    audioManager.play(COMMON_CONFIG.SOUND_NAME_EXPLOSION, PART2_CONFIG.EXPLOSION_VOLUME);
     
     // Create explosion of sparkles
-    for (let i = 0; i < 20; i++) {
-      const delay = i * 50;
+    for (let i = 0; i < PART2_CONFIG.EXPLOSION_SPARKLE_COUNT; i++) {
+      const delay = i * PART2_CONFIG.EXPLOSION_SPARKLE_DELAY_MS;
       timers.push(setTimeout(() => {
         const midX = (x1 + x2) / 2;
         const midY = (y1 + y2) / 2;
         const midZ = (z1 + z2) / 2;
-        const offsetX = (Math.random() - 0.5) * 100;
-        const offsetY = (Math.random() - 0.5) * 100;
-        const offsetZ = (Math.random() - 0.5) * 100;
-        createSparkle(scene, midX + offsetX, midY + offsetY, midZ + offsetZ, '⭐');
+        const offsetX = (Math.random() - 0.5) * PART2_CONFIG.EXPLOSION_OFFSET_RANGE;
+        const offsetY = (Math.random() - 0.5) * PART2_CONFIG.EXPLOSION_OFFSET_RANGE;
+        const offsetZ = (Math.random() - 0.5) * PART2_CONFIG.EXPLOSION_OFFSET_RANGE;
+        createSparkle(scene, midX + offsetX, midY + offsetY, midZ + offsetZ, PART2_CONFIG.GOLDEN_EMOJI);
       }, delay));
     };
     
-    await new Promise(resolve => timers.push(setTimeout(resolve, 1500)));
+    await new Promise(resolve => timers.push(setTimeout(resolve, PART2_CONFIG.GOLDEN_CONNECTION_WAIT_MS)));
     
     // Calculate final answer (product of coordinates)
     const answer = boxes[goldenConnection[0]][0] * boxes[goldenConnection[1]][0];
@@ -172,34 +153,34 @@ export default function visualize(container, onComplete) {
     
     // Check if correct and celebrate
     timers.push(setTimeout(() => {
-      const expectedAnswer = 25272; // 216 * 117 = 25272
+      const expectedAnswer = PART2_CONFIG.EXPECTED_ANSWER;
       const isCorrect = counterBox.counterValue === expectedAnswer;
       
       if (isCorrect) {
         counterBox.markComplete();
-        fireworks = celebrate(container, 5000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         
         // Make all ornaments golden
         ornaments.forEach(orn => {
-          orn.style.color = 'gold';
-          orn.textContent = '⭐';
+          orn.style.color = COMMON_CONFIG.SPECIAL_COLOR;
+          orn.textContent = PART2_CONFIG.GOLDEN_EMOJI;
         });
         
         setTimeout(() => {
-          audioManager.play('yay', 0.8);
-        }, 500);
+          audioManager.play(COMMON_CONFIG.SOUND_NAME_YAY, COMMON_CONFIG.YAY_VOLUME);
+        }, COMMON_CONFIG.CELEBRATION_SOUND_DELAY_MS);
       }
       
       if (onComplete) {
-        setTimeout(onComplete, 2000);
+        setTimeout(onComplete, COMMON_CONFIG.COMPLETION_CALLBACK_DELAY_MS);
       }
-    }, 1000));
+    }, COMMON_CONFIG.COMPLETION_CHECK_DELAY_MS));
   }
   
   // Start animation
   timers.push(setTimeout(() => {
     animate();
-  }, 1000));
+  }, COMMON_CONFIG.START_DELAY_MS));
   
   return {
     cleanup: () => {

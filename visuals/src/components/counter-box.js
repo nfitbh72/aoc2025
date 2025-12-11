@@ -115,6 +115,17 @@ export class CounterBox {
   }
   
   /**
+   * Update the label text
+   */
+  setLabel(newLabel) {
+    this.label = newLabel;
+    const labelElement = this.element.querySelector('div:first-child');
+    if (labelElement) {
+      labelElement.textContent = `🎄 ${this.label} 🎄`;
+    }
+  }
+  
+  /**
    * Mark as complete by changing to green
    */
   markComplete() {

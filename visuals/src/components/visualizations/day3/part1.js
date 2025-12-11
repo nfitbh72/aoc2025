@@ -4,26 +4,19 @@ import { InstructionPanel } from '../../instruction-panel.js';
 import { DayTitle } from '../../day-title.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js';
 
 /**
  * Day 3 Part 1 visualization - Christmas Battery Display
  */
 export default function visualize(container, onComplete) {
   // Load ding sound
-  audioManager.loadSound('max-update', 'ding.mp3');
+  audioManager.loadSound(PART1_CONFIG.SOUND_NAME_MAX_UPDATE, COMMON_CONFIG.SOUND_FILE_DING);
   const batteries = [];
-  const batteryNumbers = [
-    '987654321111111',
-    '811111111111119',
-    '234234234234278',
-    '818181911112111'
-  ];
-  
-  // Christmas colors: red and green alternating
-  const colors = ['#c41e3a', '#0f8a5f', '#c41e3a', '#0f8a5f'];
-  
-  const instructionText = 'Find the largest 2-digit number from each line by combining digits in order, then sum them all.';
-  const counterLabel = 'Total Joltage';
+  const batteryNumbers = COMMON_CONFIG.TEST_BATTERY_NUMBERS;
+  const colors = COMMON_CONFIG.BATTERY_COLORS;
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = COMMON_CONFIG.COUNTER_LABEL;
   
   let counterBox = null;
   let instructionPanel = null;
@@ -31,7 +24,7 @@ export default function visualize(container, onComplete) {
   let fireworks = null;
   
   // Create title, counter and instruction panel
-  dayTitle = new DayTitle(container, 3, 1);
+  dayTitle = new DayTitle(container, PART1_CONFIG.DAY_NUMBER, PART1_CONFIG.PART_NUMBER);
   counterBox = new CounterBox(container, counterLabel);
   instructionPanel = new InstructionPanel(container, instructionText);
   
@@ -40,12 +33,12 @@ export default function visualize(container, onComplete) {
   batteryContainer.style.cssText = `
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-width: 1000px;
+    gap: ${COMMON_CONFIG.BATTERY_GAP}px;
+    max-width: ${COMMON_CONFIG.BATTERY_CONTAINER_MAX_WIDTH}px;
     margin: 0 auto;
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: ${COMMON_CONFIG.BATTERY_CONTAINER_TOP};
+    left: ${COMMON_CONFIG.BATTERY_CONTAINER_LEFT};
     transform: translate(-50%, -50%);
   `;
   container.appendChild(batteryContainer);
@@ -60,7 +53,7 @@ export default function visualize(container, onComplete) {
   let currentSum = 0;
   let displaySum = 0;
   let animationIndex = 0;
-  const delayPerPair = 100; // ms between each pair highlight
+  const delayPerPair = PART1_CONFIG.DELAY_PER_PAIR_MS;
   
   // Initialize counter at 0
   counterBox.setValue(0);
@@ -99,12 +92,12 @@ export default function visualize(container, onComplete) {
       batteries.forEach(b => b.clearHighlight());
       setTimeout(() => {
         counterBox.markComplete();
-        fireworks = celebrate(container, 5000);
+        fireworks = celebrate(container, COMMON_CONFIG.FIREWORKS_DURATION_MS);
         
         if (onComplete) {
           onComplete();
         }
-      }, 500);
+      }, COMMON_CONFIG.COMPLETION_DELAY_MS);
       return;
     }
     
@@ -120,7 +113,7 @@ export default function visualize(container, onComplete) {
         displaySum += currentMax;
         counterBox.setValue(displaySum);
         animationIndex++;
-        setTimeout(animateNextPair, 300);
+        setTimeout(animateNextPair, PART1_CONFIG.BATTERY_COMPLETE_DELAY_MS);
         return;
       }
       
@@ -132,7 +125,7 @@ export default function visualize(container, onComplete) {
         currentMax = pair.value;
         battery.updateMaxValue(currentMax);
         // Play ding sound when max value updates
-        audioManager.play('max-update', 0.5);
+        audioManager.play(PART1_CONFIG.SOUND_NAME_MAX_UPDATE, COMMON_CONFIG.DING_VOLUME);
       }
       
       pairIndex++;
@@ -143,7 +136,7 @@ export default function visualize(container, onComplete) {
   }
   
   // Start animation after a short delay
-  setTimeout(animateNextPair, 500);
+  setTimeout(animateNextPair, COMMON_CONFIG.START_DELAY_MS);
   
   return {
     cleanup: () => {

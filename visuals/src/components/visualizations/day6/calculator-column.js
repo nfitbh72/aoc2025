@@ -44,26 +44,27 @@ export class CalculatorColumn {
       align-items: center;
       gap: 8px;
       padding: 15px;
-      background: linear-gradient(135deg, rgba(30, 30, 60, 0.9), rgba(50, 50, 80, 0.9));
+      background: linear-gradient(135deg, rgba(196, 30, 58, 0.9), rgba(15, 138, 95, 0.9));
       border-radius: 15px;
-      border: 3px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 3px solid #ffd700;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
       min-width: 120px;
       transform: scale(0.8);
       opacity: 0;
       transition: all 0.5s ease;
     `;
     
-    // Label (e.g., "Column 1")
+    // Label (e.g., "Column 1") with festive emoji
     if (this.label) {
       const labelEl = document.createElement('div');
       labelEl.style.cssText = `
         font-size: 14px;
-        color: #94a3b8;
+        color: #ffd700;
         font-weight: 600;
         margin-bottom: 5px;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
       `;
-      labelEl.textContent = this.label;
+      labelEl.textContent = `🎄 ${this.label} 🎄`;
       this.element.appendChild(labelEl);
     }
     

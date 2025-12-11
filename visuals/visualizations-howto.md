@@ -242,9 +242,100 @@ const ribbonColor = getContrastingRibbon(boxColor);
 mkdir -p src/components/visualizations/dayX
 touch src/components/visualizations/dayX/part1.js
 touch src/components/visualizations/dayX/part2.js
+touch src/components/visualizations/dayX/config.js
+touch src/components/visualizations/dayX/common.js  # If sharing code between parts, add other components as necessary to keep the code modular
 ```
 
-### Step 2: Basic Template
+### Step 2: Create config.js (MANDATORY)
+
+⚠️ **REQUIRED**: Every day MUST have a `config.js` file with all hardcoded values.
+
+```javascript
+/**
+ * Day X Visualization Configuration
+ * Centralized configuration for all hardcoded values
+ */
+
+// ============================================================================
+// COMMON CONFIGURATION (shared between Part 1 and Part 2)
+// ============================================================================
+
+export const COMMON_CONFIG = {
+  // Animation timing
+  ANIMATION_SPEED_MS: 50,
+  CELEBRATION_DURATION_MS: 5000,
+  
+  // Visual settings
+  CELL_SIZE: 30,
+  GRID_PADDING: 2,
+  
+  // Colors (if shared)
+  BACKGROUND_COLOR: '#0a1929',
+  
+  // Any other shared constants
+};
+
+// ============================================================================
+// PART 1 CONFIGURATION
+// ============================================================================
+
+export const PART1_CONFIG = {
+  // UI Text
+  INSTRUCTION_TEXT: '🎄 Your Part 1 instructions here',
+  COUNTER_LABEL: 'Part 1 Counter',
+  
+  // Test input
+  TEST_INPUT: [
+    'test data line 1',
+    'test data line 2',
+  ],
+  
+  // Colors specific to Part 1
+  PRIMARY_COLOR: '#ff6b6b',
+  SECONDARY_COLOR: '#4caf50',
+  
+  // Emojis
+  EMOJI_ICON: '🎁',
+  
+  // Any other Part 1 specific constants
+};
+
+// ============================================================================
+// PART 2 CONFIGURATION
+// ============================================================================
+
+export const PART2_CONFIG = {
+  // UI Text
+  INSTRUCTION_TEXT: '❄️ Your Part 2 instructions here',
+  COUNTER_LABEL: 'Part 2 Counter',
+  
+  // Test input
+  TEST_INPUT: [
+    'test data line 1',
+    'test data line 2',
+  ],
+  
+  // Colors specific to Part 2
+  PRIMARY_COLOR: '#2196f3',
+  SECONDARY_COLOR: '#ffd700',
+  
+  // Emojis
+  EMOJI_ICON: '⭐',
+  
+  // Any other Part 2 specific constants
+};
+```
+
+**What to put in config.js:**
+- ✅ All magic numbers (delays, sizes, speeds)
+- ✅ All text strings (instructions, labels)
+- ✅ All colors (hex codes, rgba values)
+- ✅ All emojis
+- ✅ Test input data
+- ✅ Animation parameters
+- ❌ Functions or logic (those go in common.js)
+
+### Step 3: Basic Template
 
 ```javascript
 import { DayTitle } from '../../day-title.js';
@@ -252,20 +343,22 @@ import { CounterBox } from '../../counter-box.js';
 import { InstructionPanel } from '../../instruction-panel.js';
 import { celebrate } from '../../../utils/celebration.js';
 import { audioManager } from '../../../utils/audio.js';
+import { COMMON_CONFIG, PART1_CONFIG } from './config.js'; // Import config
 
 /**
- * Day X Part Y visualization
+ * Day X Part 1 visualization
  */
 export default function visualize(container, onComplete) {
-  // 1. Setup instruction text
-  const instructionText = 'Your instructions here';
+  // 1. Get configuration values
+  const instructionText = PART1_CONFIG.INSTRUCTION_TEXT;
+  const counterLabel = PART1_CONFIG.COUNTER_LABEL;
   
-  // 2. Parse your input data
-  const data = [/* your test data */];
+  // 2. Parse your input data from config
+  const data = PART1_CONFIG.TEST_INPUT;
   
   // 3. Create reusable components
   const dayTitle = new DayTitle(container, X, Y);
-  const counter = new CounterBox(container, 'Counter Label');
+  const counter = new CounterBox(container, counterLabel);
   const instructions = new InstructionPanel(container, instructionText);
   
   // 4. Create custom visualization elements

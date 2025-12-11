@@ -102,17 +102,17 @@ export function createEggplant(range, y, id, scale, minValue) {
     z-index: 10;
   `;
   
-  // Add stem
+  // Add stem (positioned on the right like the emoji 🍆)
   const stem = document.createElement('div');
   stem.style.cssText = `
     position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
+    top: -10px;
+    right: 10px;
+    width: 25px;
+    height: 18px;
     background: #2d5016;
     border-radius: 50% 50% 0 0;
+    transform: rotate(-15deg);
   `;
   eggplant.appendChild(stem);
   
