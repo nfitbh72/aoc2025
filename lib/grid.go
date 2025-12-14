@@ -143,10 +143,20 @@ func (m *TGrid) Init() {
 	m.Values = make([][]any, 0)
 }
 
+func (m *TGrid) Setup(x, y int, isInt bool, defaultValue any) {
+	m.Values = make([][]any, y)
+	for i := range m.Values {
+		m.Values[i] = make([]any, x)
+		for j := range m.Values[i] {
+			m.Values[i][j] = defaultValue
+		}
+	}
+	m.IsInt = isInt
+}
+
 // GetIntRow converts a string of digit runes into a row of integer values.
 func (m *TGrid) GetIntRow(rowStr string) []any {
 	rowAny := make([]any, len(rowStr))
-	//fmt.Println(rowStr)
 	for i, v := range rowStr {
 		//if !(i == 0 && v == '0') {
 		rowAny[i] = RuneToInt(v)
@@ -220,7 +230,6 @@ func (m *TGrid) ToString() string {
 				sb.WriteRune(val.(rune))
 				sb.WriteByte(' ')
 			}
-			//fmt.Print(" ")
 		}
 		sb.WriteByte('\n')
 	}
@@ -250,12 +259,9 @@ func (m *TGrid) CreateSpiralFromCenter(sizeX, sizeY int) {
 
 		//if we turn right is there still a zero?
 		testDirection := TurnRight[p.Direction]
-		//fmt.Printf("testing direction %d, %d\n", testDirection.X, testDirection.Y)
 		testY := p.Y + testDirection.Y
 		testX := p.X + testDirection.X
-		//fmt.Printf("[%d][%d] is %d\n", testX, testY, m.Values[testY][testX])
 		if testX < 0 || testY < 0 || testX >= sizeX || testY >= sizeY || m.Values[testY][testX] == 0 {
-			//fmt.Println("turning right")
 			p.Direction = testDirection
 		}
 	}
@@ -264,7 +270,6 @@ func (m *TGrid) CreateSpiralFromCenter(sizeX, sizeY int) {
 // FlipVertical reverses the order of rows in the grid, mirroring it
 // vertically.
 func (m *TGrid) FlipVertical() {
-	//fmt.Println("flipping")
 	for i := 0; i < len(m.Values)/2; i++ {
 		m.Values[i], m.Values[len(m.Values)-1-i] = m.Values[len(m.Values)-1-i], m.Values[i]
 	}
@@ -332,7 +337,6 @@ func (m *TGrid) GetAllUniqueValues() map[any]*TValuePos {
 				newVp := &TValuePos{Locations: [][]int{{x, y}}, Count: 1, Value: value}
 				valuePositions[value] = newVp
 			} else {
-				//fmt.Println("updating", value, "to map")
 				vp.Count++
 				vp.Locations = append(vp.Locations, []int{x, y})
 			}
@@ -351,11 +355,9 @@ func (m *TGrid) WalkFromWithBlocker(gp *TGridPosition, blockingCharacter rune) (
 	currentGridPos.Y = gp.Y
 	currentGridPos.Direction = gp.Direction
 	err := m.WalkFrom(gp)
-	//fmt.Println(gp)
 	if err != nil {
 		return &currentGridPos, err
 	}
-	//fmt.Println("comparing", m.GetValue(gp), blockingCharacter)
 	if m.GetValue(gp) == blockingCharacter {
 		return &currentGridPos, errors.New("blocked")
 	}
@@ -366,7 +368,6 @@ func (m *TGrid) WalkFromWithBlocker(gp *TGridPosition, blockingCharacter rune) (
 // returns an error if the new position lies outside the grid bounds.
 func (m *TGrid) WalkFrom(gp *TGridPosition) error {
 	gp.Walk()
-	//fmt.Println("Y", gp.Y, len(m.Values))
 	if gp.X < 0 || gp.Y < 0 || gp.Y >= len(m.Values) || gp.X >= len(m.Values[0]) {
 		return errors.New("out of bounds of grid")
 	}
@@ -463,12 +464,8 @@ func (m *TGrid) SearchHorizantal(s string) int {
 					maxX = x + i
 				}
 				chr, _ := m.Values[y][x+i].(rune)
-				//fmt.Print(i, chr)
 				found = found + string(chr)
 			}
-			//fmt.Println("horiz min/max", minX, maxX)
-			//fmt.Println()
-			//fmt.Println(found)
 			if found == s || found == sReverse {
 				numCount++
 			}
@@ -496,12 +493,8 @@ func (m *TGrid) SearchVertical(s string) int {
 				}
 
 				chr, _ := m.Values[y+i][x].(rune)
-				//fmt.Print(i, chr)
 				found = found + string(chr)
 			}
-			//fmt.Println("vert min/max", minX, maxX)
-			//fmt.Println()
-			//fmt.Println(found)
 			if found == s || found == sReverse {
 				numCount++
 			}
@@ -528,22 +521,14 @@ func (m *TGrid) SearchDiagonal(s string) int {
 				if y+i > maxX {
 					maxX = y + i
 				}
-				//fmt.Println("v1", y+i, x+i)
-				//fmt.Print("v1 ", y+i, x+i, "  ")
 				chr, _ := m.Values[y+i][x+i].(rune)
-				//fmt.Print(i, chr)
 				found = found + string(chr)
 			}
-			//fmt.Println("v1 min/max", minX, maxX)
-			//fmt.Println()
-			//fmt.Println(found)
 			if found == s || found == sReverse {
 				numCount++
 			}
 		}
 	}
-	//fmt.Println("search x from", len(m.Values[0])-1, "to", len(s)-1, "inclusive")
-	//fmt.Println("search y from", len(s)-1, "to", len(m.Values))
 
 	for x := len(m.Values[0]) - 1; x >= len(s)-1; x-- {
 		for y := len(s) - 1; y < len(m.Values); y++ {
@@ -557,16 +542,11 @@ func (m *TGrid) SearchDiagonal(s string) int {
 				if y+i > maxX {
 					maxX = y + i
 				}
-				//fmt.Print("v2 ", y+i, len(m.Values[0])-(x+i)-1, "  ")
 				chr, _ := m.Values[y+i][len(m.Values[0])-(x+i)-1].(rune)
-				//fmt.Print(i, string(chr))
 				found = found + string(chr)
 			}
-			//fmt.Println()
-			//fmt.Println("v2 min/max", minX, maxX)
 
 			if found == s || found == sReverse {
-				//fmt.Println(found)
 				numCount++
 			}
 		}
@@ -583,7 +563,6 @@ func (m *TGrid) GetAllHorizontal(numLetters int) [][]any {
 		for x := numLetters - 1; x < len(m.Values[0]); x++ {
 			word := make([]any, numLetters)
 			for i := 0; i < numLetters; i++ {
-				//fmt.Println(x-(numLetters-i)+1, y, m.Values[y][x-(numLetters-i)+1])
 				word[i] = m.Values[y][x-(numLetters-i)+1]
 			}
 			allWords = append(allWords, word)
@@ -591,8 +570,6 @@ func (m *TGrid) GetAllHorizontal(numLetters int) [][]any {
 			copy(wordReverse, word)
 			slices.Reverse(wordReverse)
 			allWords = append(allWords, wordReverse)
-			//fmt.Println(word)
-			//m.PrintString()
 
 		}
 	}
@@ -647,7 +624,6 @@ func (m *TGrid) GetAllDiagonal2(numLetters int) [][]any {
 	allWords := make([][]any, 0)
 	for x := 0; x < len(m.Values[0])-numLetters+1; x++ {
 		for y := len(m.Values); y > numLetters-1; y-- {
-			//fmt.Println("x, y:", x, y)
 			word := make([]any, numLetters)
 			for i := 0; i < numLetters; i++ {
 				word[i] = m.Values[y-(numLetters-i)][x+(numLetters-i)-1]
@@ -657,8 +633,6 @@ func (m *TGrid) GetAllDiagonal2(numLetters int) [][]any {
 			copy(wordReverse, word)
 			slices.Reverse(wordReverse)
 			allWords = append(allWords, wordReverse)
-			//fmt.Println(word)
-			//os.Exit(1)
 		}
 	}
 	return allWords
@@ -702,4 +676,141 @@ func (m *TGridPosition) NextPos() (int, int) {
 // ChangeDirection updates the direction of travel for the grid position.
 func (m *TGridPosition) ChangeDirection(direction *TDirection) {
 	m.Direction = direction
+}
+
+type CompactGrid struct {
+	width  int
+	height int
+	data   []byte // 2 bits per cell = 4 cells per byte
+}
+
+func NewCompactGrid(width, height int) *CompactGrid {
+	totalCells := width * height
+	numBytes := (totalCells + 3) / 4 // ceiling division
+	return &CompactGrid{width: width, height: height, data: make([]byte, numBytes)}
+}
+
+func (g *CompactGrid) Set(x, y int, value byte) {
+	idx := y*g.width + x
+	byteIdx := idx / 4
+	bitOffset := (idx % 4) * 2
+
+	// Clear the 2 bits, then set new value
+	g.data[byteIdx] &= ^(0x03 << bitOffset)
+	g.data[byteIdx] |= (value & 0x03) << bitOffset
+}
+
+func (g *CompactGrid) Get(x, y int) byte {
+	idx := y*g.width + x
+	byteIdx := idx / 4
+	bitOffset := (idx % 4) * 2
+	return (g.data[byteIdx] >> bitOffset) & 0x03
+}
+
+func (g *CompactGrid) ToString(minX, maxX, minY, maxY int) string {
+	var sb strings.Builder
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			val := g.Get(x, y)
+			if val == 0 {
+				sb.WriteByte('.')
+			} else if val == 1 {
+				sb.WriteByte('R')
+			} else if val == 2 {
+				sb.WriteByte('G')
+			} else {
+				sb.WriteByte('?')
+			}
+		}
+		sb.WriteByte('\n')
+	}
+	return sb.String()
+}
+
+func (g *CompactGrid) FillEnclosedArea(minX, maxX, minY, maxY int, fillValue byte, boundaryMap map[byte]bool) int {
+	count := 0
+	for y := minY; y <= maxY; y++ {
+		inside := false
+		lastBoundary := false
+
+		for x := minX; x <= maxX; x++ {
+			val := g.Get(x, y)
+
+			if boundaryMap[val] {
+				if !lastBoundary {
+					inside = !inside
+				}
+				lastBoundary = true
+			} else {
+				lastBoundary = false
+				if inside && val == 0 {
+					count++
+					g.Set(x, y, fillValue)
+				}
+			}
+		}
+	}
+	return count
+}
+
+type SparseGrid struct {
+	data map[[2]int]byte // key: [x,y], value: 'R' or 'G'
+}
+
+func NewSparseGrid() *SparseGrid {
+	return &SparseGrid{data: make(map[[2]int]byte)}
+}
+
+func (g *SparseGrid) Set(x, y int, value byte) {
+	if value == 0 {
+		delete(g.data, [2]int{x, y})
+	} else {
+		g.data[[2]int{x, y}] = value
+	}
+}
+
+func (g *SparseGrid) Get(x, y int) byte {
+	return g.data[[2]int{x, y}] // returns 0 if not found
+}
+
+func (g *SparseGrid) ToString(minX, maxX, minY, maxY int) string {
+	var sb strings.Builder
+	for y := minY; y <= maxY; y++ {
+		for x := minX; x <= maxX; x++ {
+			val := g.Get(x, y)
+			if val == 0 {
+				sb.WriteByte('.')
+			} else {
+				sb.WriteByte(val)
+			}
+		}
+		sb.WriteByte('\n')
+	}
+	return sb.String()
+}
+
+func (g *SparseGrid) FillEnclosedArea(minX, maxX, minY, maxY int, fillValue byte, boundaryMap map[byte]bool) int {
+	count := 0
+	for y := minY; y <= maxY; y++ {
+		inside := false
+		lastBoundary := false
+
+		for x := minX; x <= maxX; x++ {
+			val := g.Get(x, y)
+
+			if boundaryMap[val] {
+				if !lastBoundary {
+					inside = !inside
+				}
+				lastBoundary = true
+			} else {
+				lastBoundary = false
+				if inside && val == 0 {
+					count++
+					g.Set(x, y, fillValue)
+				}
+			}
+		}
+	}
+	return count
 }

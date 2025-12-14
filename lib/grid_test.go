@@ -220,6 +220,83 @@ func TestGridInit(t *testing.T) {
 	}
 }
 
+func TestGridSetup(t *testing.T) {
+	// Test with int values
+	g := &TGrid{}
+	g.Setup(3, 2, true, 0)
+
+	// Check dimensions
+	if len(g.Values) != 2 {
+		t.Errorf("Setup(3, 2, true, 0): expected height 2, got %d", len(g.Values))
+	}
+	if len(g.Values) > 0 && len(g.Values[0]) != 3 {
+		t.Errorf("Setup(3, 2, true, 0): expected width 3, got %d", len(g.Values[0]))
+	}
+
+	// Check IsInt flag
+	if !g.IsInt {
+		t.Error("Setup(3, 2, true, 0): expected IsInt to be true")
+	}
+
+	// Check all cells are initialized to default value
+	for y := 0; y < 2; y++ {
+		for x := 0; x < 3; x++ {
+			if g.Values[y][x] != 0 {
+				t.Errorf("Setup(3, 2, true, 0): cell (%d,%d) = %v, want 0", x, y, g.Values[y][x])
+			}
+		}
+	}
+
+	// Test with rune values
+	g = &TGrid{}
+	g.Setup(4, 3, false, '.')
+
+	// Check dimensions
+	if len(g.Values) != 3 {
+		t.Errorf("Setup(4, 3, false, '.'): expected height 3, got %d", len(g.Values))
+	}
+	if len(g.Values) > 0 && len(g.Values[0]) != 4 {
+		t.Errorf("Setup(4, 3, false, '.'): expected width 4, got %d", len(g.Values[0]))
+	}
+
+	// Check IsInt flag
+	if g.IsInt {
+		t.Error("Setup(4, 3, false, '.'): expected IsInt to be false")
+	}
+
+	// Check all cells are initialized to default value
+	for y := 0; y < 3; y++ {
+		for x := 0; x < 4; x++ {
+			if g.Values[y][x] != '.' {
+				t.Errorf("Setup(4, 3, false, '.'): cell (%d,%d) = %v, want '.'", x, y, g.Values[y][x])
+			}
+		}
+	}
+
+	// Test with different default int value
+	g = &TGrid{}
+	g.Setup(2, 2, true, 5)
+
+	for y := 0; y < 2; y++ {
+		for x := 0; x < 2; x++ {
+			if g.Values[y][x] != 5 {
+				t.Errorf("Setup(2, 2, true, 5): cell (%d,%d) = %v, want 5", x, y, g.Values[y][x])
+			}
+		}
+	}
+
+	// Test with 1x1 grid
+	g = &TGrid{}
+	g.Setup(1, 1, true, -1)
+
+	if len(g.Values) != 1 || len(g.Values[0]) != 1 {
+		t.Errorf("Setup(1, 1, true, -1): expected 1x1 grid")
+	}
+	if g.Values[0][0] != -1 {
+		t.Errorf("Setup(1, 1, true, -1): cell (0,0) = %v, want -1", g.Values[0][0])
+	}
+}
+
 func TestGridGetIntRow(t *testing.T) {
 	g := &TGrid{}
 	tests := []TTest{
@@ -955,5 +1032,409 @@ func TestGetAdjacentListEmptyGrid(t *testing.T) {
 	list := g.GetAdjacentList(0, 0, 'X')
 	if len(list) != 0 {
 		t.Errorf("single cell grid expected empty list, got %v", list)
+	}
+}
+
+// CompactGrid tests
+
+func TestNewCompactGrid(t *testing.T) {
+	tests := []struct {
+		name   string
+		width  int
+		height int
+	}{
+		{"small grid", 3, 3},
+		{"rectangular grid", 5, 3},
+		{"large grid", 10, 10},
+		{"single cell", 1, 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			g := NewCompactGrid(tt.width, tt.height)
+			if g == nil {
+				t.Fatal("NewCompactGrid returned nil")
+			}
+			if g.width != tt.width {
+				t.Errorf("expected width %d, got %d", tt.width, g.width)
+			}
+			if g.height != tt.height {
+				t.Errorf("expected height %d, got %d", tt.height, g.height)
+			}
+			expectedBytes := (tt.width*tt.height + 3) / 4
+			if len(g.data) != expectedBytes {
+				t.Errorf("expected %d bytes, got %d", expectedBytes, len(g.data))
+			}
+		})
+	}
+}
+
+func TestCompactGridSetGet(t *testing.T) {
+	g := NewCompactGrid(5, 5)
+
+	tests := []struct {
+		x     int
+		y     int
+		value byte
+	}{
+		{0, 0, 0},
+		{0, 0, 1},
+		{0, 0, 2},
+		{0, 0, 3},
+		{1, 1, 1},
+		{2, 2, 2},
+		{3, 3, 3},
+		{4, 4, 0},
+	}
+
+	for _, tt := range tests {
+		g.Set(tt.x, tt.y, tt.value)
+		got := g.Get(tt.x, tt.y)
+		if got != tt.value {
+			t.Errorf("Set(%d,%d,%d) then Get(%d,%d) = %d, want %d",
+				tt.x, tt.y, tt.value, tt.x, tt.y, got, tt.value)
+		}
+	}
+}
+
+func TestCompactGridSetGetMultipleCells(t *testing.T) {
+	g := NewCompactGrid(4, 4)
+
+	// Set different values at different positions
+	g.Set(0, 0, 1)
+	g.Set(1, 0, 2)
+	g.Set(2, 0, 3)
+	g.Set(3, 0, 0)
+	g.Set(0, 1, 2)
+	g.Set(1, 1, 1)
+
+	// Verify all values are correct
+	if got := g.Get(0, 0); got != 1 {
+		t.Errorf("Get(0,0) = %d, want 1", got)
+	}
+	if got := g.Get(1, 0); got != 2 {
+		t.Errorf("Get(1,0) = %d, want 2", got)
+	}
+	if got := g.Get(2, 0); got != 3 {
+		t.Errorf("Get(2,0) = %d, want 3", got)
+	}
+	if got := g.Get(3, 0); got != 0 {
+		t.Errorf("Get(3,0) = %d, want 0", got)
+	}
+	if got := g.Get(0, 1); got != 2 {
+		t.Errorf("Get(0,1) = %d, want 2", got)
+	}
+	if got := g.Get(1, 1); got != 1 {
+		t.Errorf("Get(1,1) = %d, want 1", got)
+	}
+}
+
+func TestCompactGridOverwrite(t *testing.T) {
+	g := NewCompactGrid(3, 3)
+
+	// Set a value, then overwrite it
+	g.Set(1, 1, 1)
+	if got := g.Get(1, 1); got != 1 {
+		t.Errorf("initial Set: Get(1,1) = %d, want 1", got)
+	}
+
+	g.Set(1, 1, 2)
+	if got := g.Get(1, 1); got != 2 {
+		t.Errorf("after overwrite: Get(1,1) = %d, want 2", got)
+	}
+
+	g.Set(1, 1, 3)
+	if got := g.Get(1, 1); got != 3 {
+		t.Errorf("after second overwrite: Get(1,1) = %d, want 3", got)
+	}
+}
+
+func TestCompactGridToString(t *testing.T) {
+	g := NewCompactGrid(3, 3)
+
+	// Create a simple pattern
+	g.Set(0, 0, 1) // R
+	g.Set(1, 0, 2) // G
+	g.Set(2, 0, 0) // .
+	g.Set(0, 1, 0) // .
+	g.Set(1, 1, 1) // R
+	g.Set(2, 1, 2) // G
+
+	s := g.ToString(0, 2, 0, 1)
+	expected := "RG.\n.RG\n"
+	if s != expected {
+		t.Errorf("ToString() = %q, want %q", s, expected)
+	}
+}
+
+func TestCompactGridToStringAllValues(t *testing.T) {
+	g := NewCompactGrid(4, 1)
+	g.Set(0, 0, 0) // .
+	g.Set(1, 0, 1) // R
+	g.Set(2, 0, 2) // G
+	g.Set(3, 0, 3) // ?
+
+	s := g.ToString(0, 3, 0, 0)
+	expected := ".RG?\n"
+	if s != expected {
+		t.Errorf("ToString() = %q, want %q", s, expected)
+	}
+}
+
+func TestCompactGridFillEnclosedArea(t *testing.T) {
+	g := NewCompactGrid(5, 3)
+
+	// Create a pattern: boundary on left and right
+	// .R...
+	// .R...
+	// .R...
+	for y := 0; y < 3; y++ {
+		g.Set(1, y, 1) // R boundary
+	}
+
+	boundaryMap := map[byte]bool{1: true}
+	count := g.FillEnclosedArea(0, 4, 0, 2, 2, boundaryMap)
+
+	// Should fill the area between x=2 and x=4 (3 cells per row * 3 rows = 9 cells)
+	if count != 9 {
+		t.Errorf("FillEnclosedArea() filled %d cells, want 9", count)
+	}
+
+	// Verify the filled cells
+	for y := 0; y < 3; y++ {
+		for x := 2; x <= 4; x++ {
+			if got := g.Get(x, y); got != 2 {
+				t.Errorf("Get(%d,%d) = %d after fill, want 2", x, y, got)
+			}
+		}
+	}
+}
+
+func TestCompactGridFillEnclosedAreaMultipleBoundaries(t *testing.T) {
+	g := NewCompactGrid(7, 1)
+
+	// Pattern: .R..R..
+	g.Set(1, 0, 1) // boundary
+	g.Set(4, 0, 1) // boundary
+
+	boundaryMap := map[byte]bool{1: true}
+	count := g.FillEnclosedArea(0, 6, 0, 0, 2, boundaryMap)
+
+	// Should fill cells between boundaries: x=2,3 (2 cells) and nothing after x=4
+	if count != 2 {
+		t.Errorf("FillEnclosedArea() filled %d cells, want 2", count)
+	}
+
+	// Verify filled cells
+	if got := g.Get(2, 0); got != 2 {
+		t.Errorf("Get(2,0) = %d, want 2", got)
+	}
+	if got := g.Get(3, 0); got != 2 {
+		t.Errorf("Get(3,0) = %d, want 2", got)
+	}
+}
+
+// SparseGrid tests
+
+func TestNewSparseGrid(t *testing.T) {
+	g := NewSparseGrid()
+	if g == nil {
+		t.Fatal("NewSparseGrid returned nil")
+	}
+	if g.data == nil {
+		t.Error("NewSparseGrid data map is nil")
+	}
+	if len(g.data) != 0 {
+		t.Errorf("NewSparseGrid should start empty, got %d entries", len(g.data))
+	}
+}
+
+func TestSparseGridSetGet(t *testing.T) {
+	g := NewSparseGrid()
+
+	tests := []struct {
+		x     int
+		y     int
+		value byte
+	}{
+		{0, 0, 1},
+		{5, 5, 2},
+		{-10, -10, 3},
+		{100, 100, 'R'},
+		{-50, 50, 'G'},
+	}
+
+	for _, tt := range tests {
+		g.Set(tt.x, tt.y, tt.value)
+		got := g.Get(tt.x, tt.y)
+		if got != tt.value {
+			t.Errorf("Set(%d,%d,%d) then Get(%d,%d) = %d, want %d",
+				tt.x, tt.y, tt.value, tt.x, tt.y, got, tt.value)
+		}
+	}
+}
+
+func TestSparseGridGetEmpty(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Getting a value that was never set should return 0
+	if got := g.Get(0, 0); got != 0 {
+		t.Errorf("Get(0,0) on empty grid = %d, want 0", got)
+	}
+	if got := g.Get(100, 100); got != 0 {
+		t.Errorf("Get(100,100) on empty grid = %d, want 0", got)
+	}
+}
+
+func TestSparseGridSetZeroDeletes(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Set a value
+	g.Set(5, 5, 'R')
+	if got := g.Get(5, 5); got != 'R' {
+		t.Errorf("Get(5,5) = %d, want 'R'", got)
+	}
+	if len(g.data) != 1 {
+		t.Errorf("expected 1 entry in data, got %d", len(g.data))
+	}
+
+	// Set to 0 should delete the entry
+	g.Set(5, 5, 0)
+	if got := g.Get(5, 5); got != 0 {
+		t.Errorf("Get(5,5) after delete = %d, want 0", got)
+	}
+	if len(g.data) != 0 {
+		t.Errorf("expected 0 entries in data after delete, got %d", len(g.data))
+	}
+}
+
+func TestSparseGridOverwrite(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Set, overwrite, overwrite again
+	g.Set(1, 1, 'R')
+	if got := g.Get(1, 1); got != 'R' {
+		t.Errorf("initial Set: Get(1,1) = %d, want 'R'", got)
+	}
+
+	g.Set(1, 1, 'G')
+	if got := g.Get(1, 1); got != 'G' {
+		t.Errorf("after overwrite: Get(1,1) = %d, want 'G'", got)
+	}
+
+	g.Set(1, 1, 'B')
+	if got := g.Get(1, 1); got != 'B' {
+		t.Errorf("after second overwrite: Get(1,1) = %d, want 'B'", got)
+	}
+
+	// Should still have only 1 entry
+	if len(g.data) != 1 {
+		t.Errorf("expected 1 entry in data, got %d", len(g.data))
+	}
+}
+
+func TestSparseGridToString(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Create a simple pattern
+	g.Set(0, 0, 'R')
+	g.Set(1, 0, 'G')
+	g.Set(2, 0, 'B')
+	g.Set(0, 1, 'X')
+	g.Set(2, 1, 'Y')
+
+	s := g.ToString(0, 2, 0, 1)
+	expected := "RGB\nX.Y\n"
+	if s != expected {
+		t.Errorf("ToString() = %q, want %q", s, expected)
+	}
+}
+
+func TestSparseGridToStringAllEmpty(t *testing.T) {
+	g := NewSparseGrid()
+
+	s := g.ToString(0, 2, 0, 1)
+	expected := "...\n...\n"
+	if s != expected {
+		t.Errorf("ToString() on empty grid = %q, want %q", s, expected)
+	}
+}
+
+func TestSparseGridToStringNegativeCoordinates(t *testing.T) {
+	g := NewSparseGrid()
+
+	g.Set(-2, -1, 'A')
+	g.Set(0, 0, 'B')
+
+	s := g.ToString(-2, 0, -1, 0)
+	expected := "A..\n..B\n"
+	if s != expected {
+		t.Errorf("ToString() with negative coords = %q, want %q", s, expected)
+	}
+}
+
+func TestSparseGridFillEnclosedArea(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Create a pattern: boundary on left and right
+	// .R...
+	// .R...
+	// .R...
+	for y := 0; y < 3; y++ {
+		g.Set(1, y, 'R')
+	}
+
+	boundaryMap := map[byte]bool{'R': true}
+	count := g.FillEnclosedArea(0, 4, 0, 2, 'G', boundaryMap)
+
+	// Should fill the area between x=2 and x=4 (3 cells per row * 3 rows = 9 cells)
+	if count != 9 {
+		t.Errorf("FillEnclosedArea() filled %d cells, want 9", count)
+	}
+
+	// Verify the filled cells
+	for y := 0; y < 3; y++ {
+		for x := 2; x <= 4; x++ {
+			if got := g.Get(x, y); got != 'G' {
+				t.Errorf("Get(%d,%d) = %c after fill, want 'G'", x, y, got)
+			}
+		}
+	}
+}
+
+func TestSparseGridFillEnclosedAreaMultipleBoundaries(t *testing.T) {
+	g := NewSparseGrid()
+
+	// Pattern: .R..R..
+	g.Set(1, 0, 'R')
+	g.Set(4, 0, 'R')
+
+	boundaryMap := map[byte]bool{'R': true}
+	count := g.FillEnclosedArea(0, 6, 0, 0, 'G', boundaryMap)
+
+	// Should fill cells between boundaries: x=2,3 (2 cells)
+	if count != 2 {
+		t.Errorf("FillEnclosedArea() filled %d cells, want 2", count)
+	}
+
+	// Verify filled cells
+	if got := g.Get(2, 0); got != 'G' {
+		t.Errorf("Get(2,0) = %c, want 'G'", got)
+	}
+	if got := g.Get(3, 0); got != 'G' {
+		t.Errorf("Get(3,0) = %c, want 'G'", got)
+	}
+}
+
+func TestSparseGridFillEnclosedAreaNoFill(t *testing.T) {
+	g := NewSparseGrid()
+
+	// No boundaries, so everything is either outside or we're never "inside"
+	boundaryMap := map[byte]bool{'R': true}
+	count := g.FillEnclosedArea(0, 4, 0, 2, 'G', boundaryMap)
+
+	// Should not fill anything
+	if count != 0 {
+		t.Errorf("FillEnclosedArea() with no boundaries filled %d cells, want 0", count)
 	}
 }
