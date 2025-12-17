@@ -162,6 +162,10 @@ func PowInt(x, y int) int {
 	return int(math.Pow(float64(x), float64(y)))
 }
 
+func PowByte(x, y byte) byte {
+	return byte(math.Pow(float64(x), float64(y)))
+}
+
 // ConcatInts concatenates the decimal representations of x and y, returning
 // the combined value as an int.
 func ConcatInts(x, y int) int {
