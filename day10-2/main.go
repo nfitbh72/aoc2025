@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	eulerlib "github.com/nfitbh72/aoc2025/lib"
 )
@@ -32,6 +33,12 @@ func (m *Problem) GenerateShortAnswer() string {
 	return eulerlib.IntToStr(m.Solve(eulerlib.GetFileInputTxt("input-test.txt")))
 }
 
+const (
+	StatusInProgress = 0
+	StatusSuccess    = 1
+	StatusFailed     = 2
+)
+
 type TMachine struct {
 	MachineNumber int
 	//LightsNeeded               []bool
@@ -43,6 +50,9 @@ type TMachine struct {
 	AnyFound                   bool
 	maxPresses                 []int
 	MaxPressAllButtons         int
+	TotalPresses               int
+	Status                     int
+	mu                         sync.Mutex
 }
 
 func (m *Problem) NewMachine(line string) *TMachine {
@@ -139,6 +149,72 @@ func (m *TMachine) GetTotalButtonPresses(buttonPresses []int) int {
 	return sum
 }
 
+func (m *TMachine) SetStatus(status int) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.Status = status
+}
+
+func (m *TMachine) GetStatus() int {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return m.Status
+}
+
+// BFS helper functions
+
+// joltageKey creates a string key from joltage array for visited map
+func joltageKey(joltages []int) string {
+	return fmt.Sprint(joltages)
+}
+
+// joltagesEqual checks if two joltage arrays are equal
+func joltagesEqual(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// copyAndPress creates a new joltage array with button pressed once
+func copyAndPress(joltages []int, button []int) []int {
+	newJoltages := make([]int, len(joltages))
+	copy(newJoltages, joltages)
+	for _, pos := range button {
+		if pos < len(newJoltages) {
+			newJoltages[pos]++
+		}
+	}
+	return newJoltages
+}
+
+// anyExceedsTarget checks if any joltage exceeds the target
+func anyExceedsTarget(joltages, target []int) bool {
+	for i := range joltages {
+		if joltages[i] > target[i] {
+			return true
+		}
+	}
+	return false
+}
+
+// SolveWithBFS uses your original brute force algorithm
+func (m *TMachine) SolveWithBFS() (int, bool) {
+	currentJoltage := make([]int, len(m.JoltageNeeded))
+	buttonPresses := make([]int, len(m.Buttons))
+	m.SmashButtons(0, buttonPresses, currentJoltage)
+
+	if m.AnyFound {
+		return m.SmallestButtonPressesCount, true
+	}
+	return 0, false
+}
+
 func (m *TMachine) SmashButtons(buttonNumber int, buttonPressesOriginal []int, currentJoltageOriginal []int) {
 	//take a copy of currentJoltage and buttonPresses
 	currentJoltage := make([]int, len(currentJoltageOriginal))
@@ -163,6 +239,7 @@ func (m *TMachine) SmashButtons(buttonNumber int, buttonPressesOriginal []int, c
 			currentJoltage[joltageIdx]++
 		}
 		buttonPresses[buttonNumber]++
+		m.TotalPresses++
 		if eulerlib.GetDebugger().IsDebug() {
 			fmt.Println(m.MachineNumber, buttonNumber, "pressed button", buttonPresses, currentJoltage)
 		}
@@ -208,13 +285,109 @@ func (m *TMachine) SmashButtons(buttonNumber int, buttonPressesOriginal []int, c
 	}
 }
 
+func displayProgress(machines []*TMachine, done chan bool) {
+	ticker := time.NewTicker(5 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-done:
+			return
+		case <-ticker.C:
+			// Clear screen and move to top
+			fmt.Print("\033[2J\033[H")
+
+			// Calculate max total presses for scaling
+			maxPresses := 1
+			for _, m := range machines {
+				if m.TotalPresses > maxPresses {
+					maxPresses = m.TotalPresses
+				}
+			}
+
+			// Display in 3 columns
+			const termWidth = 160
+			const numCols = 3
+			const colWidth = termWidth / numCols
+
+			numRows := (len(machines) + numCols - 1) / numCols
+
+			for row := 0; row < numRows; row++ {
+				for col := 0; col < numCols; col++ {
+					idx := col*numRows + row
+					if idx >= len(machines) {
+						continue
+					}
+
+					m := machines[idx]
+					status := m.GetStatus()
+
+					// Format: "M123 "
+					prefix := fmt.Sprintf("M%-3d ", m.MachineNumber)
+
+					var display string
+					if status == StatusSuccess {
+						display = prefix + "OK"
+					} else if status == StatusFailed {
+						display = prefix + "FAIL"
+					} else {
+						// In progress - show progress bar
+						barWidth := colWidth - len(prefix) - 2
+						numHashes := 0
+						if maxPresses > 0 {
+							numHashes = (m.TotalPresses * barWidth) / maxPresses
+						}
+						if numHashes > barWidth {
+							numHashes = barWidth
+						}
+						bar := ""
+						for i := 0; i < numHashes; i++ {
+							bar += "#"
+						}
+						display = prefix + bar
+					}
+
+					// Pad to column width
+					for len(display) < colWidth {
+						display += " "
+					}
+					fmt.Print(display)
+				}
+				fmt.Println()
+			}
+
+			// Display summary
+			inProgress := 0
+			succeeded := 0
+			failed := 0
+			for _, m := range machines {
+				switch m.GetStatus() {
+				case StatusInProgress:
+					inProgress++
+				case StatusSuccess:
+					succeeded++
+				case StatusFailed:
+					failed++
+				}
+			}
+			fmt.Printf("\nTotal: %d | In Progress: %d | Success: %d | Failed: %d\n",
+				len(machines), inProgress, succeeded, failed)
+		}
+	}
+}
+
 func (m *Problem) Solve(lines []string) int {
 	machines := []*TMachine{}
 	for i, line := range lines {
 		machine := m.NewMachine(line)
 		machine.MachineNumber = i
+		machine.SetStatus(StatusInProgress)
 		machines = append(machines, machine)
 	}
+
+	// Start progress display goroutine
+	done := make(chan bool)
+	go displayProgress(machines, done)
 
 	// Use WaitGroup to wait for all goroutines to complete
 	var wg sync.WaitGroup
@@ -229,31 +402,36 @@ func (m *Problem) Solve(lines []string) int {
 			defer wg.Done()
 
 			machine := machines[machineIdx]
-			fmt.Println(machine)
-			currentJoltage := make([]int, len(machine.JoltageNeeded))
-			buttonPresses := make([]int, len(machine.Buttons))
-			machine.SmashButtons(0, buttonPresses, currentJoltage)
 
-			if machine.AnyFound {
-				localSum := 0
-				for _, v := range machine.SmallestButtonPresses {
-					localSum += v
-				}
-				// Safely increment countFound and add to sum (chances of collision are very low, but still possible)
-				// happens only once per machine
+			// Use BFS algorithm instead of recursive approach
+			totalPresses, found := machine.SolveWithBFS()
+
+			if found {
+				machine.SetStatus(StatusSuccess)
+				// Safely increment countFound and add to sum
 				mu.Lock()
 				countFound++
-				fmt.Println(machine.MachineNumber, "completed!", countFound, "found so far")
-				sum += localSum
+				sum += totalPresses
 				mu.Unlock()
 			} else {
-				fmt.Printf("%d did not find a solution! (%d found so far)\n", machine.MachineNumber, countFound)
+				machine.SetStatus(StatusFailed)
 			}
 		}(i)
 	}
 
 	// Wait for all goroutines to finish
 	wg.Wait()
+
+	// Stop progress display
+	done <- true
+
+	// Final display
+	fmt.Print("\033[2J\033[H")
+	fmt.Printf("All machines completed!\n")
+	fmt.Printf("Total machines: %d\n", len(machines))
+	fmt.Printf("Successful: %d\n", countFound)
+	fmt.Printf("Failed: %d\n", len(machines)-countFound)
+	fmt.Printf("Sum of button presses: %d\n", sum)
 
 	return sum
 }
