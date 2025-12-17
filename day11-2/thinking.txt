@@ -1,0 +1,75 @@
+a device can be linked to multiple devices
+
+we want to know how many chains end in out that also contain dac and fft
+
+so how about we go back to map[string]string for the cache, it's a bit crude, but that's ok
+
+where the cache 
+
+we want to cache how many chains linked devices end in "out"
+
+
+map[string]map[string]bool
+
+e.g.
+
+a -> b
+b -> c
+b -> d
+c -> out
+d -> out
+
+a -> b -> c = true
+	   -> d = true
+
+
+
+
+svr_aaa_fft_ccc_ddd_hub_fff_ggg
+svr_aaa_fft_ccc_ddd_hub_fff_hhh
+svr_aaa_fft_ccc_eee_dac_hub_fff_ggg
+svr_aaa_fft_ccc_eee_dac_hub_fff_hhh
+svr_bbb_tty_fft_ccc_ddd_hub_fff_ggg
+svr_bbb_tty_fft_ccc_ddd_hub_fff_hhh
+svr_bbb_tty_fft_ccc_eee_dac_hub_fff_ggg
+svr_bbb_tty_fft_ccc_eee_dac_hub_fff_hhh
+
+
+svr_aaa_fft_ccc_ddd_hub_fff_ggg
+svr_aaa_fft_ccc_ddd_hub_fff_hhh
+svr_aaa_fft_ccc_eee_dac_fff_ggg
+svr_aaa_fft_ccc_eee_dac_fff_hhh
+svr_bbb_tty_ccc_ddd_hub_fff_ggg
+svr_bbb_tty_ccc_ddd_hub_fff_hhh
+svr_bbb_tty_ccc_eee_dac_fff_ggg
+svr_bbb_tty_ccc_eee_dac_fff_hhh
+
+aaa_fft_ccc_ddd_hub_fff_ggg_out
+aaa_fft_ccc_ddd_hub_fff_hhh_out
+aaa_fft_ccc_eee_dac_fff_fff_ggg_out
+aaa_fft_ccc_eee_dac_fff_fff_hhh_out
+bbb_tty_ccc_ccc_ddd_hub_fff_ggg_out
+bbb_tty_ccc_ccc_ddd_hub_fff_hhh_out
+bbb_tty_ccc_ccc_eee_dac_fff_fff_ggg_out
+bbb_tty_ccc_ccc_eee_dac_fff_fff_hhh_out
+
+aaa_fft_ccc_ddd_hub_fff_ggg_out
+aaa_fft_ccc_ddd_hub_fff_hhh_out
+aaa_fft_ccc_eee_dac_fff_ggg_out
+aaa_fft_ccc_eee_dac_fff_hhh_out
+bbb_tty_ccc_ddd_hub_fff_ggg_out
+bbb_tty_ccc_ddd_hub_fff_hhh_out
+bbb_tty_ccc_eee_dac_fff_ggg_out
+bbb_tty_ccc_eee_dac_fff_hhh_out
+
+no cache:
+ddd_hub_fff_ggg_out
+ddd_hub_fff_hhh_out
+eee_dac_fff_ggg_out
+eee_dac_fff_hhh_out
+
+cache:
+ddd_hub_fff_ggg_out
+ddd_hub_fff_hhh_out
+eee_dac_fff_fff_ggg_out
+eee_dac_fff_fff_hhh_out
